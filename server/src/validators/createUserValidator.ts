@@ -1,4 +1,5 @@
-import { UserRegisterInput } from "src/resolvers/Input"
+import { UserRegisterInput } from "../resolvers/Input";
+
 
 export const createUserValidator = (options: UserRegisterInput , password : string) => {
     let errors = [];

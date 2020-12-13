@@ -5,10 +5,15 @@ import { User } from "../entities/User";
 import { createAccessToken } from "../constants/auth";
 
 export const isAuth: MiddlewareFn<MyContext> = async ({context} , next) => {
-    const accessToken =  context.req.cookies["access-token"];
-    const refreshToken = context.req.cookies["refresh-token"];
+    const { req , res } = context;
+    const accessToken =  req.cookies["access-token"];
+    const refreshToken = req.cookies["refresh-token"];
     if(!accessToken && !refreshToken){
-        return next();
+        throw new Error('لطفا وارد سایت شوید')
+        // return context.res.status(400).send({
+        //     status: false,
+        //     message: 'لطفا وارد سایت شوید',
+        // });
     }
 
     try {
@@ -28,7 +33,7 @@ export const isAuth: MiddlewareFn<MyContext> = async ({context} , next) => {
     if(!user || user.tokenVersion !== data.tokenVersion ){
         return next();
     }
-    await context.res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
+    await res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
     context.payload = { userId : user.id } as any
     return next();
 }

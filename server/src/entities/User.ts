@@ -1,6 +1,7 @@
 import { Token } from "./Token";
 import { Field, ObjectType  } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToOne, ManyToOne } from "typeorm";
+import { Role } from "./Role";
 
 @ObjectType()
 @Entity()
@@ -14,13 +15,13 @@ export class User extends BaseEntity {
     @Column({unique : true})
     mobile!: string;
 
-    @Field()
+    @Field({nullable : true})
     @Column({ nullable : true})
     name: string;
 
-    @Field() 
+    @Field({nullable : true}) 
     @Column({ nullable : true })
-    email: string;
+    email?: string;
 
     @Field()
     @Column()
@@ -35,14 +36,21 @@ export class User extends BaseEntity {
     tokenVersion: number;
 
     @Field()
-    @Column('int')
+    @Column()
+    roleId!: number;
+
+    
+    @Field(() => Role)
+    @ManyToOne(() => Role)
+    role: Role;
+
+    @Field()
+    @Column()
     tokenId: number;
 
-    @OneToOne(() => Token, (token) => token.creator , {nullable : true})
+    @Field()
+    @OneToOne(() => Token,{nullable : true})
     token: Token;
-
-    // @OneToMany(() => Message, (message) => message.sender)
-    // messages: Message[];
 
     @Field(() => String)
     @CreateDateColumn()

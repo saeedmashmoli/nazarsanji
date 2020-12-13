@@ -28,6 +28,6 @@
   ],
   "include": [
     "./src/**/*.tsx",
-    "./src/**/*.ts"
+    "./src/**/*.ts", "PermissionRole.ts"
   ]
 }

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver, UseMiddleware  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import { User } from '../entities/User';
 import {MyContext} from '../types';
 import {ChangePasswordInput, UserRegisterInput} from './Input';
@@ -10,16 +10,10 @@ import { getConnection } from 'typeorm';
 import { Token } from '../entities/Token';
 import sms from '../constants/sms';
 import { changePasswordValidator } from '../validators/changePasswordValidator';
+import { FieldError } from './response';
+import { Role } from '../entities/Role';
 
 
-
-@ObjectType()
-class FieldError {
-    @Field()
-    field: string;
-    @Field()
-    message: string;
-}
 
 @ObjectType()
 class UserResponse {
@@ -32,8 +26,13 @@ class UserResponse {
 }
 
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+
+    @FieldResolver(() => User)
+    role( 
+      @Root() user : User,
+    ){return Role.findOne(user.roleId)}
 
     @Mutation(() => Boolean)
     async revokeTokenVersionForUser(
@@ -46,7 +45,8 @@ export class UserResolver {
     @Query(() => User , {nullable : true})
     @UseMiddleware(isAuth)
     async me(@Ctx() { payload } : MyContext){
-        return await User.findOne({ where : {id : payload?.userId}});
+        const user = await User.findOne({ where : {id : payload?.userId}})
+        return user;
     }
 
     @Mutation(() => UserResponse)
@@ -133,7 +133,6 @@ export class UserResolver {
         if(errors.length !== 0){
             return { status : false , errors }
         }
-        console.log(user?.tokenId)
         res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
         res.cookie("refresh-token",{token : await createRefreshToken(user!)} , { httpOnly : true });
         return {user ,status: true};

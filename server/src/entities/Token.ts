@@ -16,10 +16,11 @@ export class Token extends BaseEntity {
 
     @Field()
     @Column('int')
-    creatorId: number;
+    creatorId!: number;
 
     @OneToOne(() => User, (user) => user.token)
     creator: User;
+    
 
     @Field()
     @Column('boolean',{ default : 0})
