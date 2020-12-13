@@ -8,12 +8,16 @@
 	import Dashboard from './pages/Dashboard.svelte';
 	import Login from './pages/Login.svelte';
 	import ForgetPassword from './pages/ForgetPassword.svelte';
-	import { MeQuery } from './graphql/queries/me';
+	import { MeQuery } from './graphql/user';
 	let loading = true;
 	onMount(async() => {
 		await client.query({ query : MeQuery })
-			.then(res => { $user = res.data.me })
-			.catch(error => { console.log(error) })
+			.then(res => { 
+				if(res.data){
+					$user = res.data.me
+				}
+			 })
+			.catch(error => {})
 		loading = false
 	}); 
 

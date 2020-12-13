@@ -1,6 +1,6 @@
 <script>
     import client from '../svelte-apollo';
-    import { loginMutation } from '../graphql/mutations/login';
+    import { loginMutation } from '../graphql/user';
     import { push } from 'svelte-spa-router';
     import {user} from '../stores'
     export let username = '';
