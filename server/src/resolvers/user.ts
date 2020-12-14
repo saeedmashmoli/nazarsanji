@@ -74,6 +74,7 @@ export class UserResolver {
     @Mutation( () => UserResponse)
     async changePassword(
         @Arg('input' ) input: ChangePasswordInput,
+        @Ctx() { res } : MyContext
     ) : Promise<UserResponse>{
         const { mobile , newPassword  } = input
         const user = await User.findOne({mobile});
@@ -82,9 +83,11 @@ export class UserResolver {
         if(errors) return { errors , status: false }
         // hash & update password
         let password = await bcrypt.hash(newPassword, 10);
-        await User.update({ mobile } , { password })
+        await User.update({ mobile } , { password });
         
-        return { status : true };
+        res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
+        res.cookie("refresh-token",{token : await createRefreshToken(user!)} , { httpOnly : true });
+        return { status : true, user };
     }
 
     @Mutation( () => UserResponse)
@@ -122,20 +125,23 @@ export class UserResolver {
                 field: 'username',
                 message : 'موبایل وارد شده در سامانه ثبت نام نکرده است'
             });
-        }
-        const valid = await bcrypt.compare(password , user!.password);
-        if(!valid){
-            errors.push({
-                field: 'password',
-                message : 'رمز عبور اشتباه است'
-            });
+        }else{
+            const valid = await bcrypt.compare(password , user!.password);
+            if(!valid){
+                errors.push({
+                    field: 'password',
+                    message : 'رمز عبور اشتباه است'
+                });
+            }
         }
         if(errors.length !== 0){
             return { status : false , errors }
         }
+
         res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
         res.cookie("refresh-token",{token : await createRefreshToken(user!)} , { httpOnly : true });
         return {user ,status: true};
+        
     }
 
     @Query(() => Boolean)

@@ -10,6 +10,11 @@ export const UserFragment = {
                 title
                 label
                 id
+                permissions {
+                    title
+                    label
+                    model
+                }
             }
         }
     `

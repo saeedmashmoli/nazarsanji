@@ -1,8 +1,8 @@
 <script>
     import client from '../svelte-apollo';
-    import { loginMutation } from '../graphql/user';
+    import { loginMutation , changePasswordRequest } from '../graphql/user';
     import { push } from 'svelte-spa-router';
-    import {user} from '../stores'
+    import { user , permissions } from '../stores'
     export let username = '';
     export let password = '';
     export let errorMessages;
@@ -10,17 +10,41 @@
     async function loginHanldler() {
         client.mutate({ 
             mutation : loginMutation , 
-            variables : { username, password}
+            variables : { username, password }
         }).then(result => {
             const data = result.data.login;
             if(data.status === false){
               errorMessages = data.errors
             }else{
               $user = data.user
-              push('/')
+              data.user.role.permissions.map(permit => {
+                $permissions.push(permit.title)
+              })
+              push('/dashboard')
             }
           }
         )
+    }
+    const updatePasswordRequest = () => {
+      if(username.trim() === ''){
+        errorMessages = [{
+          field: 'mobile',
+          message: 'لطفا شماره موبایل را وارد کنید'
+        }]
+      }else{
+        client.mutate({ 
+            mutation : changePasswordRequest , 
+            variables : { mobile : username}
+        }).then(result => {
+            const data = result.data.changePasswordRequest;
+            if(data.status === false){
+              errorMessages = data.errors
+            }else{
+              push('/forget-password')
+            }
+          }
+        )
+      }
     }
 </script>
 <style>
@@ -31,12 +55,17 @@
     height: 100vh;
   }
   .column {
-    margin: auto;
     height: 100vh;
+    margin: auto;
+    align-items: center;
+    display: flex;
+  flex-wrap: wrap;
+  align-content: center;
   }
   .section {
     background: #eee;
     border-radius: 8px;
+    width: 100%;
   }
   .submit {
     width: -webkit-fill-available;
@@ -48,11 +77,11 @@
     left: 0;
   }
 </style>
-<div class="is-full main is-vcentered">
-  <div class="column is-4 is-vcentered">
-    <section class="section is-vcentered">
+<div class="columns main is-vcentered">
+  <div class="column is-4">
+    <section class="section">
       <div class="has-text-centered">
-          <img width="240" height="240" src="images/logo.jpg">
+          <img width="240" height="240" alt src="images/logo.jpg">
       </div>
       {#if errorMessages}
         {#each errorMessages as errorMessage}
@@ -65,7 +94,7 @@
       <div class="field">
         <label class="label">موبایل</label>
         <div class="control has-icons-left">
-          <input class="input" type="text" bind:value={username}>
+          <input autocomplete="off" class="input" type="text" bind:value={username}>
           <span class="icon is-small is-left">
             <i class="fa fa-mobile"></i>
           </span>
@@ -74,17 +103,17 @@
       <div class="field">
         <label class="label">رمز عبور</label>
         <div class="control has-icons-left">
-          <input class="input" type="password" bind:value={password}>
+          <input autocomplete="off" class="input" type="password" bind:value={password}>
           <span class="icon is-small is-left">
             <i class="fa fa-key"></i>
           </span>
         </div>
       </div>
       <div class="has-text-centered">
-        <a class="button submit is-primary" on:click={loginHanldler}>ورود</a>
+        <button class="button submit is-primary" on:click={loginHanldler}>ورود</button>
       </div>
       <div class="has-text-centered mt-3">
-        <a href="/#/forgot-password">رمز عبورم را فراموش کردم</a>
+        <a on:click={updatePasswordRequest}>رمز عبورم را فراموش کردم</a>
       </div>
     </section>
   </div>

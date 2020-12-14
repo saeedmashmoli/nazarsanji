@@ -1,6 +1,7 @@
 import { Field, ObjectType  } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, ManyToMany, JoinTable } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToMany } from "typeorm";
 import { Permission } from "./Permission";
+import { PermissionRole } from "./PermissionRole";
 
 @ObjectType()
 @Entity()
@@ -22,9 +23,19 @@ export class Role extends BaseEntity {
     @Column({default : true})
     status!: boolean;
 
-    @ManyToMany(() => Permission)
-    @JoinTable()
-    permissions: Permission[];
+    @OneToMany(() => PermissionRole, permissionRole => permissionRole.role)
+    permissionConnection: Promise<PermissionRole[]>;
+
+    @Field(() => [Permission])
+    async permissions() : Promise<Permission[]> {
+        const permissionRoles = await PermissionRole.find({where : {roleId : this.id}});
+
+        const permits = [] as any ;
+        await permissionRoles.forEach( p => {
+            permits.push(p.permission)
+        })
+        return permits;
+    }
 
     @Field(() => String)
     @CreateDateColumn()

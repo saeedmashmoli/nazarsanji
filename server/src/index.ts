@@ -20,6 +20,7 @@ import { Answer } from './entities/Answer';
 import { Survey } from './entities/Survey';
 import { Question } from './entities/Question';
 import { Permission } from './entities/Permission';
+import { PermissionRole } from './entities/PermissionRole';
 
 // resolvers
 import { UserResolver } from './resolvers/user';
@@ -31,6 +32,7 @@ import { QuestionResolver } from './resolvers/question';
 import { SurveyResolver } from './resolvers/survey';
 import { AnswerResolver } from './resolvers/answer';
 
+
 const main = async () => {
     // const conn =
         await createConnection({
@@ -39,7 +41,7 @@ const main = async () => {
         logging: true,
         // synchronize: true,
         migrations: [path.join(__dirname,"./migrations/*.{ts,js}")],
-        entities: [User,Token,Role , Permission,Type, Question , Survey , Answer]
+        entities: [User,Token,Role , Permission,Type, Question , Survey , Answer ,PermissionRole]
     });
     // conn.runMigrations();
     const app = express();

@@ -60,5 +60,5 @@ export class ChangePasswordInput {
     @Field()
     mobile!: string;
     @Field()
-    code!: number;
+    code!: string;
 }

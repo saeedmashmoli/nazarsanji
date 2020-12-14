@@ -11,7 +11,7 @@ export const changePasswordValidator = async ( input: ChangePasswordInput , user
         }];
     }
     const token = await Token.findOne({where : {id : user.tokenId}});
-    if(token?.code !== code){
+    if(token?.code !== parseInt(code)){
         return [{
             field: "code",
             message: "کد تایید اشتباه است"
@@ -26,12 +26,12 @@ export const changePasswordValidator = async ( input: ChangePasswordInput , user
             message: "کد تایید منقضی شده است"
         }];
     }
-    await Token.update({ id: token.id } , { used : 1 })
     if(newPassword !== confirmPassword){
         return [{
             field: "confirmPassword",
-            message: "عدم تطابق رمزعبور و تایید آن"
+            message: "عدم تطابق رمز عبور و تایید آن"
         }];
     }
+    // await Token.update({ id: token.id } , { used : 1 })
     return null
 }

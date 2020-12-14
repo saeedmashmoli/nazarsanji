@@ -49,3 +49,141 @@
 body {
     font-family: 'Vazir' !important;
 }
+
+.py-1,
+.p-1 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.p-1,
+.px-1 {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+.py-2,
+.p-2 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+.p-2,
+.px-2 {
+    padding-right: 1.5rem !important;
+    padding-left: 1.5rem !important;
+}
+
+.menu-container {
+    direction: rtl;
+    position: fixed;
+    bottom: 0;
+    margin: auto;
+    min-width: 300px;
+    z-index: 10;
+    background-color: transparent;
+    transform: translateX(100%);
+    transition: all ease 0.5s;
+}
+
+@media(min-width: 1024px) {
+    .menu-container {
+        width: 16.66667%;
+        min-width: auto;
+        transform: translateX(0%);
+    }
+}
+
+* {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+#notfound {
+    background: url('/images/background-login.jpg');
+    background-size: cover;
+    position: relative;
+    height: 100vh;
+}
+
+#notfound .notfound {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.notfound {
+    max-width: 410px;
+    width: 100%;
+    text-align: center;
+}
+
+.notfound .notfound-404 {
+    height: 280px;
+    position: relative;
+    z-index: -1;
+}
+
+.notfound .notfound-404 h1 {
+    top: -20%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 230px;
+    margin: 0px;
+    font-weight: 900;
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    background: url('/images/error.jpg') no-repeat;
+    -webkit-text-fill-color: transparent;
+    background-size: cover;
+    background-position: center;
+}
+
+.notfound h2 {
+    color: #000;
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
+.notfound p {
+    color: #000;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 20px;
+    margin-top: 0px;
+}
+
+.notfound a {
+    font-size: 14px;
+    text-decoration: none;
+    text-transform: uppercase;
+    background: #0046d5;
+    display: inline-block;
+    padding: 15px 30px;
+    border-radius: 40px;
+    color: #fff;
+    font-weight: 700;
+    -webkit-box-shadow: 0px 4px 15px -5px #0046d5;
+    box-shadow: 0px 4px 15px -5px #0046d5;
+}
+
+@media only screen and (max-width: 767px) {
+    .notfound .notfound-404 {
+        height: 142px;
+    }
+    .notfound .notfound-404 h1 {
+        font-size: 112px;
+    }
+}

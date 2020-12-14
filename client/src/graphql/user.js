@@ -42,3 +42,30 @@ export const MeQuery = gql `
     }
     ${UserFragment.user}
 `
+
+export const changePasswordRequest = gql `
+    mutation ChangePasswordRequest($mobile : String!){
+        changePasswordRequest(mobile: $mobile){
+            status
+            errors{
+                ...ErrorFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+`
+export const updatePassword = gql `
+    mutation ChangePassword( $mobile : String! , $newPassword : String! , $confirmPassword : String! , $code : String! ){
+        changePassword(input: {mobile : $mobile, code : $code , newPassword : $newPassword , confirmPassword : $confirmPassword}){
+            status
+            user {
+                ...UserFragment
+            }
+            errors{
+                ...ErrorFragment
+            }
+        }
+    }
+    ${UserFragment.user}
+    ${ErrorFragments.error}
+`

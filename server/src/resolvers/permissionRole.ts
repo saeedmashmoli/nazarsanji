@@ -1,22 +1,24 @@
 import { Role } from '../entities/Role';
 import { Permission } from '../entities/Permission';
-import { Arg, Mutation, Query, Resolver, UseMiddleware  } from 'type-graphql';
-import { isAuth } from '../middlewares/isAuthMiddleware';
-import {isCan} from '../middlewares/isCanMiddleware';
+import { Arg, Mutation, Query, Resolver  } from 'type-graphql';
+// import { isAuth } from '../middlewares/isAuthMiddleware';
+// import {isCan} from '../middlewares/isCanMiddleware';
 
 
 @Resolver()
 export class PermissionRoleResolver {
     
     @Query(() => [Role])
-    @UseMiddleware(isAuth,isCan("role-show" , "Role"))
+    // @UseMiddleware(isAuth,isCan("role-show" , "Role"))
     async getRoles(
     ) : Promise<Role[]>{
-        return await Role.find({where : {status : true}})
+        const roles = await Role.find({where : {status : true}});
+        console.log(roles)
+        return roles
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth,isCan("role-create" , "Role"))
+    // @UseMiddleware(isAuth,isCan("role-create" , "Role"))
     async createRole(
         @Arg('title') title: string,
         @Arg('label') label: string,
@@ -26,7 +28,7 @@ export class PermissionRoleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth,isCan("role-update" , "Role"))
+    // @UseMiddleware(isAuth,isCan("role-update" , "Role"))
     async updateRole(
         @Arg('id') id: number,
         @Arg('title') title: string,
@@ -37,7 +39,7 @@ export class PermissionRoleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth,isCan("role-delete" , "Role"))
+    // @UseMiddleware(isAuth,isCan("role-delete" , "Role"))
     async deleteRole(
         @Arg('id') id: number,
     ) : Promise<Boolean>{
@@ -47,13 +49,13 @@ export class PermissionRoleResolver {
 
 
     @Query(() => [Permission])
-    @UseMiddleware(isAuth,isCan("permission-show" , "Permission"))
+    // @UseMiddleware(isAuth,isCan("permission-show" , "Permission"))
     async getPermissions() : Promise<Permission[]>{
         return await Permission.find({where : {status : true}})
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth,isCan("permission-create" , "Permission"))
+    // @UseMiddleware(isAuth,isCan("permission-create" , "Permission"))
     async createPermission(
         @Arg('title') title: string,
         @Arg('label') label: string,
@@ -64,7 +66,7 @@ export class PermissionRoleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth,isCan("permission-update" , "Permission"))
+    // @UseMiddleware(isAuth,isCan("permission-update" , "Permission"))
     async updatePermission(
         @Arg('id') id: number,
         @Arg('title') title: string,
@@ -76,7 +78,7 @@ export class PermissionRoleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth,isCan("permission-delete" , "Permission"))
+    // @UseMiddleware(isAuth,isCan("permission-delete" , "Permission"))
     async deletePermission(
         @Arg('id') id: number,
     ) : Promise<Boolean>{
