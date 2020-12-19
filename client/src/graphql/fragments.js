@@ -1,25 +1,4 @@
 import { gql } from '@apollo/client';
-
-export const UserFragment = {
-    user: gql `
-        fragment UserFragment on User {
-            name
-            mobile
-            email
-            role { 
-                title
-                label
-                id
-                permissions {
-                    title
-                    label
-                    model
-                }
-            }
-        }
-    `
-};
-
 export const ErrorFragments = {
     error: gql `
         fragment ErrorFragment on FieldError {
@@ -28,33 +7,95 @@ export const ErrorFragments = {
         }
     `
 };
+export const PermissionFragments = {
+    permission: gql `
+        fragment PermissionFragment on Permission {
+            id
+            label
+            title
+            model
+            status
+            roles {
+               title
+               label
+               status
+            }
+        }  
+    `
+}
+export const RoleFragments = {
+    role: gql `
+        fragment RoleFragment on Role {
+            id
+            label
+            title
+            status
+            permissions {
+                ...PermissionFragment
+            }
+        }
+        ${PermissionFragments.permission}   
+    `
+}
+export const TypeFragments = {
+    type: gql `
+        fragment TypeFragment on Type {
+            id
+            title
+        }
+  `
+};
+
+
+export const UserFragment = {
+    user: gql `
+        fragment UserFragment on User {
+            id
+            name
+            mobile
+            email
+            active
+            role { 
+                ...RoleFragment
+            }
+        }
+        ${RoleFragments.role}
+    `
+};
+export const SurveyFragments = {
+    survey: gql `
+        fragment SurveyFragment on Survey {
+            id
+            title
+            status
+        }
+  `
+};
+
+
 export const QuestionFragments = {
     question: gql `
-        fragment QustionFragment on Question {
+        fragment QuestionFragment on Question {
             id
             title
             status
             typeId
             type {
-                title
+                ...TypeFragment
             }
             shouldBe
             surveyId
             survey {
-                title
+                ...SurveyFragment
             }
         }
+        ${TypeFragments.type}
+        ${SurveyFragments.survey}
   `
 };
-export const SurveyFragments = {
-    survey: gql `
-        fragment SueveyFragment on Survey {
-            id
-            title
-            status
-        }
-  `
-};
+
+
+
 
 export const AnswerFragments = {
     answer: gql `
@@ -72,5 +113,66 @@ export const AnswerFragments = {
             flag
             percent
         }
+    `
+};
+export const CallFragments = {
+    call: gql `
+        fragment CallFragment on Call {
+            id
+            issue
+            minorIssue
+            exactIssue
+            callTime
+            callCode
+            callPrice
+            price
+            operatorCallTime
+            operatorDelayTime
+            moshaverCallTime
+            moshaverDelayTime
+            month
+            year
+            status
+            customerId
+            customer {
+                name
+                mobile
+                phone
+                status
+            }
+            packageId
+            package {
+                title
+                status
+            }
+        }
+    `
+};
+export const CustomerFragments = {
+    customer: gql `
+        fragment CustomerFragment on Customer {
+            id
+            name
+            mobile
+            phone
+            status
+            calls {
+                ...CallFragment
+            }
+        }
+        ${CallFragments.call}
+    `
+};
+export const PackageFragments = {
+    package: gql `
+        fragment PackageFragment on Package {
+            id
+            title
+            status
+            calls {
+                ...CallFragment
+            }
+        }
+        ${CallFragments.call}
     `
 };

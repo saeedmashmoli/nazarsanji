@@ -1,51 +1,121 @@
 import { gql } from '@apollo/client';
+import { PermissionFragments, RoleFragments, ErrorFragments } from './fragments';
 
 export const CreateRoleMutation = gql `
-    mutation CreateRole($title: String!, $label: String!) {
-        createRole(title : $title , label: $label)
+    mutation CreateRole($title : String!, $label : String! , $status : Boolean! , $permissions : [String!]!) {
+        createRole( input : {title : $title , label : $label , status : $status , permissions : $permissions}){
+            status
+            errors {
+                ...ErrorFragment
+            }
+        }
     }
+    ${ErrorFragments.error}
 `
 export const CreatePermissionMutation = gql `
-    mutation CreatePermission($title: String!, $label: String!, $model: String!) {
-        createPermission(title : $title , label: $label , model : $model)
+    mutation CreatePermission($title: String!, $label: String!, $model: String! , $status : Boolean!) {
+        createPermission(input : {title : $title , label : $label , model : $model ,status : $status}){
+            status
+            errors {
+                ...ErrorFragment
+            }
+        }
     }
+    ${ErrorFragments.error}
 `
 export const UpdateRoleMutation = gql `
-    mutation UpdateRole($title: String!, $label: String! , $id : Int!) {
-        updateRole(title : $title , label: $label , id , $id)
+    mutation UpdateRole($title : String!, $label : String! , $status : Boolean! , $permissions : [String!]! , $id : Float!) {
+        updateRole(input : {title : $title , label : $label , status : $status , permissions : $permissions} , id : $id){
+            status
+            errors {
+                ...ErrorFragment
+            }
+        }
     }
+    ${ErrorFragments.error}
 `
 export const UpdatePermissionMutation = gql `
-    mutation CreateRole($title: String!, $label: String! , $id : Int! , $model: String!) {
-        createRole(title : $title , label: $label , model : $model , id , $id)
+    mutation UpdatePermissionMutation($title: String! , $label: String! , $id : Int! , $model: String! , $status : Boolean!) {
+        updatePermission(input : {title : $title , label : $label , model : $model ,status : $status}, id : $id){
+            status
+            errors {
+                ...ErrorFragment
+            }
+        }
     }
+    ${ErrorFragments.error}
 `
 export const DeleteRoleMutation = gql `
-    mutation DeleteRole($id : Int!) {
-        deleteRole
+    mutation DeleteRole($id : Float!) {
+        deleteRole(id : $id){
+            status
+        }
     }
 `
 export const DeletePermissionMutation = gql `
-    mutation DeletePermission($id : Int!) {
-        deletePermission
-    }
-`
-export const GetRolesQuery = gql `
-    query getRoles{
-        getRoles{
-            id
-            label
-            title
+    mutation DeletePermission($id : Float!) {
+        deletePermission(id : $id){
+            status
         }
     }
+`
+export const GetRolesMutation = gql `
+    mutation getRoles($status : Boolean!){
+        getRoles(status : $status){
+            status
+            errors {
+                ...ErrorFragment
+            }
+            roles{
+                ...RoleFragment
+            }
+        }
+    }
+    ${RoleFragments.role}
+    ${ErrorFragments.error}
+`
+export const GetRoleQuery = gql `
+    query getRole($id : Float!){
+        getRole(id : $id){
+            status
+            errors {
+                ...ErrorFragment
+            }
+            role {
+                ...RoleFragment
+            }
+        }
+    }
+    ${RoleFragments.role}
+    ${ErrorFragments.error}
+`
+export const GetPermissionsMutation = gql `
+    mutation getPermissions($status : Boolean!){
+        getPermissions(status : $status) {
+            status
+            errors {
+                ...ErrorFragment
+            }
+            permissions {
+                ...PermissionFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+    ${PermissionFragments.permission}
 `
 export const GetPermissionQuery = gql `
-    query getPermissions{
-        getPermissions {
-            id
-            label
-            title
-            model
+    query getPermission($id : Int!){
+        getPermission(id : $id) {
+            status
+            errors {
+                ...ErrorFragment
+            }
+            permission {
+                ...PermissionFragment
+            }
         }
     }
+    ${ErrorFragments.error}
+    ${PermissionFragments.permission}
 `

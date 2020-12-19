@@ -2,7 +2,7 @@
     import client from '../svelte-apollo';
     import { updatePassword } from '../graphql/user';
     import { push } from 'svelte-spa-router';
-    import {user} from '../stores'
+    import {user , userPermissions} from '../stores'
     export let mobile = '';
     export let newPassword = '';
     export let confirmPassword = '';
@@ -19,6 +19,9 @@
               errorMessages = data.errors
             }else{
                 $user = data.user
+                data.user.role.permissions.map(permit => {
+                  $userPermissions.push(permit.title)
+                })
                 push('/dashboard')
             }
           }
@@ -55,8 +58,11 @@
     left: 0;
   }
 </style>
+<svelte:head>
+	<title>تغییر رمز عبور</title>
+</svelte:head>
 <div class="columns main is-vcentered">
-  <div class="column is-4">
+  <div class="column is-4 form-login">
     <section class="section">
       <div class="has-text-centered">
           <img width="240" height="240" alt src="images/logo.jpg">

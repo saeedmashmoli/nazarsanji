@@ -29,7 +29,7 @@ export class User extends BaseEntity {
 
     @Field()
     @Column({type : 'boolean' , default : false})
-    active!: string;
+    active!: boolean;
 
     @Field()
     @Column('int',{ default : 0})

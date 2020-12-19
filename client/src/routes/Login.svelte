@@ -2,7 +2,7 @@
     import client from '../svelte-apollo';
     import { loginMutation , changePasswordRequest } from '../graphql/user';
     import { push } from 'svelte-spa-router';
-    import { user , permissions } from '../stores'
+    import { user , userPermissions } from '../stores'
     export let username = '';
     export let password = '';
     export let errorMessages;
@@ -18,7 +18,7 @@
             }else{
               $user = data.user
               data.user.role.permissions.map(permit => {
-                $permissions.push(permit.title)
+                $userPermissions.push(permit.title)
               })
               push('/dashboard')
             }
@@ -77,8 +77,11 @@
     left: 0;
   }
 </style>
+<svelte:head>
+	<title>صفحه ورود</title>
+</svelte:head>
 <div class="columns main is-vcentered">
-  <div class="column is-4">
+  <div class="column is-4 form-login">
     <section class="section">
       <div class="has-text-centered">
           <img width="240" height="240" alt src="images/logo.jpg">

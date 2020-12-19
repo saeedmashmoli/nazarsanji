@@ -2,26 +2,27 @@ import { Question } from "../entities/Question"
 import { QuestionInput } from "../resolvers/Input"
 
 export const questionValidator = (input: QuestionInput) => {
+    let errors = [];
     if(input.title.length === 0 ){
-        return [{
+        errors.push({
             field: 'title',
             message : 'فیلد عنوان الزامی است'
-        }]
+        });
     }
-    if(input.typeId === null ){
-        return [{
+    if(input.typeId === undefined ){
+        errors.push({
             field: 'typeId',
             message : 'فیلد نوع سوال الزامی است'
-        }]
+        });
     }
-    if(input.surveyId === null ){
-        return [{
+    if(input.surveyId === undefined ){
+        errors.push({
             field: 'surveyId',
             message : 'فیلد نظرسنجی الزامی است'
-        }]
+        });
     }
 
-    return null
+    return errors
 }
 export const updateOrDeleteQuestionValidator = async (id: number) => {
     const question = await Question.findOne({id});

@@ -1,0 +1,57 @@
+import client from '../svelte-apollo';
+import {
+    createCustomerMutation,
+    updateCustomerMutation,
+    activeOrDeactiveCustomerMutation,
+    getCustomersMutation,
+    getCustomerQuery
+} from '../graphql/customer';
+export const createOrUpdateCustomerFn = async(input, id = null) => {
+    if (id) {
+        const response = await client.mutate({
+            mutation: updateCustomerMutation,
+            variables: {
+                ...input,
+                id
+            }
+        })
+        return response.data.updateCustomer;
+    } else {
+        const response = await client.mutate({
+            mutation: createCustomerMutation,
+            variables: {
+                ...input
+            }
+        })
+        return response.data.createCustomer;
+    }
+}
+export const activeOrDeaciveCustomerFn = async(id) => {
+
+    const response = await client.mutate({
+        mutation: activeOrDeactiveCustomerMutation,
+        variables: {
+            id
+        }
+    })
+    return response.data.activeOrDeactiveCustomer
+}
+export const getCustomersFn = async(status) => {
+    const response = await client.mutate({
+        mutation: getCustomersMutation,
+        variables: {
+            status
+        }
+    })
+    return response.data.getCustomers
+}
+export const getCustomerFn = async(id) => {
+    const response = await client.query({
+        query: getCustomerQuery,
+        variables: {
+            id
+        }
+    })
+
+    return response.data.getCustomer
+}

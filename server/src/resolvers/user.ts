@@ -3,13 +3,12 @@ import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resol
 import { User } from '../entities/User';
 import {MyContext} from '../types';
 import {ChangePasswordInput, UserRegisterInput} from './Input';
-import { createUserValidator } from '../validators/createUserValidator';
+import { createUserValidator  , changePasswordValidator} from '../validators/userValidator';
 import { createAccessToken , createRefreshToken } from '../constants/auth';
 import { isAuth } from '../middlewares/isAuthMiddleware';
 import { getConnection } from 'typeorm';
 import { Token } from '../entities/Token';
 import sms from '../constants/sms';
-import { changePasswordValidator } from '../validators/changePasswordValidator';
 import { FieldError } from './response';
 import { Role } from '../entities/Role';
 
@@ -23,6 +22,15 @@ class UserResponse {
     status!: Boolean;
     @Field(() => User , {nullable : true})
     user?: User;
+}
+@ObjectType()
+class UsersResponse {
+    @Field(() => [FieldError] , {nullable : true})
+    errors?: FieldError[];
+    @Field(() => Boolean)
+    status!: Boolean;
+    @Field(() => [User] , {nullable : true})
+    users?: User[];
 }
 
 
@@ -47,6 +55,29 @@ export class UserResolver {
     async me(@Ctx() { payload } : MyContext){
         const user = await User.findOne({ where : {id : payload?.userId}})
         return user;
+    }
+    @Mutation(() => UsersResponse)
+    async getUsers() : Promise<UsersResponse>{
+        const users = await User.find({});
+        return { status : true , users }
+    }
+    @Mutation(() => UserResponse)
+    async activeOrDeactiveUser(
+        @Arg('id' , () => Int) id: number
+    ) : Promise<UserResponse>{
+        const user = await User.findOne({id});
+        await User.update({id} , {active : !user?.active});
+        return { status : true }
+    }
+    @Query(() => UserResponse)
+    async getUser(
+        @Arg('id' , () => Int) id : number
+    ) : Promise<UserResponse>{
+        const user = await User.findOne({id})
+        if(!user){
+            return {status : false , errors :  [{message : "کاربر مورد نظر یافت نشد"  , field : "id" }]}
+        }
+        return { status : true , user }
     }
 
     @Mutation(() => UserResponse)
@@ -93,10 +124,10 @@ export class UserResolver {
     @Mutation( () => UserResponse)
     async createUser(
         @Arg('options') options: UserRegisterInput,
-        @Arg('password') password: string
+        @Arg('password' , {nullable : true}) password: string
     ) : Promise<UserResponse>{ 
         
-        const errors = await createUserValidator(options, password)
+        const errors = await createUserValidator(options, password , true)
         if(errors.length !== 0) return { errors , status: false }
         const userExsists = await User.findOne({ mobile : options.mobile });
         if(userExsists){
@@ -110,6 +141,32 @@ export class UserResolver {
         }
         password = await bcrypt.hash(password, 10);
         await User.create({...options,password}).save();
+        return {status: true};
+    }
+    @Mutation( () => UserResponse)
+    async updateUser(
+        @Arg('options') options: UserRegisterInput,
+        @Arg('id', () => Int) id : number,
+        @Arg('password' , {nullable : true}) password: string
+    ) : Promise<UserResponse>{ 
+        const errors = await createUserValidator(options , password , false)
+        if(errors.length !== 0) return { errors , status: false }
+        const user = await User.findOne({ id });
+        if(!user){
+            return { 
+                status: false,
+                errors : [{
+                    field: 'id',
+                    message : 'کاربر مورد نظر یافت نشد'
+                }],
+            }
+        }
+        if(password) {
+            password = await bcrypt.hash(password, 10);
+            await User.update({id} , {...options , password});
+        }else{
+            await User.update({id} , {...options});
+        }
         return {status: true};
     }
     @Mutation( () => UserResponse)

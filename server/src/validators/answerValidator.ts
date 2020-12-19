@@ -2,7 +2,7 @@ import { Answer } from "../entities/Answer"
 import { AnswerInput } from "../resolvers/Input"
 
 export const answerValidator = (input: AnswerInput) => {
-    if(input.questionId === null ){
+    if(input.questionId === undefined ){
         return [{
             field: 'questionId',
             message : 'فیلد سوال الزامی است'

@@ -1,10 +1,67 @@
 import { gql } from '@apollo/client';
 import { UserFragment, ErrorFragments } from './fragments'
 
+export const activeOrDeactiveUserMutation = gql `
+    mutation ActiveOrDeactiveUser($id : Int!){
+        activeOrDeactiveUser (id : $id){
+            status
+            errors {
+                ...ErrorFragment
+            }
+            user {
+                ...UserFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+    ${UserFragment.user}
+`
+
+export const getUsersMutation = gql `
+    mutation GetUsers{
+        getUsers {
+            status
+            errors {
+                ...ErrorFragment
+            }
+            users {
+                ...UserFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+    ${UserFragment.user}
+`
+export const getUserQuery = gql `
+    query GetUser($id : Int!){
+        getUser(id : $id){
+            status
+            errors {
+                ...ErrorFragment
+            }
+            user {
+                ...UserFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+    ${UserFragment.user}
+`
 
 export const createUserMutation = gql `
-    mutation CreateUser($name: String!, $mobile: String!, $email: String!, $password: String!) {
-        createUser(password: $password, options: { name: $name, mobile: $mobile, email: $email }) {
+    mutation CreateUser($name: String!, $mobile: String!, $email: String!, $password : String! , $active : Boolean! , $roleId : Int) {
+        createUser(password : $password, options : { name : $name, mobile : $mobile, email : $email , active : $active , roleId : $roleId}) {
+            status
+            errors {
+                ...ErrorFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+`
+export const updateUserMutation = gql `
+    mutation UpdateUser($name : String!, $mobile : String!, $email : String! , $roleId : Int, $password : String, $active : Boolean!, $id : Int!) {
+        updateUser(password : $password, options : { name : $name, mobile : $mobile, email : $email , active : $active , roleId : $roleId} , id : $id) {
             status
             errors {
                 ...ErrorFragment
@@ -15,8 +72,8 @@ export const createUserMutation = gql `
 `
 
 export const loginMutation = gql `
-    mutation login($username: String!, $password: String!) {
-        login(password: $password, username: $username) {
+    mutation login($username : String!, $password : String!) {
+        login(password : $password, username : $username) {
             status
             user {
                 ...UserFragment
@@ -45,7 +102,7 @@ export const MeQuery = gql `
 
 export const changePasswordRequest = gql `
     mutation ChangePasswordRequest($mobile : String!){
-        changePasswordRequest(mobile: $mobile){
+        changePasswordRequest(mobile : $mobile){
             status
             errors{
                 ...ErrorFragment

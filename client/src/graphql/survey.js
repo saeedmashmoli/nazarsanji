@@ -9,7 +9,7 @@ export const createSurveyMutation = gql `
                 ...ErrorFragment
             }
             survey {
-                ...SueveyFragment
+                ...SurveyFragment
             }
         }
     }
@@ -24,16 +24,16 @@ export const updateSurveyMutation = gql `
                 ...ErrorFragment
             }
             survey {
-                ...SueveyFragment
+                ...SurveyFragment
             }
         }
     }
     ${SurveyFragments.survey}
     ${ErrorFragments.error}
 `
-export const deleteSurveyMutation = gql `
-    mutation DeleteSurvey($id : Float!){
-        deleteSurvey(id : $id){
+export const activeOrDeactiveSurveyMutation = gql `
+    mutation activeOrDeactiveSurveyMutation($id : Int!){
+        activeOrDeactiveSurvey(id : $id){
             status
             errors{
                 ...ErrorFragment
@@ -41,4 +41,34 @@ export const deleteSurveyMutation = gql `
         }
     }
     ${ErrorFragments.error}
+`
+export const getSurveysMutation = gql `
+    mutation GetSurveys($status : Boolean!){
+        getSurveys(status : $status) {
+            status
+            errors {
+                ...ErrorFragment
+            }
+            surveys {
+                ...SurveyFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+    ${SurveyFragments.survey}
+`
+export const getSurveyQuery = gql `
+    query GetSurvey($id : Int!){
+        getSurvey(id : $id){
+            status
+            errors {
+                ...ErrorFragment
+            }
+            survey {
+                ...SurveyFragment
+            }
+        }
+    }
+    ${ErrorFragments.error}
+    ${SurveyFragments.survey}
 `

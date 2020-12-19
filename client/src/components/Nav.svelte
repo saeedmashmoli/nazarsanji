@@ -1,6 +1,6 @@
 <script>
     import client from '../svelte-apollo';
-    import { permissions, showMenu , user } from '../stores';
+    import { userPermissions, showMenu , user } from '../stores';
     import { push } from 'svelte-spa-router';
     import { LogoutQuery } from '../graphql/user';
     $:showNavMenu = false;
@@ -16,7 +16,7 @@
         }).then(result => {
             if(result.data.logout === true){
                 $user = {}
-                $permissions = []
+                $userPermissions = []
                 push('/')
             }
           }
@@ -70,10 +70,10 @@
     </div>
     <div class="navbar-menu has-background-white" class:is-active={showNavMenu}>
         <div class="navbar-start">
-            <a href="/" class="navbar-item">
+            <a href="#/" class="navbar-item">
                 <i class="fas fa-home icon ml-2"></i> صفحه اصلی
             </a>
-            <a href="/" class="navbar-item">درباره ما</a>
+            <!-- <a href="#/" class="navbar-item">درباره ما</a> -->
         </div>
         <div class="navbar-end">
             <!-- <a href="/" class="navbar-item">اعلانات</a> -->

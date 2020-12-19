@@ -33,14 +33,22 @@ export class initialData1607679363838 implements MigrationInterface {
             ('create-answer','ایجاد گزینه', 'Answer'),
             ('update-answer','ویرایش گزینه', 'Answer'),
             ('delete-answer','حذف گزینه', 'Answer'),
-            ('show-data','نمایش اطلاعات مشتری ها', 'Data'),
-            ('create-data','ایجاد اطلاعات مشتری', 'Data'),
-            ('update-data','ویرایش اطلاعات مشتری', 'Data'),
-            ('delete-data','حذف اطلاعات مشتری', 'Data'),
+            ('show-call','نمایش تماس ها', 'Call'),
+            ('create-call','ایجاد تماس', 'Call'),
+            ('update-call','ویرایش تماس', 'Call'),
+            ('delete-call','حذف تماس', 'Call'),
+            ('show-customer','مدیریت مشتری ها', 'Customer'),
+            ('create-customer','ایجاد اطلاعات مشتری', 'Customer'),
+            ('update-customer','ویرایش اطلاعات مشتری', 'Customer'),
+            ('delete-customer','حذف اطلاعات مشتری', 'Customer'),
+            ('show-package','نمایش بسته های اطلاعات مشتری', 'Package'),
+            ('create-package','ایجاد بسته', 'Package'),
+            ('update-package','ویرایش بسته', 'Package'),
+            ('delete-package','حذف بسته', 'Package'),
             ('show-report','گزارشات', 'Report');
         `);
         await queryRunner.query(
-            "insert into permission_role (`roleId` ,`permissionId`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29);"
+            "insert into permission_role (`roleId` ,`permissionId`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),(1,34),(1,35),(1,36),(1,37);"
         );
         await queryRunner.query(`
             insert into type (title) values ('تک انتخابی'),('چند انتخابی'),('تشریحی'),('گردونه'),('خوشامد گویی'),('خداحافظی');

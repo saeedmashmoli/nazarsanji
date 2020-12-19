@@ -1,11 +1,12 @@
 import { Answer } from '../entities/Answer';
-import { Arg, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { AnswerInput } from './Input';
 import { FieldError } from './response';
 import { answerValidator , updateOrDeleteAnswerValidator } from '../validators/answerValidator';
 import { Question } from '../entities/Question';
+import { getConnection } from 'typeorm';
 
 @ObjectType()
 export class AnswerResponse {
@@ -15,6 +16,15 @@ export class AnswerResponse {
     status!: Boolean;
     @Field(() => Answer , { nullable : true })
     answer?: Answer;
+}
+@ObjectType()
+export class AnswersResponse {
+    @Field(() => [FieldError] , { nullable : true })
+    errors?: FieldError[];
+    @Field(() => Boolean)
+    status!: Boolean;
+    @Field(() => [Answer] , { nullable : true })
+    answers?: Answer[];
 }
 
 @Resolver(Answer)
@@ -26,11 +36,34 @@ export class AnswerResolver {
       @Root() answer : Answer,
     ){return Question.findOne(answer.questionId)}
 
-    @Query(() => [Answer])
-    // @UseMiddleware(isAuth,isCan("answer-show" , "Answer"))
+
+    @Mutation(() => AnswersResponse)
+    // @UseMiddleware(isAuth,isCan("question-show" , "Question"))
     async getAnswers(
-    ) : Promise<Answer[]>{
-        return await Answer.find({where : {status : true}})
+        @Arg('status') status: Boolean
+    ) : Promise<AnswersResponse>{
+        const answers = await getConnection().query(` 
+            select a.* from answer as a 
+            where ${status ? "status = true" : "status = status"}
+            order by a.id desc
+        `);
+        return {answers , status : true}
+    }
+    @Query(() => AnswerResponse)
+    // @UseMiddleware(isAuth,isCan("survey-show" , "Survey"))
+    async getAnswer(
+        @Arg('id' , () => Int) id : number
+    ) : Promise<AnswerResponse>{
+        const answer = await Answer.findOne({id});
+        if(!answer){
+            return { status : false , errors : [
+                {
+                    field : 'id',
+                    message : 'گزینه مورد نظر یافت نشد'
+                }
+            ]}
+        }
+        return { status : true , answer }
     }
 
     @Mutation(() => AnswerResponse)
@@ -47,7 +80,7 @@ export class AnswerResolver {
     @Mutation(() => AnswerResponse)
     // @UseMiddleware(isAuth,isCan("answer-update" , "Answer"))
     async updateAnswer(
-        @Arg('id') id: number,
+        @Arg('id' , () => Int) id: number,
         @Arg('input') input: AnswerInput,
     ) : Promise<AnswerResponse>{
         let errors = await answerValidator(input);
@@ -60,13 +93,14 @@ export class AnswerResolver {
     }
 
     @Mutation(() => AnswerResponse)
-    // @UseMiddleware(isAuth,isCan("answer-delete" , "Answer"))
-    async deleteAnswer(
-        @Arg('id') id: number,
+    // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
+    async activeOrDeactiveAnswer(
+        @Arg('id' , () => Int) id: number,
     ) : Promise<AnswerResponse>{
         const errors = await updateOrDeleteAnswerValidator(id);
         if(errors?.length) return { status : false , errors};
-        await Answer.update({id},{ status : false });
+        const answer = await Answer.findOne({id});
+        await Answer.update({id},{ status : !answer?.status });
         return {status : true};
     }
 }

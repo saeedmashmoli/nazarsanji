@@ -21,19 +21,28 @@ import { Survey } from './entities/Survey';
 import { Question } from './entities/Question';
 import { Permission } from './entities/Permission';
 import { PermissionRole } from './entities/PermissionRole';
+import { Customer } from './entities/Customer';
+import { Call } from './entities/Call';
+import { Package } from './entities/Package';
 
 // resolvers
 import { UserResolver } from './resolvers/user';
-import { PermissionRoleResolver } from './resolvers/permissionRole'
-
-// jobs
-import { deleteTokensJobs } from './jobs/deleteExpireTokens';
+import { PermissionRoleResolver } from './resolvers/permissionRole';
 import { QuestionResolver } from './resolvers/question';
 import { SurveyResolver } from './resolvers/survey';
 import { AnswerResolver } from './resolvers/answer';
+import { CallResolver } from './resolvers/call';
+import { CustomerResolver } from './resolvers/customer';
+import { PackageResolver } from './resolvers/package';
+
+// jobs
+import { deleteTokensJobs } from './jobs/deleteExpireTokens';
+
+
 
 
 const main = async () => {
+
     // const conn =
         await createConnection({
         type: 'mysql',
@@ -41,7 +50,20 @@ const main = async () => {
         logging: true,
         // synchronize: true,
         migrations: [path.join(__dirname,"./migrations/*.{ts,js}")],
-        entities: [User,Token,Role , Permission,Type, Question , Survey , Answer ,PermissionRole]
+        entities: [
+            User,
+            Token,
+            Role, 
+            Permission,
+            Type, 
+            Question, 
+            Survey, 
+            Answer,
+            PermissionRole,
+            Customer,
+            Call,
+            Package
+        ]
     });
     // conn.runMigrations();
     const app = express();
@@ -57,7 +79,6 @@ const main = async () => {
     // run jobs
     cron.schedule('7 12 * * *', async function() {
         await deleteTokensJobs();
-        console.log("schedule run jobs")
     });
 
 
@@ -70,7 +91,16 @@ const main = async () => {
         //     onDisconnect : () => console.log('Disconnected to websocket'),
         // },
         schema : await buildSchema({
-            resolvers: [UserResolver , PermissionRoleResolver , QuestionResolver , SurveyResolver , AnswerResolver],
+            resolvers: [
+                UserResolver, 
+                PermissionRoleResolver,
+                QuestionResolver,
+                SurveyResolver,
+                AnswerResolver,
+                CallResolver,
+                CustomerResolver,
+                PackageResolver
+            ],
             validate: false,
         }), 
         context : ({ req , res }) => ({ req , res })
