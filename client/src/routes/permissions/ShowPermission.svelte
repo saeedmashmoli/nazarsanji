@@ -2,7 +2,7 @@
    import { push, replace  } from 'svelte-spa-router';
    import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
    import {  notLoading , updateArrayFn } from '../../utilis/functions';
-   import { deletePermissionFn , getPermissionsFn} from '../../Api/permissionRoleApi';
+   import { activeOrDeactivePermissionFn , getPermissionsFn} from '../../Api/permissionRoleApi';
    import { userPermissions , loading } from '../../stores';
    import Toast from '../../components/Toast.svelte';
    import { dataTableSettings } from '../../utilis/constants';
@@ -24,7 +24,7 @@
    const deletePermission = async(permissionId) => {
       let permit = await permissions.filter(p => p.id === permissionId)[0]
       permit.status = !permit.status
-      const data = await deletePermissionFn(permissionId);
+      const data = await activeOrDeactivePermissionFn(permissionId , permit.status);
       if(data.status === true){
          permissions = await updateArrayFn(permissions , permit)
          if(permit.status === true){
@@ -94,12 +94,14 @@
                      <td style="width: 15%;">{row.model}</td>
                      <td style="width: 30%;">{row.label}</td>
                      <td style="width: 5%;">
-                        <button on:click={deletePermission(row.id)} 
-                           class:is-success={row.status} 
-                           class:is-danger={!row.status} 
-                           class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-permission")}
+                           <button on:click={deletePermission(row.id)} 
+                              class:is-success={row.status} 
+                              class:is-danger={!row.status} 
+                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
                         {#if $userPermissions.includes("update-permission")}

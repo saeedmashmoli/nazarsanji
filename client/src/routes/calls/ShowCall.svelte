@@ -24,7 +24,7 @@
    const activeOrdeactiveHandler = async(callId) => {
       let call = await calls.filter(p => p.id === callId)[0]
       call.status = !call.status
-      const data = await activeOrDeaciveCallFn(callId);
+      const data = await activeOrDeaciveCallFn(callId , call.status);
       if(data.status === true){
          calls = await updateArrayFn(calls , call)
          if(call.status === true){
@@ -103,12 +103,14 @@
                      <td style="width: 10%;">{row.callPrice}</td>
                      <td style="width: 10%;">{row.price}</td>
                      <td style="width: 5%;">
-                        <button on:click={activeOrdeactiveHandler(row.id)} 
-                           class:is-success={row.status} 
-                           class:is-danger={!row.status} 
-                           class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-call")}
+                           <button on:click={activeOrdeactiveHandler(row.id)} 
+                              class:is-success={row.status} 
+                              class:is-danger={!row.status} 
+                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
                         {#if $userPermissions.includes("update-call")}

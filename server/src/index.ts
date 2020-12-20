@@ -43,12 +43,12 @@ import { deleteTokensJobs } from './jobs/deleteExpireTokens';
 
 const main = async () => {
 
-    // const conn =
+    const conn =
         await createConnection({
         type: 'mysql',
         url: process.env.DATABASE_URL,
         logging: true,
-        // synchronize: true,
+        synchronize: true,
         migrations: [path.join(__dirname,"./migrations/*.{ts,js}")],
         entities: [
             User,
@@ -65,7 +65,7 @@ const main = async () => {
             Package
         ]
     });
-    // conn.runMigrations();
+    conn.runMigrations();
     const app = express();
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended : true }));

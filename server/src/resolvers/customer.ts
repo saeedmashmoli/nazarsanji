@@ -4,7 +4,7 @@ import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { CustomerInput } from './Input';
-import { customerValidator, updateOrDeleteCustomerValidator } from '../validators/customerValidator';
+import { customerValidator } from '../validators/customerValidator';
 import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
 
@@ -53,7 +53,7 @@ export class CustomerResolver {
     async getCustomer(
         @Arg('id' , () => Int) id : number
     ) : Promise<CustomerResponse>{
-        const errors = await updateOrDeleteCustomerValidator(id);
+        const errors = await customerValidator(null,id);
         if(errors?.length) return { status : false , errors};
         const customer = await Customer.findOne({id});
         return { status : true , customer }
@@ -64,10 +64,10 @@ export class CustomerResolver {
     async createCustomer(
         @Arg('input') input: CustomerInput,
     ) : Promise<CustomerResponse>{
-        const errors = await customerValidator(input);
-        if(errors) return { status : false , errors};
-        const customer = await Customer.create({...input}).save();
-        return { status: true , customer };
+        const errors = await customerValidator(input,null);
+        if(errors?.length) return { status : false , errors};
+        await Customer.create({...input}).save();
+        return { status: true };
     }
 
     @Mutation(() => CustomerResponse)
@@ -76,22 +76,22 @@ export class CustomerResolver {
         @Arg('id' , () => Int ) id: number,
         @Arg('input') input: CustomerInput,
     ) : Promise<CustomerResponse>{
-        const errors = await updateOrDeleteCustomerValidator(id);
+        const errors = await customerValidator(input,id);
         if(errors?.length) return { status : false , errors};
         await Customer.update({id} , {...input});
-        const customer = await Customer.findOne({id});
-        return { status: true , customer };
+        await Customer.findOne({id});
+        return { status: true };
     }
 
     @Mutation(() => CustomerResponse)
     // @UseMiddleware(isAuth,isCan("Customer-delete" , "Customer"))
     async activeOrDeactiveCustomer(
         @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<CustomerResponse>{
-        const errors = await updateOrDeleteCustomerValidator(id);
+        const errors = await customerValidator(null,id);
         if(errors?.length) return { status : false , errors};
-        const customer = await Customer.findOne({id});
-        await Customer.update({id},{ status : !customer?.status });
+        await Customer.update({id},{status});
         return {status : true};
     }
 }

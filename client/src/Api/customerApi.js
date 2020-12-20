@@ -26,12 +26,13 @@ export const createOrUpdateCustomerFn = async(input, id = null) => {
         return response.data.createCustomer;
     }
 }
-export const activeOrDeaciveCustomerFn = async(id) => {
+export const activeOrDeaciveCustomerFn = async(id, status) => {
 
     const response = await client.mutate({
         mutation: activeOrDeactiveCustomerMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
     return response.data.activeOrDeactiveCustomer

@@ -54,15 +54,9 @@ export class AnswerResolver {
     async getAnswer(
         @Arg('id' , () => Int) id : number
     ) : Promise<AnswerResponse>{
+        const errors = await answerValidator(null , id);
+        if(errors?.length) return { status : false , errors};
         const answer = await Answer.findOne({id});
-        if(!answer){
-            return { status : false , errors : [
-                {
-                    field : 'id',
-                    message : 'گزینه مورد نظر یافت نشد'
-                }
-            ]}
-        }
         return { status : true , answer }
     }
 
@@ -71,10 +65,10 @@ export class AnswerResolver {
     async createAnswer(
         @Arg('input') input: AnswerInput,
     ) : Promise<AnswerResponse>{
-        const errors = await answerValidator(input);
+        const errors = await answerValidator(input , null);
         if(errors?.length) return { status : false , errors};
-        const answer = await Answer.create({...input}).save();
-        return {status : true , answer};
+        await Answer.create({...input}).save();
+        return {status : true};
     }
 
     @Mutation(() => AnswerResponse)
@@ -83,24 +77,21 @@ export class AnswerResolver {
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: AnswerInput,
     ) : Promise<AnswerResponse>{
-        let errors = await answerValidator(input);
-        if(errors?.length) return { status : false , errors};
-        errors = await updateOrDeleteAnswerValidator(id);
+        const errors = await answerValidator(input , id);
         if(errors?.length) return { status : false , errors};
         await Answer.update({id},{...input});
-        const answer = await Answer.findOne({id})
-        return {status : true , answer};
+        return {status : true };
     }
 
     @Mutation(() => AnswerResponse)
     // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
     async activeOrDeactiveAnswer(
         @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean,
     ) : Promise<AnswerResponse>{
-        const errors = await updateOrDeleteAnswerValidator(id);
+        const errors = await answerValidator(null , id);
         if(errors?.length) return { status : false , errors};
-        const answer = await Answer.findOne({id});
-        await Answer.update({id},{ status : !answer?.status });
+        await Answer.update({id},{ status });
         return {status : true};
     }
 }

@@ -11,7 +11,9 @@
     onMount( async () => {
         $loading = true;
         const result = await getSurveyFn(id,false)
-        if(result.status){
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } else if(result.status){
             const data = result.survey;
             status = data.status;
             title = data.title;

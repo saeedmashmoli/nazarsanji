@@ -2,19 +2,15 @@ import { gql } from '@apollo/client';
 import { UserFragment, ErrorFragments } from './fragments'
 
 export const activeOrDeactiveUserMutation = gql `
-    mutation ActiveOrDeactiveUser($id : Int!){
-        activeOrDeactiveUser (id : $id){
+    mutation ActiveOrDeactiveUser($id : Int! , $active : Boolean!){
+        activeOrDeactiveUser (id : $id , active : $active){
             status
             errors {
                 ...ErrorFragment
             }
-            user {
-                ...UserFragment
-            }
         }
     }
     ${ErrorFragments.error}
-    ${UserFragment.user}
 `
 
 export const getUsersMutation = gql `

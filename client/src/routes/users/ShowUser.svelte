@@ -26,7 +26,7 @@
 
       user.active = !user.active;
       
-      const data = await activeOrDeaciveUserFn(userId);
+      const data = await activeOrDeaciveUserFn(userId , user.active);
       if(data.status === true){
          users = await updateArrayFn(users , user)
          if(user.active === true){
@@ -97,15 +97,17 @@
                      <td style="width: 25%;">{row.email}</td>
                      <td style="width: 10%;">{row.role.label}</td>
                      <td style="width: 5%;">
-                        <button on:click={changeUser(row.id)} 
-                           class:is-success={row.active} 
-                           class:is-danger={!row.active} 
-                           class="button is-small ${ row.active ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.active} class:fa-eye-slash={!row.active} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-user")}
+                           <button on:click={changeUser(row.id)} 
+                              class:is-success={row.active} 
+                              class:is-danger={!row.active} 
+                              class="button is-small ${ row.active ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.active} class:fa-eye-slash={!row.active} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
-                        {#if $userPermissions.includes("update-permission")}
+                        {#if $userPermissions.includes("update-user")}
                            <button on:click={editPage(row.id)} class="button is-small has-background-info-dark has-text-warning-light">
                               <i class="fa fa-edit"></i>
                            </button>

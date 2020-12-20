@@ -4,7 +4,7 @@
    import { onMount } from 'svelte';
    import { push, replace  } from 'svelte-spa-router';
    import { notLoading   ,updateArrayFn  } from '../../utilis/functions';
-   import {getRolesFn , deleteRoleFn} from '../../Api/permissionRoleApi';
+   import {getRolesFn , activeOrDeactiveRoleFn} from '../../Api/permissionRoleApi';
    import { dataTableSettings } from '../../utilis/constants';
    import Toast from '../../components/Toast.svelte';
    export let roles = [];
@@ -21,12 +21,12 @@
    const editPage = async (roleId) => {
       push('/roles/update-role/'+roleId)
    }
-   const deleteRole= async(roleId) => {
+   const activeOrDeactiveRole= async(roleId) => {
       let role = roles.filter(r => r.id === roleId)[0]
 
       role.status = !role.status;
       
-      const data = await deleteRoleFn(roleId);
+      const data = await activeOrDeactiveRoleFn(roleId , role.status);
       if(data.status === true){
          roles = await updateArrayFn(roles , role)
          if(role.status === true){
@@ -90,12 +90,14 @@
                   <td style="width: 40%;">{row.title}</td>
                   <td style="width: 40%;">{row.label}</td>
                   <td style="width: 5%;">
-                     <button on:click={deleteRole(row.id)} 
-                     class:is-success={row.status} 
-                     class:is-danger={!row.status} 
-                     class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                        <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                     </button>
+                     {#if $userPermissions.includes("status-role")}
+                        <button on:click={activeOrDeactiveRole(row.id)} 
+                        class:is-success={row.status} 
+                        class:is-danger={!row.status} 
+                        class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                           <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                        </button>
+                     {/if}
                   </td>
                   {#if $userPermissions.includes("update-role")}
                      <td style="width: 5%;">

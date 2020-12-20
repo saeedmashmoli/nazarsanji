@@ -1,24 +1,25 @@
 import { CustomerInput } from "../resolvers/Input"
 import { Customer } from "../entities/Customer"
 
-export const customerValidator = (input: CustomerInput) => {
+export const customerValidator = async (input: CustomerInput | null , id: number | null) => {
+    console.log(input)
     let errors = [];
-    if(input.mobile !== null && input.mobile!.length !== 11){
-        errors.push({
-            field: 'mobile',
-            message : 'موبایل وارد شده اشتباه است'
-        });
+    if(input){
+         if(input.mobile !== "" && input.mobile!.length !== 11){
+            errors.push({
+                field: 'mobile',
+                message : 'موبایل وارد شده اشتباه است'
+            });
+        }
     }
-    
-    return null
-}
-export const updateOrDeleteCustomerValidator = async (id: number) => {
-    const customer = await Customer.findOne({id});
-    if (!customer) {
-        return [{
-            field: 'id',
-            message: 'مشتری مورد نظر یافت نشد'
-        }];
+    if(id){
+        const customer = await Customer.findOne({id});
+        if (!customer) {
+            errors.push({
+                field: 'id',
+                message: 'مشتری مورد نظر یافت نشد'
+            });
+        }
     }
-    return null
+    return errors
 }

@@ -63,26 +63,27 @@ export class UserResolver {
     }
     @Mutation(() => UserResponse)
     async activeOrDeactiveUser(
-        @Arg('id' , () => Int) id: number
+        @Arg('id' , () => Int) id: number,
+        @Arg('active' ) active: boolean
     ) : Promise<UserResponse>{
-        const user = await User.findOne({id});
-        await User.update({id} , {active : !user?.active});
+        const errors = await createUserValidator(null, null, id)
+        if(errors?.length) return { errors , status: false }
+        await User.update({id} , {active});
         return { status : true }
     }
     @Query(() => UserResponse)
     async getUser(
         @Arg('id' , () => Int) id : number
     ) : Promise<UserResponse>{
+        const errors = await createUserValidator(null, null, id)
+        if(errors?.length) return { errors , status: false }
         const user = await User.findOne({id})
-        if(!user){
-            return {status : false , errors :  [{message : "کاربر مورد نظر یافت نشد"  , field : "id" }]}
-        }
         return { status : true , user }
     }
 
     @Mutation(() => UserResponse)
     async changePasswordRequest(
-        @Arg('mobile') mobile:string
+        @Arg('mobile') mobile : string
     ) : Promise<UserResponse>{
         const user = await User.findOne({where : {mobile}});
         if(!user){
@@ -126,19 +127,8 @@ export class UserResolver {
         @Arg('options') options: UserRegisterInput,
         @Arg('password' , {nullable : true}) password: string
     ) : Promise<UserResponse>{ 
-        
-        const errors = await createUserValidator(options, password , true)
-        if(errors.length !== 0) return { errors , status: false }
-        const userExsists = await User.findOne({ mobile : options.mobile });
-        if(userExsists){
-            return { 
-                status: false,
-                errors : [{
-                    field: 'mobile',
-                    message : 'موبایل وارد شده قبلا ثبت نام کرده است'
-                }],
-            }
-        }
+        const errors = await createUserValidator(options, password)
+        if(errors?.length) return { errors , status: false }
         password = await bcrypt.hash(password, 10);
         await User.create({...options,password}).save();
         return {status: true};
@@ -149,18 +139,8 @@ export class UserResolver {
         @Arg('id', () => Int) id : number,
         @Arg('password' , {nullable : true}) password: string
     ) : Promise<UserResponse>{ 
-        const errors = await createUserValidator(options , password , false)
-        if(errors.length !== 0) return { errors , status: false }
-        const user = await User.findOne({ id });
-        if(!user){
-            return { 
-                status: false,
-                errors : [{
-                    field: 'id',
-                    message : 'کاربر مورد نظر یافت نشد'
-                }],
-            }
-        }
+        const errors = await createUserValidator(options , password , id)
+        if(errors?.length) return { errors , status: false }
         if(password) {
             password = await bcrypt.hash(password, 10);
             await User.update({id} , {...options , password});

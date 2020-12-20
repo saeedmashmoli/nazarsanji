@@ -19,7 +19,9 @@
         const d = await getSurveysFn(true);
         const t = await getTypesFn();
         const q = await getQuestionFn(id);
-        if(q.status && d.status && t.status){
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } else if(q.status && d.status && t.status){
             title = q.question.title;
             status = q.question.status;
             shouldBe = q.question.shouldBe;

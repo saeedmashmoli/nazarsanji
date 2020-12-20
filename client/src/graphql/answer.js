@@ -2,38 +2,67 @@ import { gql } from '@apollo/client';
 import { AnswerFragments, ErrorFragments } from './fragments'
 
 export const createAnswerMutation = gql `
-    mutation CreateAnswer( $title : String , $status : Boolean! , $questionId : Int , $link : String , $image : String ,$percent : Int, $flag : Boolean!){
-        createAnswer(input : {title : $title , status : $status , questionId : $questionId , link : $link , image : $image ,percent : $percent, flag : $flag}){
+    mutation CreateAnswer( 
+        $title : String, 
+        $status : Boolean!, 
+        $questionId : Int, 
+        $link : String, 
+        $image : String,
+        $percent : Int, 
+        $flag : Boolean!
+    ){
+        createAnswer(
+            input : {
+                title : $title, 
+                status : $status, 
+                questionId : $questionId, 
+                link : $link, 
+                image : $image,
+                percent : $percent,
+                flag : $flag
+            }
+        ){
             status
             errors {
                 ...ErrorFragment
             }
-            answer {
-                ...AnswerFragment
-            }
         }
     }
-    ${AnswerFragments.answer}
     ${ErrorFragments.error}
 `
 export const updateAnswerMutation = gql `
-    mutation UpdateAnswer($title : String , $status : Boolean! , $questionId : Int , $link : String , $image : String ,$percent : Int, $flag : Boolean! , $id : Int!){
-        updateAnswer(input : {title : $title , status : $status , questionId : $questionId , link : $link , image : $image ,percent : $percent, flag : $flag} , id : $id){
+    mutation UpdateAnswer(        
+        $title : String, 
+        $status : Boolean!, 
+        $questionId : Int, 
+        $link : String, 
+        $image : String,
+        $percent : Int, 
+        $flag : Boolean! , 
+        $id : Int!
+    ){
+        updateAnswer(input : {
+                title : $title, 
+                status : $status, 
+                questionId : $questionId, 
+                link : $link, 
+                image : $image,
+                percent : $percent,
+                flag : $flag
+            }, 
+            id : $id
+        ){
             status
             errors {
                 ...ErrorFragment
             }
-            answer {
-                ...AnswerFragment
-            }
         }
     }
-    ${AnswerFragments.answer}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveAnswerMutation = gql `
-        mutation activeOrDeactiveAnswerMutation($id : Int!){
-            activeOrDeactiveAnswer(id : $id){
+        mutation activeOrDeactiveAnswerMutation($id : Int! , $status : Boolean!){
+            activeOrDeactiveAnswer(id : $id , status : $status){
                 status
                 errors{
                     ...ErrorFragment

@@ -4,42 +4,60 @@ import { ChangePasswordInput } from "../resolvers/Input";
 import { User } from "../entities/User";
 
 
-export const createUserValidator = (options: UserRegisterInput , password : string , createFlag : boolean) => {
+export const createUserValidator = async (options: UserRegisterInput | null = null , password : string | null = null , id : number | null = null) => {
     let errors = [];
-    if(options.mobile == null ){
-        errors.push({
-            field: 'mobile',
-            message : 'وارد کردن موبایل الزامی است'
-        })
-    }
-    if(options.mobile.length !== 11){
-        errors.push({
-            field: 'mobile',
-            message : 'موبایل وارد شده اشتباه است'
-        });
-    }
-    if(options.email?.length !== 0 && !options.email?.includes('@')){
-        errors.push({
-            field: 'email',
-            message : 'ایمیل وارد شده معتبر نیست'
-        });
-    }
-    if(createFlag){
-        if(password.length < 3 ){
+    if(id){
+        const user = await User.findOne({id});
+        if(!user){
             errors.push({
-                field: 'password',
-                message : 'رمز عبور بایستی بیشتر از دو کاراکتر باشد'
+                field: 'id',
+                message : 'کاربر مورد نظر یافت نشد'
             });
         }
     }
-    if(createFlag){
-        if(options.roleId === null){
+    if(options){
+        if(options.mobile == null ){
             errors.push({
-                field: 'roleId',
-                message : 'لطفا نقش کاربر را انتخاب کنید '
+                field: 'mobile',
+                message : 'وارد کردن موبایل الزامی است'
+            })
+        }
+        if(options.mobile.length !== 11){
+            errors.push({
+                field: 'mobile',
+                message : 'موبایل وارد شده اشتباه است'
             });
         }
+        const user = await User.findOne({ mobile : options.mobile });
+        if(user && (!id || (id && user.id !== id))){
+            errors.push({
+                field: 'mobile',
+                message : 'موبایل وارد شده قبلا ثبت نام کرده است'
+            })
+        }
+        if(options.email?.length !== 0 && !options.email?.includes('@')){
+            errors.push({
+                field: 'email',
+                message : 'ایمیل وارد شده معتبر نیست'
+            });
+        }
+        if(!id && password){
+            if(password.length < 3 ){
+                errors.push({
+                    field: 'password',
+                    message : 'رمز عبور بایستی بیشتر از دو کاراکتر باشد'
+                });
+            }
+            if(options.roleId === null){
+                errors.push({
+                    field: 'roleId',
+                    message : 'لطفا نقش کاربر را انتخاب کنید '
+                });
+            }
+        }
     }
+
+    
     
     return errors
 }

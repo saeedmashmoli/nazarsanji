@@ -4,9 +4,10 @@ import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { CallInput } from './Input';
-import { updateOrDeleteCallValidator  , callValidator} from '../validators/callValidator';
+import { callValidator} from '../validators/callValidator';
 import { Customer } from '../entities/Customer';
 import { Package } from '../entities/Package';
+
 
 
 @ObjectType()
@@ -60,7 +61,7 @@ export class CallResolver {
     async getCall(
         @Arg('id' , () => Int) id : number
     ) : Promise<CallResponse>{
-        let errors = await updateOrDeleteCallValidator(id);
+        let errors = await callValidator(null,id);
         if(errors?.length) return { status : false , errors};
         const call = await Call.findOne({id});
 
@@ -72,11 +73,11 @@ export class CallResolver {
     async createCall(
         @Arg('input') input: CallInput,
     ) : Promise<CallResponse>{
-        let errors = await callValidator(input);
+        let errors = await callValidator(input,null);
         if(errors?.length) return { status : false , errors};
-        const call = await Call.create({...input}).save();
+        await Call.create({...input}).save();
         
-        return { status: true , call };
+        return { status: true };
     }
 
     @Mutation(() => CallResponse)
@@ -85,25 +86,21 @@ export class CallResolver {
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: CallInput,
     ) : Promise<CallResponse>{
-        console.log(input)
-        let errors = await callValidator(input);
-        if(errors.length) return { status : false , errors};
-        let e = await updateOrDeleteCallValidator(id);
-        if(e?.length) return { status : false , errors : e};
+        let errors = await callValidator(input,id);
+        if(errors?.length) return { status : false , errors};
         await Call.update({id} , {...input});
-        const call = await Call.findOne({id});
-        return { status: true , call };
+        return { status: true };
     }
 
     @Mutation(() => CallResponse)
     // @UseMiddleware(isAuth,isCan("Call-delete" , "Call"))
     async activeOrDeactiveCall(
         @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<CallResponse>{
-        const errors = await updateOrDeleteCallValidator(id);
+        const errors = await callValidator(null,id);
         if(errors?.length) return { status : false , errors};
-        const call = await Call.findOne({id});
-        await Call.update({id},{ status : !call?.status });
+        await Call.update({id},{ status });
         return {status : true};
     }
 }

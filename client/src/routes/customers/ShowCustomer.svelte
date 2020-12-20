@@ -24,7 +24,7 @@
    const activeOrdeactiveHandler = async(customerId) => {
       let customer = await customers.filter(p => p.id === customerId)[0]
       customer.status = !customer.status
-      const data = await activeOrDeaciveCustomerFn(customerId);
+      const data = await activeOrDeaciveCustomerFn(customerId , customer.status);
       if(data.status === true){
          customers = await updateArrayFn(customers , customer)
          if(customer.status === true){
@@ -93,12 +93,14 @@
                      <td style="width: 15%;">{row.mobile}</td>
                      <td style="width: 30%;">{row.phone}</td>
                      <td style="width: 5%;">
-                        <button on:click={activeOrdeactiveHandler(row.id)} 
-                           class:is-success={row.status} 
-                           class:is-danger={!row.status} 
-                           class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-customer")}
+                           <button on:click={activeOrdeactiveHandler(row.id)} 
+                              class:is-success={row.status} 
+                              class:is-danger={!row.status} 
+                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
                         {#if $userPermissions.includes("update-customer")}

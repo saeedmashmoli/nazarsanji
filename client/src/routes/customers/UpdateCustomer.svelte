@@ -14,6 +14,9 @@
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        }
         const data = await getCustomerFn(id);
         if(data.status){
             const c = data.customer;
@@ -22,7 +25,7 @@
             phone = c.phone;
             status = c.status;
         }else{
-            replace('/server-error')
+            replace('/not-found')
         }
         notLoading()
     })     
@@ -34,8 +37,7 @@
         }else{
             errorMessages = data.errors;
             isLoading = false;
-        }
-        
+        }  
     }
     $: checkErrors = (field) => {
         let i = {status : false ,message : ""};

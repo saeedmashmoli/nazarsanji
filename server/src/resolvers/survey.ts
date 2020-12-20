@@ -4,7 +4,7 @@ import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { SurveyInput } from './Input';
-import { surveyValidator, updateOrDeleteSurveyValidator } from '../validators/surveyValidator';
+import { surveyValidator } from '../validators/surveyValidator';
 import { getConnection } from 'typeorm';
 
 
@@ -47,16 +47,9 @@ export class SurveyResolver {
     async getSurvey(
         @Arg('id' , () => Int) id : number
     ) : Promise<SurveyResponse>{
+        const errors = await surveyValidator(null, id);
+        if(errors?.length) return { status : false , errors};
         const survey = await Survey.findOne({id});
-        if(!survey){
-            return { status : false , errors : [
-                {
-                    field : 'id',
-                    message : 'نظرسنجی مورد نظر یافت نشد'
-                }
-            ]}
-        }
-
         return { status : true , survey }
     }
 
@@ -67,9 +60,9 @@ export class SurveyResolver {
     ) : Promise<SurveyResponse>{
         const errors = await surveyValidator(input);
         if(errors?.length) return { status : false , errors};
-        const survey = await Survey.create({...input}).save();
+        await Survey.create({...input}).save();
         
-        return { status: true , survey };
+        return { status: true };
     }
 
     @Mutation(() => SurveyResponse)
@@ -78,24 +71,21 @@ export class SurveyResolver {
         @Arg('id') id: number,
         @Arg('input') input: SurveyInput,
     ) : Promise<SurveyResponse>{
-        let errors = await surveyValidator(input);
-        if(errors?.length) return { status : false , errors};
-        errors = await updateOrDeleteSurveyValidator(id);
+        let errors = await surveyValidator(input , id);
         if(errors?.length) return { status : false , errors};
         await Survey.update({id} , {...input});
-        const survey = await Survey.findOne({id});
-        return { status: true , survey };
+        return { status: true };
     }
 
     @Mutation(() => SurveyResponse)
     // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
     async activeOrDeactiveSurvey(
         @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<SurveyResponse>{
-        const errors = await updateOrDeleteSurveyValidator(id);
+        const errors = await surveyValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        const survey = await Survey.findOne({id});
-        await Survey.update({id},{ status : !survey?.status });
+        await Survey.update({id},{ status });
         return {status : true};
     }
 }

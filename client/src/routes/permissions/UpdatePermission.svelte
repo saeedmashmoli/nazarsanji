@@ -12,6 +12,9 @@
     export let errorMessages = [];        
     onMount( async () => {
         $loading = true;
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } 
         const result = await getPermissionFn(id,false)
         if(result.getPermission.status){
             const data = result.getPermission.permission;

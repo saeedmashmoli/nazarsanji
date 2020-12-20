@@ -27,12 +27,13 @@ export const createOrUpdateQuestionFn = async(input, id = null) => {
         return response.data.createQuestion;
     }
 }
-export const activeOrDeaciveQuestionFn = async(id) => {
+export const activeOrDeaciveQuestionFn = async(id, status) => {
 
     const response = await client.mutate({
         mutation: activeOrDeactiveQuestionMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
     return response.data.activeOrDeactiveQuestion

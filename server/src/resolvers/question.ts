@@ -4,7 +4,7 @@ import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, 
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { QuestionInput } from './Input';
 import { FieldError } from './response';
-import { questionValidator , updateOrDeleteQuestionValidator } from '../validators/questionValidator';
+import { questionValidator } from '../validators/questionValidator';
 import { Survey } from '../entities/Survey';
 import { Type } from '../entities/Type';
 import { getConnection } from 'typeorm';
@@ -62,15 +62,9 @@ export class QuestionResolver {
     async getQuestion(
         @Arg('id' , () => Int) id : number
     ) : Promise<QuestionResponse>{
+        const errors = await questionValidator(null , id);
+        if(errors?.length) return { status : false , errors};
         const question = await Question.findOne({id});
-        if(!question){
-            return { status : false , errors : [
-                {
-                    field : 'id',
-                    message : 'سوال مورد نظر یافت نشد'
-                }
-            ]}
-        }
         return { status : true , question }
     }
 
@@ -94,8 +88,8 @@ export class QuestionResolver {
     ) : Promise<QuestionResponse>{
         const errors = await questionValidator(input);
         if(errors?.length) return { status : false , errors};
-        const question = await Question.create({...input}).save();
-        return {status : true , question };
+        await Question.create({...input}).save();
+        return {status : true };
     }
 
     @Mutation(() => QuestionResponse)
@@ -104,26 +98,21 @@ export class QuestionResolver {
         @Arg('id' ,() => Int) id: number,
         @Arg('input') input: QuestionInput,
     ) : Promise<QuestionResponse>{
-        let errors = await questionValidator(input);
+        let errors = await questionValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        errors = await updateOrDeleteQuestionValidator(id);
-        if(errors?.length) return { status : false , errors};
-
         await Question.update({id},{...input});
-        const question = await Question.findOne({id})
-
-        return {status : true , question};
+        return {status : true};
     }
 
     @Mutation(() => QuestionResponse)
     // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
     async activeOrDeactiveQuestion(
         @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<QuestionResponse>{
-        const errors = await updateOrDeleteQuestionValidator(id);
+        const errors = await questionValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        const question = await Question.findOne({id});
-        await Question.update({id},{ status : !question?.status });
+        await Question.update({id},{ status });
         return {status : true};
     }
 }

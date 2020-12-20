@@ -24,7 +24,7 @@
    const activeOrdeactiveHandler = async(questionId) => {
       let question = await questions.filter(p => p.id === questionId)[0]
       question.status = !question.status
-      const data = await activeOrDeaciveQuestionFn(questionId);
+      const data = await activeOrDeaciveQuestionFn(questionId ,question.status);
       if(data.status === true){
          questions = await updateArrayFn(questions , question)
          if(question.status === true){
@@ -93,12 +93,14 @@
                      <td style="width: 15%;">{row.type.title}</td>
                      <td style="width: 30%;">{row.survey.title}</td>
                      <td style="width: 5%;">
-                        <button on:click={activeOrdeactiveHandler(row.id)} 
-                           class:is-success={row.status} 
-                           class:is-danger={!row.status} 
-                           class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-question")}
+                           <button on:click={activeOrdeactiveHandler(row.id)} 
+                              class:is-success={row.status} 
+                              class:is-danger={!row.status} 
+                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
                         {#if $userPermissions.includes("update-question")}

@@ -1,13 +1,13 @@
 import client from '../svelte-apollo';
 import {
     CreateRoleMutation,
-    DeleteRoleMutation,
+    activeOrDeactiveRoleMutation,
     GetPermissionQuery,
     GetPermissionsMutation,
     GetRoleQuery,
     GetRolesMutation,
     UpdateRoleMutation,
-    DeletePermissionMutation,
+    activeOrDeactivePermissionMutation,
     UpdatePermissionMutation,
     CreatePermissionMutation
 } from '../graphql/permissionRole';
@@ -87,22 +87,24 @@ export let createOrUpdatePermissionFn = async(input, id = null) => {
         return response.data.createPermission;
     }
 }
-export const deleteRoleFn = async(id) => {
+export const activeOrDeactiveRoleFn = async(id, status) => {
     const response = await client.mutate({
-        mutation: DeleteRoleMutation,
+        mutation: activeOrDeactiveRoleMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
-    return response.data.deleteRole
+    return response.data.activeOrDeactiveRole
 }
 
-export const deletePermissionFn = async(id) => {
+export const activeOrDeactivePermissionFn = async(id, status) => {
     const response = await client.mutate({
-        mutation: DeletePermissionMutation,
+        mutation: activeOrDeactivePermissionMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
-    return response.data.deletePermission
+    return response.data.activeOrDeactivePermission
 }

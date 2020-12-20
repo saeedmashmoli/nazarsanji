@@ -24,7 +24,7 @@
    const activeOrDeactiveHandler = async(packageId) => {
       let p = await packages.filter(s => s.id === packageId)[0]
       p.status = !p.status
-      const data = await activeOrDeacivePackageFn(packageId);
+      const data = await activeOrDeacivePackageFn(packageId , p.status);
       if(data.status === true){
          packages = await updateArrayFn(packages , p)
          if(p.status === true){
@@ -89,12 +89,14 @@
                      <td style="width: 5%;">{row.id}</td>
                      <td style="width: 30%;">{row.title}</td>
                      <td style="width: 5%;">
-                        <button on:click={activeOrDeactiveHandler(row.id)} 
-                           class:is-success={row.status} 
-                           class:is-danger={!row.status} 
-                           class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-package")}
+                           <button on:click={activeOrDeactiveHandler(row.id)} 
+                              class:is-success={row.status} 
+                              class:is-danger={!row.status} 
+                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
                         {#if $userPermissions.includes("update-package")}

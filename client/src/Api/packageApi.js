@@ -26,12 +26,13 @@ export const createOrUpdatePackageFn = async(input, id = null) => {
         return response.data.createPackage;
     }
 }
-export const activeOrDeacivePackageFn = async(id) => {
+export const activeOrDeacivePackageFn = async(id, status) => {
 
     const response = await client.mutate({
         mutation: activeOrDeactivePackageMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
     return response.data.activeOrDeactivePackage

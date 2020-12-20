@@ -69,8 +69,7 @@
                                     <i class="fas fa-user"></i>
                                 </span>
                             </div>
-
-                                <p class="help is-danger">{checkErrors("name").message}</p>
+                            <p class="help is-danger">{checkErrors("name").message}</p>
                         </div>
                         <div class="field">
                             <label class="label">موبایل</label>

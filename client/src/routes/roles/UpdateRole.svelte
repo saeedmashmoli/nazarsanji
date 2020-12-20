@@ -4,17 +4,23 @@
     import { onMount } from 'svelte';
     import { loading } from '../../stores';
     import { location ,replace } from 'svelte-spa-router';
+    export let id = parseInt($location.split('/').slice(-1)[0]);
     export let status;
     export let title;
     export let label;
-    export let id = parseInt($location.split('/').slice(-1)[0]);
     export let permissions = [];
     export let selectPermissions = [];
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
-        const result = await getRoleFn(id)
-        if(result.status){
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } 
+
+        const result = await getRoleFn(id);
+        const res = await getPermissionsFn(false)
+        if(result.status && res.status){
+            selectPermissions = await setSelectPermissions(res.permissions)
             const data = result.role
             status = data.status;
             label = data.label;
@@ -25,12 +31,7 @@
         }else{
             replace('/not-found')
         }
-        const res = await getPermissionsFn(false)
-        if(res.status){
-            selectPermissions = await setSelectPermissions(res.permissions)
-        }else{
-            replace('/server-error')
-        }
+        
         notLoading()
     })
     const changePermissions =  (input) => {

@@ -21,12 +21,13 @@ export const getUserFn = async(id) => {
 
     return response.data.getUser
 }
-export const activeOrDeaciveUserFn = async(id) => {
+export const activeOrDeaciveUserFn = async(id, active) => {
 
     const response = await client.mutate({
         mutation: activeOrDeactiveUserMutation,
         variables: {
-            id
+            id,
+            active
         }
     })
     return response.data.activeOrDeactiveUser

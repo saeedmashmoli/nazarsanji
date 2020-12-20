@@ -24,7 +24,7 @@
    const activeOrDeactiveHandler = async(surveyId) => {
       let survey = await surveys.filter(s => s.id === surveyId)[0]
       survey.status = !survey.status
-      const data = await activeOrDeaciveSurveyFn(surveyId);
+      const data = await activeOrDeaciveSurveyFn(surveyId , survey.status);
       if(data.status === true){
          surveys = await updateArrayFn(surveys , survey)
          if(survey.status === true){
@@ -89,12 +89,14 @@
                      <td style="width: 5%;">{row.id}</td>
                      <td style="width: 30%;">{row.title}</td>
                      <td style="width: 5%;">
-                        <button on:click={activeOrDeactiveHandler(row.id)} 
-                           class:is-success={row.status} 
-                           class:is-danger={!row.status} 
-                           class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                              <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
+                        {#if $userPermissions.includes("status-survey")}
+                           <button on:click={activeOrDeactiveHandler(row.id)} 
+                              class:is-success={row.status} 
+                              class:is-danger={!row.status} 
+                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
+                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
+                           </button>
+                        {/if}
                      </td>
                      <td style="width: 5%;">
                         {#if $userPermissions.includes("update-survey")}

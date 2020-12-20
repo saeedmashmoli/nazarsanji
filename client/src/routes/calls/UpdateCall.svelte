@@ -31,6 +31,9 @@
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } 
         const c = await getCallFn(id)
         const cu = await getCustomersFn(true);
         const p = await getPackagesFn(true);
@@ -55,7 +58,7 @@
             customers = cu.customers;
             packages = p.packages;
         }else{
-            replace('/server-error')
+            replace('/not-found')
         }
         notLoading()
     })     

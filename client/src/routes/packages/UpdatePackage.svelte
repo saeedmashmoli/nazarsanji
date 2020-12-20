@@ -10,6 +10,9 @@
     export let errorMessages = [];        
     onMount( async () => {
         $loading = true;
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } 
         const result = await getPackageFn(id,false)
         if(result.status){
             const data = result.package;

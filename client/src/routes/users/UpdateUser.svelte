@@ -4,7 +4,7 @@
     import { getUserFn , createOrUpdateUserFn} from '../../Api/userApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
-    import { push , location } from 'svelte-spa-router';
+    import { push , location , replace } from 'svelte-spa-router';
     export let id = parseInt($location.split('/').slice(-1)[0]);
     export let name = "";
     export let mobile = "";
@@ -16,14 +16,13 @@
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;
+        
         const result = await getRolesFn(true);
-        if(result.status){
-            roles = result.roles
-        }else{
-            replace('/not-found')
-        }
         const res = await getUserFn(id)
-        if(res.status){
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } else if(res.status && result.status){
+            roles = result.roles
             const data = res.user
             active = data.active;
             name = data.name;

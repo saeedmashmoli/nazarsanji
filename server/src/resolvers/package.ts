@@ -4,7 +4,7 @@ import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { PackageInput } from './Input';
-import { packageValidator, updateOrDeletePackageValidator } from '../validators/packageValidator';
+import { packageValidator } from '../validators/packageValidator';
 import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
 
@@ -53,10 +53,9 @@ export class PackageResolver {
     async getPackage(
         @Arg('id' , () => Int) id : number
     ) : Promise<PackageResponse>{
-        let e = await updateOrDeletePackageValidator(id);
-        if(e?.length) return { status : false , errors : e};
+        let errors = await packageValidator(null,id);
+        if(errors?.length) return { status : false , errors};
         const p = await Package.findOne({id});
-
         return { status : true , package : p }
     }
 
@@ -65,11 +64,10 @@ export class PackageResolver {
     async createPackage(
         @Arg('input') input: PackageInput,
     ) : Promise<PackageResponse>{
-        const errors = await packageValidator(input);
+        let errors = await packageValidator(input,null);
         if(errors?.length) return { status : false , errors};
-        const p = await Package.create({...input}).save();
-        
-        return { status: true , package : p };
+        await Package.create({...input}).save();
+        return { status: true };
     }
 
     @Mutation(() => PackageResponse)
@@ -78,24 +76,21 @@ export class PackageResolver {
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: PackageInput,
     ) : Promise<PackageResponse>{
-        let errors = await packageValidator(input);
-        if(errors?.length) return { status : false , errors};
-        errors = await updateOrDeletePackageValidator(id);
+        let errors = await packageValidator(input,id);
         if(errors?.length) return { status : false , errors};
         await Package.update({id} , {...input});
-        const p = await Package.findOne({id});
-        return { status: true , package : p };
+        return { status: true};
     }
 
     @Mutation(() => PackageResponse)
     // @UseMiddleware(isAuth,isCan("Package-delete" , "Package"))
     async activeOrDeactivePackage(
         @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<PackageResponse>{
-        const errors = await updateOrDeletePackageValidator(id);
+        let errors = await packageValidator(null,id);
         if(errors?.length) return { status : false , errors};
-        const p = await Package.findOne({id});
-        await Package.update({id},{ status : !p?.status });
+        await Package.update({id},{ status });
         return {status : true};
     }
 }

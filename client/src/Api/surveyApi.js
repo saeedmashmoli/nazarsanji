@@ -26,12 +26,13 @@ export const createOrUpdateSurveyFn = async(input, id = null) => {
         return response.data.createSurvey;
     }
 }
-export const activeOrDeaciveSurveyFn = async(id) => {
+export const activeOrDeaciveSurveyFn = async(id, status) => {
 
     const response = await client.mutate({
         mutation: activeOrDeactiveSurveyMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
     return response.data.activeOrDeactiveSurvey

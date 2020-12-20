@@ -2,8 +2,20 @@ import { gql } from '@apollo/client';
 import { PermissionFragments, RoleFragments, ErrorFragments } from './fragments';
 
 export const CreateRoleMutation = gql `
-    mutation CreateRole($title : String!, $label : String! , $status : Boolean! , $permissions : [String!]!) {
-        createRole( input : {title : $title , label : $label , status : $status , permissions : $permissions}){
+    mutation CreateRole(
+        $title : String!, 
+        $label : String!, 
+        $status : Boolean!, 
+        $permissions : [String!]!
+    ) {
+        createRole( 
+            input : {
+                title : $title , 
+                label : $label , 
+                status : $status , 
+                permissions : $permissions
+            }
+        ){
             status
             errors {
                 ...ErrorFragment
@@ -13,8 +25,20 @@ export const CreateRoleMutation = gql `
     ${ErrorFragments.error}
 `
 export const CreatePermissionMutation = gql `
-    mutation CreatePermission($title: String!, $label: String!, $model: String! , $status : Boolean!) {
-        createPermission(input : {title : $title , label : $label , model : $model ,status : $status}){
+    mutation CreatePermission(
+        $title: String!, 
+        $label: String!, 
+        $model: String! , 
+        $status : Boolean!
+    ) {
+        createPermission(
+            input : {
+                title : $title, 
+                label : $label, 
+                model : $model,
+                status : $status
+            }
+        ){
             status
             errors {
                 ...ErrorFragment
@@ -24,8 +48,22 @@ export const CreatePermissionMutation = gql `
     ${ErrorFragments.error}
 `
 export const UpdateRoleMutation = gql `
-    mutation UpdateRole($title : String!, $label : String! , $status : Boolean! , $permissions : [String!]! , $id : Float!) {
-        updateRole(input : {title : $title , label : $label , status : $status , permissions : $permissions} , id : $id){
+    mutation UpdateRole(        
+        $title : String!, 
+        $label : String!, 
+        $status : Boolean!, 
+        $permissions : [String!]!, 
+        $id : Int!
+    ) {
+        updateRole(
+            input : {
+                title : $title , 
+                label : $label , 
+                status : $status , 
+                permissions : $permissions
+            }, 
+            id : $id
+        ){
             status
             errors {
                 ...ErrorFragment
@@ -35,8 +73,22 @@ export const UpdateRoleMutation = gql `
     ${ErrorFragments.error}
 `
 export const UpdatePermissionMutation = gql `
-    mutation UpdatePermissionMutation($title: String! , $label: String! , $id : Int! , $model: String! , $status : Boolean!) {
-        updatePermission(input : {title : $title , label : $label , model : $model ,status : $status}, id : $id){
+    mutation UpdatePermissionMutation(        
+        $title: String!, 
+        $label: String!, 
+        $model: String! , 
+        $status : Boolean!, 
+        $id : Int! 
+    ) {
+        updatePermission(
+            input : {
+                title : $title, 
+                label : $label, 
+                model : $model,
+                status : $status
+            }, 
+            id : $id
+        ){
             status
             errors {
                 ...ErrorFragment
@@ -45,19 +97,27 @@ export const UpdatePermissionMutation = gql `
     }
     ${ErrorFragments.error}
 `
-export const DeleteRoleMutation = gql `
-    mutation DeleteRole($id : Float!) {
-        deleteRole(id : $id){
+export const activeOrDeactiveRoleMutation = gql `
+    mutation ActiveOrDeactiveRole($id : Int! , $status : Boolean!) {
+        activeOrDeactiveRole(id : $id , status : $status){
             status
+            errors{
+                ...ErrorFragment
+            }
         }
     }
+    ${ErrorFragments.error}
 `
-export const DeletePermissionMutation = gql `
-    mutation DeletePermission($id : Float!) {
-        deletePermission(id : $id){
+export const activeOrDeactivePermissionMutation = gql `
+    mutation ActiveOrDeactivePermission($id : Int! , $status : Boolean!) {
+        activeOrDeactivePermission(id : $id , status : $status){
             status
+            errors{
+                ...ErrorFragment
+            }
         }
     }
+    ${ErrorFragments.error}
 `
 export const GetRolesMutation = gql `
     mutation getRoles($status : Boolean!){
@@ -75,7 +135,7 @@ export const GetRolesMutation = gql `
     ${ErrorFragments.error}
 `
 export const GetRoleQuery = gql `
-    query getRole($id : Float!){
+    query getRole($id : Int!){
         getRole(id : $id){
             status
             errors {

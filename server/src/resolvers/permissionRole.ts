@@ -27,17 +27,6 @@ class PermissionResponse {
     @Field(() => Permission , {nullable : true})
     permission?: Permission;
 }
-// @ObjectType()
-// class PaginatedRoles {
-//     @Field(() => [Role])
-//     roles!: Role[];
-//     @Field()
-//     total!: number;
-//     @Field()
-//     page!: number;
-//     @Field()
-//     pages!: number;
-// }
 @ObjectType()
 class RolesResponse {
     @Field(() => [FieldError] , {nullable : true})
@@ -80,18 +69,11 @@ export class PermissionRoleResolver {
     @Query(() => RoleResponse)
     // @UseMiddleware(isAuth,isCan("role-show" , "Role"))
     async getRole(
-        @Arg('id') id : number
+        @Arg('id' , () => Int) id : number
     ) : Promise<RoleResponse>{
+        const errors = await roleValidator(null , id);
+        if(errors?.length) return {status : false , errors}
         const role = await Role.findOne({ where : {id}});
-        if(!role){
-            return { status : false , errors : [
-                {
-                    field : 'id',
-                    message : 'نقش مورد نظر یافت نشد'
-                }
-            ]}
-        }
-
         return { status : true , role }
     }
 
@@ -101,8 +83,8 @@ export class PermissionRoleResolver {
         @Arg('input') input: RoleInput,
     ) : Promise<RoleResponse>{
         // is validate
-        const errors = await roleValidator(input);
-        if(errors) return {status : false , errors}
+        const errors = await roleValidator(input , null);
+        if(errors?.length) return {status : false , errors}
         //create role
         const role = await Role.create({...input}).save();
         //sync permissions to role
@@ -110,19 +92,19 @@ export class PermissionRoleResolver {
             this.addPermitToRole(role.id,parseInt(p))
         })
 
-        return {status : true };
+        return {status : true};
     }
 
     @Mutation(() => RoleResponse)
     // @UseMiddleware(isAuth,isCan("role-update" , "Role"))
     async updateRole(
-        @Arg('id') id: number,
+        @Arg('id' , () => Int) id: number,
         @Arg('input') input: RoleInput,
     ) : Promise<RoleResponse>{
         const {title , label , status , permissions} = input;
         // is validate
-        const errors = await roleValidator(input);
-        if(errors) return {status : false , errors}
+        const errors = await roleValidator(input,id);
+        if(errors?.length) return {status : false , errors}
         //update role
         await Role.update({id},{title,label,status});
 
@@ -144,12 +126,13 @@ export class PermissionRoleResolver {
 
     @Mutation(() => RoleResponse)
     // @UseMiddleware(isAuth,isCan("role-delete" , "Role"))
-    async deleteRole(
-        @Arg('id') id: number,
+    async activeOrDeactiveRole(
+        @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<RoleResponse>{
-        const role = await Role.findOne({id});
-
-        await Role.update({id},{ status : !role?.status });
+        const errors = await roleValidator(null,id);
+        if(errors?.length) return {status : false , errors}
+        await Role.update({id},{status});
         return { status : true };;
     }
     @Mutation(() => PermissionsResponse)
@@ -170,10 +153,9 @@ export class PermissionRoleResolver {
     async getPermission(
         @Arg('id' , () => Int) id : number
     ) : Promise<PermissionResponse>{
+        const errors = await permissionValidator(null,id);
+        if(errors?.length) return {status : false , errors}
         const permission = await Permission.findOne({id})
-        if(!permission){
-            return { status : false , errors : [{ message : "شناسه مورد نظر درست نیست" , field : "id" }]}
-        }
         return { permission , status : true}
     }
 
@@ -182,10 +164,10 @@ export class PermissionRoleResolver {
     async createPermission(
         @Arg('input') input: PermissionInput,
     ) : Promise<PermissionResponse>{
-        const errors = await permissionValidator(input);
-        if(errors) return {status : false , errors}
-        const permission = await Permission.create({...input}).save();
-        return {status :true , permission};
+        const errors = await permissionValidator(input,null);
+        if(errors?.length) return {status : false , errors}
+        await Permission.create({...input}).save();
+        return {status :true};
     }
 
     @Mutation(() => PermissionResponse)
@@ -194,21 +176,21 @@ export class PermissionRoleResolver {
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: PermissionInput,
     ) : Promise<PermissionResponse>{
-        const errors = await permissionValidator(input);
-        if(errors) return {status : false , errors}
+        const errors = await permissionValidator(input,id);
+        if(errors?.length) return {status : false , errors}
         await Permission.update({id},{...input});
-        const permission = await Permission.findOne({id})
-        return {status :true , permission};
+        return {status :true};
     }
 
     @Mutation(() => PermissionResponse)
     // @UseMiddleware(isAuth,isCan("permission-delete" , "Permission"))
-    async deletePermission(
-        @Arg('id') id: number,
+    async activeOrDeactivePermission(
+        @Arg('id' , () => Int) id: number,
+        @Arg('status') status: boolean
     ) : Promise<PermissionResponse>{
-        const permission = await Permission.findOne({id});
-
-        await Permission.update({id},{ status : !permission?.status });
+        const errors = await permissionValidator(null,id);
+        if(errors?.length) return {status : false , errors}
+        await Permission.update({id},{ status});
         return { status : true };;
     }
 }

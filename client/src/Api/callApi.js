@@ -27,12 +27,13 @@ export const createOrUpdateCallFn = async(input, id = null) => {
         return response.data.createCall;
     }
 }
-export const activeOrDeaciveCallFn = async(id) => {
+export const activeOrDeaciveCallFn = async(id, status) => {
 
     const response = await client.mutate({
         mutation: activeOrDeactiveCallMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
     return response.data.activeOrDeactiveCall

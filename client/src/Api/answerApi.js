@@ -26,12 +26,12 @@ export const createOrUpdateAnswerFn = async(input, id = null) => {
         return response.data.createAnswer;
     }
 }
-export const activeOrDeaciveAnswerFn = async(id) => {
-
+export const activeOrDeaciveAnswerFn = async(id, status) => {
     const response = await client.mutate({
         mutation: activeOrDeactiveAnswerMutation,
         variables: {
-            id
+            id,
+            status
         }
     })
     return response.data.activeOrDeactiveAnswer

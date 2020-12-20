@@ -8,12 +8,8 @@ export const createSurveyMutation = gql `
             errors{
                 ...ErrorFragment
             }
-            survey {
-                ...SurveyFragment
-            }
         }
     }
-    ${SurveyFragments.survey}
     ${ErrorFragments.error}
 `
 export const updateSurveyMutation = gql `
@@ -23,17 +19,13 @@ export const updateSurveyMutation = gql `
             errors{
                 ...ErrorFragment
             }
-            survey {
-                ...SurveyFragment
-            }
         }
     }
-    ${SurveyFragments.survey}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveSurveyMutation = gql `
-    mutation activeOrDeactiveSurveyMutation($id : Int!){
-        activeOrDeactiveSurvey(id : $id){
+    mutation activeOrDeactiveSurveyMutation($id : Int! , $status : Boolean!){
+        activeOrDeactiveSurvey(id : $id , status : $status){
             status
             errors{
                 ...ErrorFragment

@@ -2,38 +2,56 @@ import { gql } from '@apollo/client';
 import { CustomerFragments, ErrorFragments } from './fragments'
 
 export const createCustomerMutation = gql `
-    mutation CreateCustomer($name : String , $status : Boolean! , $mobile : String , $phone : String ){
-        createCustomer(input : {name : $name , status : $status , mobile : $mobile , phone : $phone}){
+    mutation CreateCustomer(
+        $name : String, 
+        $status : Boolean!, 
+        $mobile : String, 
+        $phone : String 
+    ){
+        createCustomer(
+            input : {
+                name : $name , 
+                status : $status , 
+                mobile : $mobile , 
+                phone : $phone
+            }
+        ){
             status
             errors{
                 ...ErrorFragment
             }
-            customer {
-                ...CustomerFragment
-            }
         } 
     }
-    ${CustomerFragments.customer}
     ${ErrorFragments.error}
 `
 export const updateCustomerMutation = gql `
-    mutation UpdateCustomer($name : String , $status : Boolean! , $mobile : String , $phone : String , $id : Int!){
-        updateCustomer(input : {name : $name , status : $status , mobile : $mobile , phone : $phone} , id : $id){
+    mutation UpdateCustomer(
+        $name : String, 
+        $status : Boolean!, 
+        $mobile : String, 
+        $phone : String, 
+        $id : Int!
+    ){
+        updateCustomer(
+            input : {
+                name : $name, 
+                status : $status, 
+                mobile : $mobile,
+                phone : $phone
+            } , 
+            id : $id
+        ){
             status
             errors{
                 ...ErrorFragment
             }
-            customer {
-                ...CustomerFragment
-            }
         } 
     }
-    ${CustomerFragments.customer}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveCustomerMutation = gql `
-    mutation activeOrDeactiveMutation($id : Int!){
-        activeOrDeactiveCustomer(id : $id){
+    mutation activeOrDeactiveMutation($id : Int! , $status : Boolean!){
+        activeOrDeactiveCustomer(id : $id , status : $status){
             status
             errors{
                 ...ErrorFragment

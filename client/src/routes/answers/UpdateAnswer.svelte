@@ -4,7 +4,7 @@
     import { getQuestionsFn } from '../../Api/questionApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
-    import { push , location } from 'svelte-spa-router';
+    import { push , location , replace } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
     export let title = "";
@@ -18,9 +18,12 @@
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
+        if(!Number.isInteger(id)){
+            replace('/not-found')
+        } 
         const a = await getAnswerFn(id);
         const  q = await getQuestionsFn(true);
-        if(q.status && a.status){
+        if( q.status && a.status){
             const answer = a.answer
             status = answer.status;
             link = answer.link;
@@ -30,7 +33,7 @@
             flag = answer.flag;
             questions = q.questions
         }else{
-            replace('/server-error')
+            replace('/not-found')
         }
         notLoading()
     })

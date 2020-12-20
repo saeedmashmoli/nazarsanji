@@ -42,12 +42,8 @@ export const createCallMutation = gql `
             errors{
                 ...ErrorFragment
             }
-            call {
-                ...CallFragment
-            }
         } 
     }
-    ${CallFragments.call}
     ${ErrorFragments.error}
 `
 export const updateCallMutation = gql `
@@ -93,17 +89,13 @@ export const updateCallMutation = gql `
             errors{
                 ...ErrorFragment
             }
-            call {
-                ...CallFragment
-            }
         } 
     }
-    ${CallFragments.call}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveCallMutation = gql `
-    mutation activeOrDeactiveMutation($id : Int!){
-        activeOrDeactiveCall(id : $id){
+    mutation activeOrDeactiveMutation($id : Int! , $status: Boolean!){
+        activeOrDeactiveCall(id : $id , status : $status){
             status
             errors{
                 ...ErrorFragment
