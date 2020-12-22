@@ -4,13 +4,15 @@ import { PackageFragments, ErrorFragments } from './fragments'
 export const createPackageMutation = gql `
     mutation CreatePackage(
         $title : String!, 
-        $status : Boolean! 
+        $status : Boolean!,
+        $file : Upload 
     ){
         createPackage(
             input : { 
                 title : $title, 
                 status : $status 
             }
+            file : $file
         ){
             status
             errors{

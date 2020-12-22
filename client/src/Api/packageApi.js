@@ -6,12 +6,13 @@ import {
     getPackagesMutation,
     getPackageQuery
 } from '../graphql/package';
-export const createOrUpdatePackageFn = async(input, id = null) => {
+export const createOrUpdatePackageFn = async(input, file, id = null) => {
     if (id) {
         const response = await client.mutate({
             mutation: updatePackageMutation,
             variables: {
                 ...input,
+                file,
                 id
             }
         })
@@ -20,7 +21,8 @@ export const createOrUpdatePackageFn = async(input, id = null) => {
         const response = await client.mutate({
             mutation: createPackageMutation,
             variables: {
-                ...input
+                ...input,
+                file
             }
         })
         return response.data.createPackage;

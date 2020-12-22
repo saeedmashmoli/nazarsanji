@@ -78,11 +78,13 @@
         <div class="navbar-end">
             <!-- <a href="/" class="navbar-item">اعلانات</a> -->
             <div class="navbar-item has-dropdown is-hoverable">
+                <!-- svelte-ignore a11y-missing-attribute -->
                 <a class="navbar-link">{$user.name ? $user.name : $user.mobile}</a>
                 <div class="navbar-dropdown">
                     <a href="/#/profile" class="navbar-item">پروفایل</a>
                     <!-- <a href="/" class="navbar-item">تنظیمات</a> -->
                     <hr class="navbar-divider" />
+                        <!-- svelte-ignore a11y-missing-attribute -->
                     <a class="navbar-item" on:click={logoutHanldler}>خروج</a>
                 </div>
             </div>

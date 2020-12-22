@@ -1,7 +1,7 @@
 <script>
    import { push, replace  } from 'svelte-spa-router';
    import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
-   import { notLoading , updateArrayFn } from '../../utilis/functions';
+   import { notLoading , updateArrayFn , actveOrDeactiveFn } from '../../utilis/functions';
    import { activeOrDeaciveSurveyFn , getSurveysFn} from '../../Api/surveyApi';
    import { userPermissions , loading } from '../../stores';
    import Toast from '../../components/Toast.svelte';
@@ -25,15 +25,9 @@
       let survey = await surveys.filter(s => s.id === surveyId)[0]
       survey.status = !survey.status
       const data = await activeOrDeaciveSurveyFn(surveyId , survey.status);
-      if(data.status === true){
+      if (data.status === true) {
          surveys = await updateArrayFn(surveys , survey)
-         if(survey.status === true){
-            window.pushToast('نظرسنجی مورد نظر با موفقیت فعال شد' , "green")
-         }else{
-            window.pushToast('نظرسنجی مورد نظر با موفقیت غیر فعال شد' , "red")
-         }
-      }else{
-         window.pushToast('مشکلی در تغییر وضعیت نظرسنجی بوجود آمده است' , '#000')
+         actveOrDeactiveFn(data.status,survey.status,"نظرسنجی");
       }
    }
 </script>
@@ -63,7 +57,7 @@
             <div class="column navbar-end">
                <div class="buttons">
                   {#if $userPermissions.includes("show-question")}
-                     <a href="#/questions/show-question" class="button is-info is-rounded">بخش سوالات</a>
+                     <a href="#/questions/show-question/" class="button is-info is-rounded">بخش سوالات</a>
                   {/if}
                   {#if $userPermissions.includes("create-survey")}
                      <a href="#/surveys/create-survey" class="button is-link is-rounded">افزودن نظرسنجی</a>

@@ -165,7 +165,8 @@ body {
     margin-top: 0px;
 }
 
-.notfound a {
+.notfound label {
+    cursor: pointer;
     font-size: 14px;
     text-decoration: none;
     text-transform: uppercase;
@@ -282,7 +283,11 @@ input {
 }
 
 .back-eee {
-    background: #eee
+    background: #eee !important
+}
+
+.pagination-list {
+    padding: 0 0 1% 0 !important;
 }
 
 .status {
@@ -302,17 +307,17 @@ input {
     text-align: center;
 }
 
-tbody td {
+tbody tr td {
     padding: 0.5%;
 }
 
-thead th {
+thead tr th {
     background: #3273dc !important;
-    color: rgb(221, 216, 216);
+    color: rgb(221, 216, 216) !important;
 }
 
 tbody tr td,
-thead th {
+thead tr th {
     border-left: 1px solid #eee;
     border-bottom: 1px solid #eee;
     border-top: 1px solid #eee;
@@ -326,4 +331,12 @@ tbody tr:hover {
 
 thead th input {
     background: #ddd !important;
+}
+
+.table-container {
+    border-radius: 8px !important;
+}
+
+.selectContainer div {
+    z-index: 25!important;
 }

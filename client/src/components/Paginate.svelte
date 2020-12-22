@@ -28,7 +28,7 @@
 
 </script>
 <style>
-
+    
 </style>
 <nav class:is-small={checkDevice} class="pagination is-rounded is-centered" role="navigation" aria-label="pagination">
     <ul class="pagination-list">

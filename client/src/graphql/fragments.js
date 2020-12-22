@@ -156,11 +156,7 @@ export const CustomerFragments = {
             mobile
             phone
             status
-            calls {
-                ...CallFragment
-            }
         }
-        ${CallFragments.call}
     `
 };
 export const PackageFragments = {
@@ -169,10 +165,6 @@ export const PackageFragments = {
             id
             title
             status
-            calls {
-                ...CallFragment
-            }
         }
-        ${CallFragments.call}
     `
 };

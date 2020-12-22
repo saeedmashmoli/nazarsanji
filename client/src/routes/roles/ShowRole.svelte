@@ -3,7 +3,7 @@
    import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
    import { onMount } from 'svelte';
    import { push, replace  } from 'svelte-spa-router';
-   import { notLoading   ,updateArrayFn  } from '../../utilis/functions';
+   import { notLoading   ,updateArrayFn , actveOrDeactiveFn } from '../../utilis/functions';
    import {getRolesFn , activeOrDeactiveRoleFn} from '../../Api/permissionRoleApi';
    import { dataTableSettings } from '../../utilis/constants';
    import Toast from '../../components/Toast.svelte';
@@ -23,19 +23,11 @@
    }
    const activeOrDeactiveRole= async(roleId) => {
       let role = roles.filter(r => r.id === roleId)[0]
-
       role.status = !role.status;
-      
       const data = await activeOrDeactiveRoleFn(roleId , role.status);
-      if(data.status === true){
+      if (data.status === true) {
          roles = await updateArrayFn(roles , role)
-         if(role.status === true){
-            window.pushToast('نقش مورد نظر با موفقیت فعال شد' , "green")
-         }else{
-            window.pushToast('نقش مورد نظر با موفقیت غیر فعال شد' , "red")
-         }
-      }else{
-         window.pushToast('مشکلی در تغییر وضعیت نقش بوجود آمده است' , '#000')
+         actveOrDeactiveFn(data.status,role.status,"نقش");
       }
    }
 
@@ -62,7 +54,7 @@
          <div class="column navbar-end">
             <div class="buttons">
                {#if $userPermissions.includes("show-permission")}
-                  <a href="#/permissions/show-permission" class="button is-info is-rounded">دسترسی ها</a>
+                  <a href="#/permissions/show-permission/" class="button is-info is-rounded">دسترسی ها</a>
                {/if}
                {#if $userPermissions.includes("create-role")}
                   <a href="#/roles/create-role" class="button is-link is-rounded">افزودن نقش</a>

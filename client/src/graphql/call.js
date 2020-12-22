@@ -105,14 +105,47 @@ export const activeOrDeactiveCallMutation = gql `
     ${ErrorFragments.error}
 `
 export const getCallsMutation = gql `
-    mutation GetCalls($status : Boolean!){
-        getCalls(status : $status) {
+    mutation GetCalls(
+        $status : Boolean!, 
+        $name : String, 
+        $phone : String, 
+        $mobile : String,
+        $issue : String, 
+        $minorIssue : String, 
+        $exactIssue : String,
+        $callCode : String, 
+        $year : String, 
+        $month : String,
+        $page: Int,
+        $limit: Int 
+    ){
+        getCalls(
+            input : {
+                status : $status, 
+                name : $name, 
+                phone : $phone, 
+                mobile : $mobile,
+                issue : $issue, 
+                minorIssue : $minorIssue, 
+                exactIssue : $exactIssue
+                callCode : $callCode, 
+                year : $year, 
+                month : $month
+            }, 
+            page : $page, 
+            limit : $limit
+        ) {
             status
             errors {
                 ...ErrorFragment
             }
-            calls {
-                ...CallFragment
+            docs {
+                total
+                page 
+                pages
+                calls {
+                    ...CallFragment
+                }
             }
         }
     }

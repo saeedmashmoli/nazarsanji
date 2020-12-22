@@ -150,17 +150,17 @@
       <div class="box">
          <div class="table-container">
             <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
-            <thead>
-               <tr>
-                  <th style="width: 5%;">ردیف</th>
-                  <th style="width: 5%;">شناسه</th>
-                  <th style="width: 30%;">عنوان</th>
-                  <th style="width: 40%;">شرح</th>
-                  <th style="width: 5%;">وضعیت</th>
-                  <th style="width: 5%;">دسترسی</th>
-                  <th style="width: 5%;">کاربران</th>
-                  <th style="width: 5%;">ویرایش</th>
-               </tr>
+               <thead>
+                  <tr>
+                     <th style="width: 5%;">ردیف</th>
+                     <th style="width: 5%;">شناسه</th>
+                     <th style="width: 30%;">عنوان</th>
+                     <th style="width: 40%;">شرح</th>
+                     <th style="width: 5%;">وضعیت</th>
+                     <th style="width: 5%;">دسترسی</th>
+                     <th style="width: 5%;">کاربران</th>
+                     <th style="width: 5%;">ویرایش</th>
+                  </tr>
                </thead>
                <tbody>
                   {#each roles as role , index}
@@ -207,7 +207,7 @@
                middleCount={2}
                on:changePage={(ev) => changePage(ev.detail)}
             ></Paginate>
-       {/if}
+         {/if}
       </div>
    {/if}
 </div>

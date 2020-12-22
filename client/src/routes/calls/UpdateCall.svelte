@@ -1,7 +1,12 @@
 <script>
-    import { notLoading } from '../../utilis/functions';
+        import { 
+        notLoading , 
+        loadSelectOptionsCustomers , 
+        optionIdentifier , 
+        getOptionLabel , 
+        getSelectionLabel
+    } from '../../utilis/functions';
     import Select from 'svelte-select';
-    import {getCustomersFn} from '../../Api/customerApi';
     import {getPackagesFn} from '../../Api/packageApi';
     import { createOrUpdateCallFn , getCallFn} from '../../Api/callApi';
     import {loading} from '../../stores';
@@ -24,8 +29,8 @@
     export let year = "";
     export let customerId;
     export let packageId;
+    export let customer;
     export let status = true;
-    export let customers = [];
     export let packages = [];
     export let errorMessages = [];
     export let isLoading = false;        
@@ -35,9 +40,8 @@
             replace('/not-found')
         } 
         const c = await getCallFn(id)
-        const cu = await getCustomersFn(true);
         const p = await getPackagesFn(true);
-        if(cu.status && p.status && c.status ){
+        if(p.status && c.status ){
             const call =  c.call
             issue = call.issue;
             minorIssue = call.minorIssue;
@@ -52,10 +56,10 @@
             moshaverDelayTime = call.moshaverDelayTime;
             month = call.month;
             year = call.year;
+            customer = call.customer
             customerId = call.customerId;
             packageId = call.packageId;
             status = call.status;
-            customers = cu.customers;
             packages = p.packages;
         }else{
             replace('/not-found')
@@ -69,9 +73,8 @@
             customerId , month , year , status , callCode , callPrice , callTime ,
             operatorCallTime , operatorDelayTime , moshaverCallTime , moshaverDelayTime
          }, id);
-         console.log(data)
         if(data.status == true){
-            push('/calls/show-call')
+            push('/calls/show-call/')
         }else{
             errorMessages = data.errors;
             isLoading = false;
@@ -88,9 +91,6 @@
         })
         return i;
     }
-    const optionIdentifier = 'id';
-    const getOptionLabel = (option) => option.name || option.title;
-    const getSelectionLabel = (option) => option.name || option.title;
 
     const changeCustomerId = (input) => {
         customerId = parseInt(input.detail.id)
@@ -120,13 +120,31 @@
                         <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
                         <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
                         <div class="field">
-                            <label class="label">انتخاب مشتری</label>
-                            <Select items={customers} {getSelectionLabel} {optionIdentifier} {getOptionLabel} on:select={changeCustomerId} placeholder="جستجوی مشتری..." />
+                            <label for="customer" class="label">
+                                نام : {customer.name}
+                                - موبایل : {customer.mobile}
+                                - تلفن : {customer.phone}
+                            </label>
+                            <Select noOptionsMessage="برای تغییر نام مشتری را جستجو کنید" 
+                                loadOptions={loadSelectOptionsCustomers} 
+                                {getSelectionLabel} 
+                                {optionIdentifier} 
+                                {getOptionLabel} 
+                                on:select={changeCustomerId} 
+                                placeholder="نام مشتری را وارد کنید" 
+                            />
                             <p class="help is-danger">{checkErrors("customerId").message}</p>
                         </div>
                         <div class="field">
-                            <label class="label">انتخاب بسته</label>
-                            <Select items={packages} {getSelectionLabel} {optionIdentifier} {getOptionLabel} on:select={changePackageId} placeholder="جستجوی بسته..." />
+                            <label for="package" class="label">انتخاب بسته</label>
+                            <Select 
+                                items={packages} 
+                                {getSelectionLabel} 
+                                {optionIdentifier} 
+                                {getOptionLabel} 
+                                on:select={changePackageId} 
+                                placeholder="جستجوی بسته..." 
+                            />
                             <p class="help is-danger">{checkErrors("packageId").message}</p>
                         </div>
                         <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
@@ -145,7 +163,7 @@
                                 <label for="status"></label>
                             </div>
                             <div class="d-inlineblock" style="position: relative; top: 5px">
-                                <label class="label">وضعیت</label> 
+                                <label for="status" class="label">وضعیت</label> 
                             </div>
                         </div>
                     </div>

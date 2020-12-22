@@ -4,6 +4,7 @@
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { replace , location } from 'svelte-spa-router';
+    import Input from '../../components/Input.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
     export let title = "";
     export let status = true;
@@ -26,7 +27,7 @@
     const updatePackage = async () => {
         const data = await createOrUpdatePackageFn({title , status } ,id);
         if(data.status == true){
-            replace('/packages/show-package')
+            replace('/packages/show-package/')
         }else{
             errorMessages = data.errors
         }
@@ -40,6 +41,11 @@
             }
         })
         return i;
+    }
+    async function upload(target) {
+        if(target.files){
+            excel = target.files[0];
+        }
     }
 </script>
 <svelte:head>
@@ -59,19 +65,20 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان بسته؟" type="text" bind:title={title} icon="fa-heading" />
+                        <p class="help is-danger">{checkErrors("title").message}</p>
                         <div class="field">
-                            <label class="label">عنوان</label>
+                            <label for class="label">فایل</label>
                             <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("title").status} class="input" type="text" placeholder="عنوان دسترسی را وارد نمائید" bind:value={title}>
+                                <input class:is-danger={checkErrors("file").status} class="input" on:change={e => upload(e.target)} type="file">
                                 <span class="icon is-small is-left">
-                                    <i class="fas fa-heading"></i>
+                                    <i class="fas fa-upload"></i>
                                 </span>
                                 <span class="icon is-small is-right">
                                     <i class="fas fa-user"></i>
                                 </span>
                             </div>
-
-                                <p class="help is-danger">{checkErrors("title").message}</p>
+                            <p class="help is-danger">{checkErrors("file").message}</p>
                         </div>
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >
@@ -79,7 +86,7 @@
                                 <label for="status"></label>
                             </div>
                             <div class="d-inlineblock" style="position: relative; top: 5px">
-                                <label class="label">وضعیت</label> 
+                                <label for class="label">وضعیت</label> 
                             </div>
                         </div>
                     </div>

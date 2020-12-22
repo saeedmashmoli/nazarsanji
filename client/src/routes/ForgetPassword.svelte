@@ -2,14 +2,20 @@
     import client from '../svelte-apollo';
     import { updatePassword } from '../graphql/user';
     import { push } from 'svelte-spa-router';
-    import {user , userPermissions} from '../stores'
+    import {user , userPermissions} from '../stores';
+    import Input from '../components/Input.svelte';
     export let mobile = '';
     export let newPassword = '';
     export let confirmPassword = '';
     export let code = '';
     export let errorMessages;
-    const errorHandler = () => errorMessages = []
+    export let isLoading = false;
+    const errorHandler = () => {
+      isLoading = false;
+      errorMessages = []
+    }
     async function updatePasswordHandler() {
+      isLoading = true;
         client.mutate({ 
             mutation : updatePassword , 
             variables : { mobile, newPassword, confirmPassword, code }
@@ -22,6 +28,7 @@
                 data.user.role.permissions.map(permit => {
                   $userPermissions.push(permit.title)
                 })
+                isLoading = false;
                 push('/dashboard')
             }
           }
@@ -75,44 +82,12 @@
         </div>
         {/each}
       {/if}
-      <div class="field">
-        <label class="label">موبایل</label>
-        <div class="control has-icons-left">
-          <input autocomplete="off" class="input" type="text" bind:value={mobile}>
-          <span class="icon is-small is-left">
-            <i class="fa fa-mobile"></i>
-          </span>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">کد پیامکی</label>
-        <div class="control has-icons-left">
-          <input autocomplete="off" class="input" type="password" bind:value={code}>
-          <span class="icon is-small is-left">
-            <i class="fas fa-sms"></i>
-          </span>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">رمز عبور جدید</label>
-        <div class="control has-icons-left">
-          <input autocomplete="off" class="input" type="password" bind:value={newPassword}>
-          <span class="icon is-small is-left">
-            <i class="fa fa-key"></i>
-          </span>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">تکرار رمز عبور</label>
-        <div class="control has-icons-left">
-          <input autocomplete="off" class="input" type="password" bind:value={confirmPassword}>
-          <span class="icon is-small is-left">
-            <i class="fa fa-key"></i>
-          </span>
-        </div>
-      </div>
+      <Input label="موبایل" type="text" bind:title={mobile} icon="fa-mobile" />
+      <Input label="کد پیامکی" type="text" bind:title={code} icon="fa-sms" />
+      <Input label="رمز عبور جدید" type="password" bind:title={newPassword} icon="fa-key" />
+      <Input label="تکرار رمز عبور" type="password" bind:title={confirmPassword} icon="fa-key" />
       <div class="has-text-centered">
-        <button class="button submit is-primary" on:click={updatePasswordHandler}>تغییر رمز عبور</button>
+        <button class:is-loading={isLoading} class="button submit is-primary" on:click={updatePasswordHandler}>تغییر رمز عبور</button>
       </div>
       <div class="has-text-centered mt-3">
         <a href="/#/">بازگشت</a>

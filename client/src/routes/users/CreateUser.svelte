@@ -5,6 +5,7 @@
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
+    import Input from '../../components/Input.svelte';
     export let name = "";
     export let mobile = "";
     export let email = "";
@@ -28,7 +29,7 @@
         isLoading = true;
         const data = await createOrUpdateUserFn({ name , email , roleId , mobile , active , password });
         if(data.status == true){
-            push('/users/show-user')
+            push('/users/show-user/')
         }else{
             errorMessages = data.errors;
             isLoading = false;
@@ -66,48 +67,14 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                        <Input errorClass={checkErrors("name").status} label="نام" placeholder="نام کاربر؟" type="text" bind:title={name} icon="fa-heading" />
+                        <p class="help is-danger">{checkErrors("name").message}</p>
+                        <Input errorClass={checkErrors("mobile").status} label="موبایل" placeholder="موبایل کاربر؟" type="text" bind:title={mobile} icon="fa-phone" />
+                        <p class="help is-danger">{checkErrors("mobile").message}</p>
+                        <Input errorClass={checkErrors("email").status} label="ایمیل" placeholder="ایمیل کاربر؟" type="text" bind:title={email} icon="fa-envelope" />
+                        <p class="help is-danger">{checkErrors("email").message}</p>
                         <div class="field">
-                            <label class="label">نام</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("name").status} class="input" type="text" placeholder="نام کاربر را وارد نمائید" bind:value={name}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-heading"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-
-                                <p class="help is-danger">{checkErrors("title").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">موبایل</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("mobile").status} class="input" type="text" placeholder="موبایل کاربر را وارد نمائید" bind:value={mobile}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-phone"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("mobile").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">ایمیل</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("email").status} class="input" type="text" placeholder="ایمیل کاربر را وارد نمائید" bind:value={email}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-envelope"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("email").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">نقش کاربر</label>
+                            <label for class="label">نقش کاربر</label>
                             <div class="control">
                                 {#each roles as role}
                                     <label class="radio">
@@ -118,26 +85,16 @@
                             </div>
                             <p class="help is-danger">{checkErrors("roleId").message}</p>
                         </div>
-                        <div class="field">
-                            <label class="label">رمز عبور کاربر</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("password").status} class="input" type="text" placeholder="رمز عبور کاربر را وارد نمائید" bind:value={password}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-key"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("password").message}</p>
-                        </div>
+                        <Input errorClass={checkErrors("password").status} label="رمز عبور" placeholder="رمز عبور کاربر؟" type="password" bind:title={password} icon="fa-key" />
+                        <p class="help is-danger">{checkErrors("password").message}</p>
+                        
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >
                                 <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={active}>
                                 <label for="status"></label>
                             </div>
                             <div class="d-inlineblock" style="position: relative; top: 5px">
-                                <label class="label">وضعیت</label> 
+                                <label for class="label">وضعیت</label> 
                             </div>
                         </div>
                     </div>

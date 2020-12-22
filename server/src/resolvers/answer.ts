@@ -4,7 +4,7 @@ import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, 
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { AnswerInput } from './Input';
 import { FieldError } from './response';
-import { answerValidator , updateOrDeleteAnswerValidator } from '../validators/answerValidator';
+import { answerValidator } from '../validators/answerValidator';
 import { Question } from '../entities/Question';
 import { getConnection } from 'typeorm';
 

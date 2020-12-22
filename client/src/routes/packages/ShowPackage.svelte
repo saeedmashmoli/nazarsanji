@@ -1,7 +1,7 @@
 <script>
    import { push, replace  } from 'svelte-spa-router';
    import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
-   import {  notLoading , updateArrayFn } from '../../utilis/functions';
+   import {  notLoading , updateArrayFn , actveOrDeactiveFn } from '../../utilis/functions';
    import {  activeOrDeacivePackageFn , getPackagesFn} from '../../Api/packageApi';
    import { userPermissions , loading } from '../../stores';
    import Toast from '../../components/Toast.svelte';
@@ -25,15 +25,9 @@
       let p = await packages.filter(s => s.id === packageId)[0]
       p.status = !p.status
       const data = await activeOrDeacivePackageFn(packageId , p.status);
-      if(data.status === true){
-         packages = await updateArrayFn(packages , p)
-         if(p.status === true){
-            window.pushToast('بسته مورد نظر با موفقیت فعال شد' , "green")
-         }else{
-            window.pushToast('بسته مورد نظر با موفقیت غیر فعال شد' , "red")
-         }
-      }else{
-         window.pushToast('مشکلی در تغییر وضعیت بسته بوجود آمده است' , '#000')
+      if (data.status === true) {
+         packages = await updateArrayFn(packages, p)
+         actveOrDeactiveFn(data.status,p.status,"بسته");
       }
    }
 </script>

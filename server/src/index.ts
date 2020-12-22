@@ -10,6 +10,8 @@ import { createConnection } from 'typeorm';
 import http from 'http';
 import path from 'path';
 import cron from 'node-cron';
+import { graphqlUploadExpress } from 'graphql-upload'
+import {pagination} from 'typeorm-pagination';
 
 // entities
 import { User } from './entities/User';
@@ -43,12 +45,12 @@ import { deleteTokensJobs } from './jobs/deleteExpireTokens';
 
 const main = async () => {
 
-    const conn =
+    // const conn =
         await createConnection({
         type: 'mysql',
         url: process.env.DATABASE_URL,
         logging: true,
-        synchronize: true,
+        // synchronize: true,
         migrations: [path.join(__dirname,"./migrations/*.{ts,js}")],
         entities: [
             User,
@@ -65,9 +67,11 @@ const main = async () => {
             Package
         ]
     });
-    conn.runMigrations();
+    // conn.runMigrations();
     const app = express();
+    app.use('/static', express.static(path.join(__dirname, 'static')))
     app.use(bodyParser.json());
+    app.use('/graphql',graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }))
     app.use(bodyParser.urlencoded({ extended : true }));
     app.set("trust proxy", 1);
     app.use(cors({
@@ -75,7 +79,7 @@ const main = async () => {
         credentials : true,
     }));
     app.use(cookieParser());
-
+    app.use(pagination)
     // run jobs
     cron.schedule('7 12 * * *', async function() {
         await deleteTokensJobs();
@@ -83,6 +87,7 @@ const main = async () => {
 
 
     const apolloServer = new ApolloServer({
+        uploads : false,
         // subscriptions : {
         //     path:"/subscriptions",
         //     onConnect(){

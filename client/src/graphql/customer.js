@@ -61,14 +61,40 @@ export const activeOrDeactiveCustomerMutation = gql `
     ${ErrorFragments.error}
 `
 export const getCustomersMutation = gql `
-    mutation GetCustomers($status : Boolean!){
-        getCustomers(status : $status) {
+    mutation GetCustomers(
+        $status : Boolean!, 
+        $name : String, 
+        $phone : String, 
+        $mobile : String,
+        $customerId: Int,
+        $page: Int,
+        $limit: Int 
+    ){
+        getCustomers(
+            input : {
+                status : $status, 
+                name : $name, 
+                phone : $phone, 
+                mobile : $mobile,
+                customerId : $customerId
+            }, 
+            page : $page, 
+            limit : $limit
+        ){
             status
             errors {
                 ...ErrorFragment
             }
-            customers {
-                ...CustomerFragment
+            docs{
+                total
+                page
+                pages
+                
+                customers {
+                    ...CustomerFragment
+                }
+                total
+
             }
         }
     }

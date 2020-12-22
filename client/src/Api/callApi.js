@@ -7,7 +7,6 @@ import {
     getCallQuery
 } from '../graphql/call';
 export const createOrUpdateCallFn = async(input, id = null) => {
-    console.log(id)
     if (id) {
         const response = await client.mutate({
             mutation: updateCallMutation,
@@ -38,11 +37,13 @@ export const activeOrDeaciveCallFn = async(id, status) => {
     })
     return response.data.activeOrDeactiveCall
 }
-export const getCallsFn = async(status) => {
+export const getCallsFn = async(input, page, limit) => {
     const response = await client.mutate({
         mutation: getCallsMutation,
         variables: {
-            status
+            ...input,
+            page,
+            limit
         }
     })
     return response.data.getCalls

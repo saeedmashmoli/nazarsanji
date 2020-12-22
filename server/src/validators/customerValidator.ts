@@ -2,7 +2,6 @@ import { CustomerInput } from "../resolvers/Input"
 import { Customer } from "../entities/Customer"
 
 export const customerValidator = async (input: CustomerInput | null , id: number | null) => {
-    console.log(input)
     let errors = [];
     if(input){
          if(input.mobile !== "" && input.mobile!.length !== 11){

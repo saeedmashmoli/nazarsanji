@@ -1,7 +1,7 @@
 import { CallInput } from "../resolvers/Input";
 import { Call } from "../entities/Call";
 
-export const callValidator = async (input: CallInput | null , id: number | null) => {
+export const callValidator = async (input: CallInput | null , id: number | null ) => {
     let errors = [];
     if(id){
         const call = await Call.findOne({id});
@@ -26,6 +26,7 @@ export const callValidator = async (input: CallInput | null , id: number | null)
             })
         }
     }
+
 
   
     return errors

@@ -2,28 +2,36 @@
     import client from '../svelte-apollo';
     import { loginMutation , changePasswordRequest } from '../graphql/user';
     import { push } from 'svelte-spa-router';
-    import { user , userPermissions } from '../stores'
+    import { user , userPermissions } from '../stores';
+    import Input from '../components/Input.svelte';
     export let username = '';
     export let password = '';
     export let errorMessages;
-    const errorHandler = () => errorMessages = []
+    export let isLoading = false;
+    const errorHandler = () => {
+      isLoading = false;
+      errorMessages = []
+    }
     async function loginHanldler() {
-        client.mutate({ 
-            mutation : loginMutation , 
-            variables : { username, password }
-        }).then(result => {
-            const data = result.data.login;
-            if(data.status === false){
-              errorMessages = data.errors
-            }else{
-              $user = data.user
-              data.user.role.permissions.map(permit => {
-                $userPermissions.push(permit.title)
-              })
-              push('/dashboard')
-            }
+      isLoading = true
+      client.mutate({ 
+          mutation : loginMutation , 
+          variables : { username, password }
+      }).then(result => {
+          const data = result.data.login;
+          if(data.status === false){
+            errorMessages = data.errors
+          }else{
+            $user = data.user
+            data.user.role.permissions.map(permit => {
+              $userPermissions.push(permit.title)
+            })
+            isLoading = false;
+            push('/dashboard')
           }
-        )
+        }
+      )
+        
     }
     const updatePasswordRequest = () => {
       if(username.trim() === ''){
@@ -94,28 +102,13 @@
         </div>
         {/each}
       {/if}
-      <div class="field">
-        <label class="label">موبایل</label>
-        <div class="control has-icons-left">
-          <input autocomplete="off" class="input" type="text" bind:value={username}>
-          <span class="icon is-small is-left">
-            <i class="fa fa-mobile"></i>
-          </span>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">رمز عبور</label>
-        <div class="control has-icons-left">
-          <input autocomplete="off" class="input" type="password" bind:value={password}>
-          <span class="icon is-small is-left">
-            <i class="fa fa-key"></i>
-          </span>
-        </div>
-      </div>
+      <Input label="موبایل" type="text" bind:title={username} icon="fa-mobile" />
+      <Input label="رمز عبور" type="password" bind:title={password} icon="fa-key" />
       <div class="has-text-centered">
-        <button class="button submit is-primary" on:click={loginHanldler}>ورود</button>
+        <button class="button submit is-primary" class:is-loading={isLoading} on:click={loginHanldler}>ورود</button>
       </div>
       <div class="has-text-centered mt-3">
+         <!-- svelte-ignore a11y-missing-attribute -->
         <a on:click={updatePasswordRequest}>رمز عبورم را فراموش کردم</a>
       </div>
     </section>

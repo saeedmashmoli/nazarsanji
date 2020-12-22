@@ -5,6 +5,7 @@
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
+    import Input from '../../components/Input.svelte';
     export let title = "";
     export let typeId ;
     export let surveyId ;
@@ -29,7 +30,7 @@
     const createQuestion = async () => {
         const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId ,surveyId} );
         if(data.status == true){
-            push('/questions/show-question')
+            push('/questions/show-question/')
         }else{
             errorMessages = data.errors
         }
@@ -68,20 +69,9 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <div class="field">
-                            <label class="label">عنوان</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("title").status} class="input" type="text" placeholder="عنوان سوال را وارد نمائید" bind:value={title}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-heading"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-
-                            <p class="help is-danger">{checkErrors("title").message}</p>
-                        </div>
+                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان سوال؟" type="text" bind:title={title} icon="fa-heading" />
+                        <p class="help is-danger">{checkErrors("title").message}</p>
+                       
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock"> 
                                 <div class="d-inlineblock status" >
@@ -89,7 +79,7 @@
                                     <label for="status"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label class="label">وضعیت</label> 
+                                    <label for class="label">وضعیت</label> 
                                 </div>
                             </div>
                             <div class="d-inlineblock" style="float: right"> 
@@ -98,7 +88,7 @@
                                 <label for="shouldBe"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label class="label">الزام پاسخگویی</label> 
+                                    <label for class="label">الزام پاسخگویی</label> 
                                 </div>
                             </div>
                             
@@ -106,7 +96,7 @@
 
                     </div>
                     <div class="field mt-3">
-                        <label class="label">انتخاب نوع سوال</label>
+                        <label for class="label">انتخاب نوع سوال</label>
                         <div class="box columns mt-3 mb-5 is-multiline is-tablet back-eee">
                             {#each types as type}
                                 <div class="column">
@@ -123,7 +113,7 @@
        
                     </div>
                     <div class="field mt-3">
-                        <label class="label">انتخاب نظرسنجی</label>
+                        <label for class="label">انتخاب نظرسنجی</label>
                         <div class="box columns mt-3 mb-5 is-multiline is-tablet back-eee">
                             {#each surveys as survey}
                                 <div class="column">

@@ -4,6 +4,7 @@
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
+    import Input from '../../components/Input.svelte';
     export let title = "";
     export let label = "";
     export let model = "";
@@ -15,7 +16,7 @@
     const createPermission = async () => {
         const data = await createOrUpdatePermissionFn({title , label , status , model});
         if(data.status == true){
-            push('/permissions/show-permission')
+            push('/permissions/show-permission/')
         }else{
             errorMessages = data.errors
         }
@@ -48,53 +49,19 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <div class="field">
-                            <label class="label">عنوان</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("title").status} class="input" type="text" placeholder="عنوان دسترسی را وارد نمائید" bind:value={title}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-heading"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-
-                                <p class="help is-danger">{checkErrors("title").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">شرح</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("label").status} class="input" type="text" placeholder="شرح دسترسی را وارد نمائید" bind:value={label}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-tags"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("label").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">بخش</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("model").status} class="input" type="text" placeholder="بخش دسترسی را وارد نمائید" bind:value={model}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-tags"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("model").message}</p>
-                        </div>
+                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان دسترسی؟" type="text" bind:title={title} icon="fa-heading" />
+                        <p class="help is-danger">{checkErrors("title").message}</p>
+                        <Input errorClass={checkErrors("label").status} label="شرح" placeholder="شرح دسترسی؟" type="text" bind:title={label} icon="fa-tags" />
+                        <p class="help is-danger">{checkErrors("label").message}</p>
+                        <Input errorClass={checkErrors("model").status} label="بخش" placeholder="بخش دسترسی؟" type="text" bind:title={label} icon="fa-tags" />
+                        <p class="help is-danger">{checkErrors("model").message}</p>
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >
                                 <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
                                 <label for="status"></label>
                             </div>
                             <div class="d-inlineblock" style="position: relative; top: 5px">
-                                <label class="label">وضعیت</label> 
+                                <label for class="label">وضعیت</label> 
                             </div>
                         </div>
                     </div>

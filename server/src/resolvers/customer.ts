@@ -3,11 +3,10 @@ import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, 
 import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
-import { CustomerInput } from './Input';
+import { CustomerInput, CustomerSearchInput } from './Input';
 import { customerValidator } from '../validators/customerValidator';
 import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
-
 
 @ObjectType()
 export class CustomerResponse {
@@ -18,14 +17,26 @@ export class CustomerResponse {
     @Field(() => Customer , { nullable : true })
     customer?: Customer;
 }
+
+@ObjectType()
+export class PaginatedCustomers {
+    @Field()
+    total: number;
+    @Field()
+    page!: number;
+    @Field()
+    pages!: number;
+    @Field(() => [Customer] , { nullable : true })
+    customers?: Customer[];
+}
 @ObjectType()
 export class CustomersResponse {
     @Field(() => [FieldError] , { nullable : true })
     errors?: FieldError[];
     @Field(() => Boolean)
     status!: Boolean;
-    @Field(() => [Customer] , { nullable : true })
-    customers?: Customer[];
+    @Field(() => PaginatedCustomers , { nullable : true })
+    docs?: PaginatedCustomers;
 }
 
 @Resolver(Customer)
@@ -39,14 +50,24 @@ export class CustomerResolver {
     @Mutation(() => CustomersResponse)
     // @UseMiddleware(isAuth,isCan("customer-show" , "customer"))
     async getCustomers(
-        @Arg('status') status: Boolean
+        @Arg('limit', () => Int, {nullable : true}) limit: number,
+        @Arg('page', () => Int,{nullable : true}) page: number,
+        @Arg('input', {nullable : true}) input: CustomerSearchInput
     ) : Promise<CustomersResponse>{
-        const customers = await getConnection().query(` 
-            select s.* from customer as s 
-            where ${status ? "status = true" : "status = status"}
-            order by s.id desc
-        `);
-        return {status : true , customers}
+        const { status , name , mobile , phone , customerId } = input;
+        let currentPage = page || 1;
+        let take = limit || 10;
+        let skip = (currentPage - 1) * take;
+        let query = `from customer as s 
+        where ${status ? `status = ${status}` : "status = status"}
+        ${name ? `and name like '%${name}%' `: ""}
+        ${customerId ? `and id = ${customerId}' `: ""}
+        ${mobile ? `and mobile like '%${mobile}%' ` : ""}
+        ${phone ? `and phone like '%${phone}%' ` : ""}` ;
+        const t = await getConnection().query(`select count(*) as 'count' ${query}`);
+        const customers = await getConnection().query(`select s.* ${query} order by id desc limit ${skip},${take}`);
+        let pages = Math.floor((t[0].count % take > 0) ? (t[0].count / take) + 1 : (t[0].count / take)) as number
+        return {status : true , docs : {customers , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => CustomerResponse)
     // @UseMiddleware(isAuth,isCan("customer-show" , "customer"))

@@ -41,7 +41,7 @@
     const createAnswer = async () => {
         const data = await createOrUpdateAnswerFn({title ,status ,link ,questionId ,flag , percent , image} ,id);
         if(data.status == true){
-            push('/answers/show-answer')
+            push('/answers/show-answer/')
         }else{
             errorMessages = data.errors
         }
@@ -85,7 +85,7 @@
                                     <label for="status"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label class="label">وضعیت</label> 
+                                    <label for class="label">وضعیت</label> 
                                 </div>
                             </div>
                             <div class="d-inlineblock" style="float: right"> 
@@ -94,7 +94,7 @@
                                 <label for="flag"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label class="label">پاسخ نهایی</label> 
+                                    <label for class="label">پاسخ نهایی</label> 
                                 </div>
                             </div>
                             
@@ -102,7 +102,7 @@
 
                     </div>
                     <div class="field mt-3">
-                        <label class="label">انتخاب سوال</label>
+                        <label for class="label">انتخاب سوال</label>
                         <div class="box columns mt-3 mb-5 is-multiline is-tablet back-eee">
                             {#each questions as question}
                                 <div class="column">
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class="field is-grouped submit-parent" >
-                            <button on:click={createAnswer} class="button is-link">ذخیره</button>
+                        <button on:click={createAnswer} class="button is-link">ذخیره</button>
                     </div>
                 </div>
             </div>

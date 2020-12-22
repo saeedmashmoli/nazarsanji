@@ -37,11 +37,13 @@ export const activeOrDeaciveCustomerFn = async(id, status) => {
     })
     return response.data.activeOrDeactiveCustomer
 }
-export const getCustomersFn = async(status) => {
+export const getCustomersFn = async(input, page, limit) => {
     const response = await client.mutate({
         mutation: getCustomersMutation,
         variables: {
-            status
+            ...input,
+            page,
+            limit
         }
     })
     return response.data.getCustomers

@@ -5,7 +5,7 @@
    import { push, replace  } from 'svelte-spa-router';
    import { dataTableSettings } from '../../utilis/constants';
    import Toast from '../../components/Toast.svelte';
-   import { notLoading , updateArrayFn  } from '../../utilis/functions';
+   import { notLoading , updateArrayFn , actveOrDeactiveFn  } from '../../utilis/functions';
    import { getUsersFn , activeOrDeaciveUserFn } from '../../Api/userApi';
    export let users = [];
    onMount(async () =>{
@@ -23,19 +23,11 @@
    }
    const changeUser= async(userId) => {
       let user = users.filter(r => r.id === userId)[0]
-
       user.active = !user.active;
-      
       const data = await activeOrDeaciveUserFn(userId , user.active);
-      if(data.status === true){
+      if (data.status === true) {
          users = await updateArrayFn(users , user)
-         if(user.active === true){
-            window.pushToast('کاربر مورد نظر با موفقیت فعال شد' , "green")
-         }else{
-            window.pushToast('کاربر مورد نظر با موفقیت غیر فعال شد' , "red")
-         }
-      }else{
-         window.pushToast('مشکلی در تغییر وضعیت کاربر بوجود آمده است' , '#000')
+         actveOrDeactiveFn(data.status,user.active,"کاربر");
       }
    }
  </script>
@@ -65,7 +57,7 @@
             <div class="column navbar-end">
                <div class="buttons">
                   {#if $userPermissions.includes("show-role")}
-                     <a href="#/roles/show-role" class="button is-info is-rounded">نقش ها</a>
+                     <a href="#/roles/show-role/" class="button is-info is-rounded">نقش ها</a>
                   {/if}
                   {#if $userPermissions.includes("create-permission")}
                      <a href="#/users/create-user" class="button is-link is-rounded">افزودن کاربر</a>

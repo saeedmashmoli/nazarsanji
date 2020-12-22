@@ -1,7 +1,7 @@
 <script>
    import { push, replace  } from 'svelte-spa-router';
    import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
-   import {  notLoading , updateArrayFn } from '../../utilis/functions';
+   import {  notLoading , updateArrayFn , actveOrDeactiveFn } from '../../utilis/functions';
    import {getAnswersFn , activeOrDeaciveAnswerFn} from '../../Api/answerApi'
    import { userPermissions , loading } from '../../stores';
    import Toast from '../../components/Toast.svelte';
@@ -25,15 +25,9 @@
       let answer = await answers.filter(p => p.id === answerId)[0]
       answer.status = !answer.status
       const data = await activeOrDeaciveAnswerFn(answerId , answer.status);
-      if(data.status === true){
+      if (data.status === true) {
          answers = await updateArrayFn(answers , answer)
-         if(answer.status === true){
-            window.pushToast('گزینه مورد نظر با موفقیت فعال شد' , "green")
-         }else{
-            window.pushToast('گزینه مورد نظر با موفقیت غیر فعال شد' , "red")
-         }
-      }else{
-         window.pushToast('مشکلی در تغییر وضعیت گزینه بوجود آمده است' , '#000')
+         actveOrDeactiveFn(data.status,answer.status,"گزینه");
       }
    }
  </script>
@@ -63,7 +57,7 @@
             <div class="column navbar-end">
                <div class="buttons">
                   {#if $userPermissions.includes("show-question")}
-                     <a href="#/questions/show-question" class="button is-info is-rounded">بخش سوالات</a>
+                     <a href="#/questions/show-question/" class="button is-info is-rounded">بخش سوالات</a>
                   {/if}
                   {#if $userPermissions.includes("create-answer")}
                      <a href="#/answers/create-answer" class="button is-link is-rounded">افزودن گزینه</a>

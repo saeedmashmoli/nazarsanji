@@ -1,7 +1,8 @@
+import { Upload } from "../types";
 import { Package } from "../entities/Package"
 import { PackageInput } from "../resolvers/Input"
 
-export const packageValidator = async (input: PackageInput | null , id: number | null ) => {
+export const packageValidator = async (input: PackageInput | null , id: number | null , file: Upload | null) => {
     let errors = [];
     if(id){
         const p = await Package.findOne({id});
@@ -18,6 +19,14 @@ export const packageValidator = async (input: PackageInput | null , id: number |
                 field: 'title',
                 message : 'فیلد عنوان الزامی است'
             });
+        }
+    }
+    if(file){
+        if(!file.mimetype.includes("excel") && !file.mimetype.includes("spreadsheetml")){
+            errors.push({
+                field: 'file',
+                message : 'فایل مورد نظر بایستی اکسل باشد'
+            })
         }
     }
 

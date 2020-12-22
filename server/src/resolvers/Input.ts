@@ -36,6 +36,46 @@ export class SurveyInput {
     @Field()
     status?: boolean;
 }
+@InputType()
+export class CustomerSearchInput {
+    @Field({nullable : true})
+    name?: string;
+    @Field({nullable : true})
+    mobile?: string;
+    @Field({nullable : true})
+    phone?: string;
+    @Field(() => Int , {nullable : true})
+    customerId?: number;
+    @Field()
+    status?: boolean;
+}
+@InputType()
+export class CallSearchInput {
+    @Field({nullable : true})
+    name?: string;
+    @Field({nullable : true})
+    mobile?: string;
+    @Field({nullable : true})
+    phone?: string;
+    @Field({nullable : true})
+    issue?: string;
+    @Field({nullable : true})
+    minorIssue?: string;
+    @Field({nullable : true})
+    exactIssue?: string;
+    @Field({nullable : true})
+    status?: boolean;
+    @Field({nullable : true})
+    callCode?: string;
+    @Field({nullable : true})
+    year?: string;
+    @Field({nullable : true})
+    month?: string;
+    @Field(() => Int , {nullable : true})
+    customerId?: number;
+    @Field(() => Int , {nullable : true})
+    packageId?: number;
+}
 
 @InputType()
 export class CustomerInput {
@@ -52,7 +92,7 @@ export class CustomerInput {
 @InputType()
 export class PackageInput {
     @Field()
-    title!: string;
+    title: string;
     @Field()
     status?: boolean;
 }

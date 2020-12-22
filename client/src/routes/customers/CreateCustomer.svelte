@@ -10,6 +10,7 @@
     export let phone = "";
     export let status = true;
     export let errorMessages = [];
+
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;
@@ -19,12 +20,11 @@
         isLoading = true;
         const data = await createOrUpdateCustomerFn({ name , mobile , phone , status });
         if(data.status == true){
-            push('/customers/show-customer')
+            push('/customers/show-customer/')
         }else{
             errorMessages = data.errors;
             isLoading = false;
         }
-        
     }
     $: checkErrors = (field) => {
         let i = {status : false ,message : ""};
@@ -35,9 +35,6 @@
             }
         })
         return i;
-    }
-    const changeRoleId =  (input) => {
-        roleId = parseInt(input.path[0].value)
     }
 </script>
 <svelte:head>
@@ -57,58 +54,24 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        
-                        <div class="field">
-                            <label class="label">نام</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("name").status} class="input" type="text" placeholder="نام مشتری را وارد نمائید" bind:value={name}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-heading"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("name").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">موبایل</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("mobile").status} class="input" type="text" placeholder="موبایل مشتری را وارد نمائید" bind:value={mobile}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-mobile"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("mobile").message}</p>
-                        </div>
-                        <div class="field">
-                            <label class="label">تلفن</label>
-                            <div class="control has-icons-left has-icons-right">
-                                <input class:is-danger={checkErrors("phone").status} class="input" type="text" placeholder="تلفن مشتری را وارد نمائید" bind:value={phone}>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-phone"></i>
-                                </span>
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                            <p class="help is-danger">{checkErrors("phone").message}</p>
-                        </div>
+                        <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
+                        <p class="help is-danger">{checkErrors("name").message}</p>
+                        <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
+                        <p class="help is-danger">{checkErrors("mobile").message}</p>
+                        <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
+                        <p class="help is-danger">{checkErrors("phone").message}</p>
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >
                                 <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
                                 <label for="status"></label>
                             </div>
                             <div class="d-inlineblock" style="position: relative; top: 5px">
-                                <label class="label">وضعیت</label> 
+                                <label for="status" class="label">وضعیت</label> 
                             </div>
                         </div>
                     </div>
                     <div class="field is-grouped submit-parent" >
-                            <button on:click={createUser} class="button is-link" class:is-loading={isLoading}>ذخیره</button>
+                        <button on:click={createUser} class="button is-link" class:is-loading={isLoading}>ذخیره</button>
                     </div>
                 </div>
             </div>

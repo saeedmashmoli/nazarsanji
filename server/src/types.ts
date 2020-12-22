@@ -1,4 +1,5 @@
 import { Request , Response  } from "express";
+import { Stream } from "stream";
 
 
 
@@ -7,3 +8,10 @@ export type MyContext = {
     res: Response;
     payload?: { userId: String }
 }
+export interface Upload{
+    filename: string;
+    mimetype: string;
+    encoding: string;
+    createReadStream(): Stream;
+}
+

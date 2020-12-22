@@ -8,6 +8,16 @@ import { packageValidator } from '../validators/packageValidator';
 import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
 
+import {GraphQLUpload } from "graphql-upload";
+import { jsonDataFromExcel, storeUpload } from '../utilis/storeFile';
+import { Upload } from '../types';
+import xlsx from 'xlsx'
+import { Customer } from '../entities/Customer';
+ 
+
+
+
+
 
 @ObjectType()
 export class PackageResponse {
@@ -28,13 +38,10 @@ export class PackagesResponse {
     packages?: Package[];
 }
 
+
 @Resolver(Package)
 export class PackageResolver {
     
-    @FieldResolver(() => [Call])
-    calls( 
-      @Root() p : Package,
-    ){return Call.find({where : {packageId :p.id}})}
     
     @Mutation(() => PackagesResponse)
     // @UseMiddleware(isAuth,isCan("Package-show" , "Package"))
@@ -53,7 +60,7 @@ export class PackageResolver {
     async getPackage(
         @Arg('id' , () => Int) id : number
     ) : Promise<PackageResponse>{
-        let errors = await packageValidator(null,id);
+        let errors = await packageValidator(null,id,null);
         if(errors?.length) return { status : false , errors};
         const p = await Package.findOne({id});
         return { status : true , package : p }
@@ -63,10 +70,32 @@ export class PackageResolver {
     // @UseMiddleware(isAuth,isCan("Package-create" , "Package"))
     async createPackage(
         @Arg('input') input: PackageInput,
+        @Arg('file' , () => GraphQLUpload ,{nullable : true}) file: Upload
     ) : Promise<PackageResponse>{
-        let errors = await packageValidator(input,null);
+
+        let errors = await packageValidator(input,null,file);
         if(errors?.length) return { status : false , errors};
-        await Package.create({...input}).save();
+        const p = await Package.create({...input}).save();
+        if(file){
+            let path = __dirname + "../../../static/files/excels/";
+            const dir = await storeUpload(file,path);
+            setTimeout(async() => {
+                const data = await jsonDataFromExcel(dir)
+                if(data?.length){
+                    await data.forEach(async(call: any) => {
+                        let customer = await Customer.findOne({where:{mobile : call.mobile}});
+                        if(!customer){
+                            const {mobile,name,phone} = call
+                            customer = await Customer.create({mobile : mobile.trim(),name :name.trim(),phone : phone.trim()}).save();
+                        }
+                        await Call.create({...call,customerId:customer.id , packageId : p.id}).save()
+                    })
+                }
+            },100) 
+        }
+
+
+        
         return { status: true };
     }
 
@@ -75,8 +104,9 @@ export class PackageResolver {
     async updatePackage(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: PackageInput,
+        @Arg('file' , () => GraphQLUpload ,{nullable : true}) file: Upload
     ) : Promise<PackageResponse>{
-        let errors = await packageValidator(input,id);
+        let errors = await packageValidator(input,id,file);
         if(errors?.length) return { status : false , errors};
         await Package.update({id} , {...input});
         return { status: true};
@@ -88,7 +118,7 @@ export class PackageResolver {
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean
     ) : Promise<PackageResponse>{
-        let errors = await packageValidator(null,id);
+        let errors = await packageValidator(null,id,null);
         if(errors?.length) return { status : false , errors};
         await Package.update({id},{ status });
         return {status : true};

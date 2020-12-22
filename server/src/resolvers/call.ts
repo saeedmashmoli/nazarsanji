@@ -3,12 +3,24 @@ import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, 
 import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
-import { CallInput } from './Input';
+import { CallInput, CallSearchInput } from './Input';
 import { callValidator} from '../validators/callValidator';
 import { Customer } from '../entities/Customer';
 import { Package } from '../entities/Package';
+import { getConnection } from 'typeorm';
 
 
+@ObjectType()
+export class PaginatedCalls {
+    @Field()
+    total: number;
+    @Field()
+    page!: number;
+    @Field()
+    pages!: number;
+    @Field(() => [Call] , { nullable : true })
+    calls?: Call[];
+}
 
 @ObjectType()
 export class CallResponse {
@@ -25,8 +37,8 @@ export class CallsResponse {
     errors?: FieldError[];
     @Field(() => Boolean)
     status!: Boolean;
-    @Field(() => [Call] , { nullable : true })
-    calls?: Call[];
+    @Field(() => PaginatedCalls , { nullable : true })
+    docs?: PaginatedCalls;
 }
 
 @Resolver(Call)
@@ -45,16 +57,35 @@ export class CallResolver {
     @Mutation(() => CallsResponse)
     // @UseMiddleware(isAuth,isCan("Call-show" , "Call"))
     async getCalls(
-        @Arg('status') status: Boolean
+        @Arg('limit', () => Int, {nullable : true}) limit: number,
+        @Arg('page', () => Int,{nullable : true}) page: number,
+        @Arg('input') input: CallSearchInput,
     ) : Promise<CallsResponse>{
-        let calls = [];
-        if(status) {
-            calls = await Call.find({where : {status} , order : {id : 'DESC'}})
-        }else {
-            calls = await Call.find({order : {id : 'DESC'}})
-        }
+        const { status , issue , minorIssue , exactIssue , name , mobile , phone , callCode , year , month } = input;
+        const currentPage = page || 1;
+        const take = limit || 10;
+        const skip = (currentPage - 1) * take;
+        const tableName = "`call`";
+        const query = `from ${tableName} as s 
+        ${name || mobile || phone ? `left join customer as c on s.customerId = c.id` : ""}
+        where s.status = ${status} 
+        ${issue ? ` and s.issue LIKE '%${issue}%' `: ""}
+        ${minorIssue ? `and s.minorIssue LIKE '%${minorIssue}%' ` : ""}
+        ${exactIssue ? `and s.exactIssue LIKE '%${exactIssue}%' ` : ""}
+        ${callCode ? `and s.callCode LIKE '%${callCode}%' ` : ""}
+        ${year ? `and s.exactIssue LIKE '%${year}%' ` : ""}
+        ${month ? `and s.exactIssue LIKE '%${month}%' ` : ""}
+        ${mobile ? `and c.mobile LIKE '%${mobile}%' ` : ""}
+        ${phone ? `and c.phone LIKE '%${phone}%' ` : ""}
+        ${name ? `and c.name LIKE '%${name}%' ` : ""}
+        `;
+        const t = await getConnection().query(`select count(*) as 'count' ${query}`);
+        const calls = await getConnection().query(`select s.* ${query} order by id desc limit ${skip},${take}`);
+        const total = t[0].count;
+        let pages = Math.floor((total % take > 0) ? (total / take) + 1 : (total / take)) as number
 
-        return {status : true , calls}
+
+        return {status : true , docs : {calls , total , page : currentPage , pages}}
     }
     @Query(() => CallResponse)
     // @UseMiddleware(isAuth,isCan("Call-show" , "Call"))

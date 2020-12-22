@@ -29,7 +29,7 @@
     const createAnswer = async () => {
         const data = await createOrUpdateAnswerFn({title ,status ,link ,questionId ,flag , percent , image} );
         if(data.status == true){
-            push('/answers/show-answer')
+            push('/answers/show-answer/')
         }else{
             errorMessages = data.errors
         }
@@ -75,7 +75,7 @@
                                     <label for="status"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label class="label">وضعیت</label> 
+                                    <label for="status" class="label">وضعیت</label> 
                                 </div>
                             </div>
                             <div class="d-inlineblock" style="float: right"> 
@@ -84,7 +84,7 @@
                                 <label for="flag"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label class="label">پاسخ نهایی</label> 
+                                    <label for="flag" class="label">پاسخ نهایی</label> 
                                 </div>
                             </div>
                             
@@ -92,7 +92,7 @@
 
                     </div>
                     <div class="field mt-3">
-                        <label class="label">انتخاب سوال</label>
+                        <label for="question" class="label">انتخاب سوال</label>
                         <div class="box columns mt-3 mb-5 is-multiline is-tablet back-eee">
                             {#each questions as question}
                                 <div class="column">
