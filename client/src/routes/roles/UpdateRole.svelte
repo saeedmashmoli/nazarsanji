@@ -17,7 +17,6 @@
         if(!Number.isInteger(id)){
             replace('/not-found')
         } 
-
         const result = await getRoleFn(id);
         const res = await getPermissionsFn(false)
         if(result.status && res.status){

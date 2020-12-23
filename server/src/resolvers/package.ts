@@ -11,13 +11,9 @@ import { Call } from '../entities/Call';
 import {GraphQLUpload } from "graphql-upload";
 import { jsonDataFromExcel, storeUpload } from '../utilis/storeFile';
 import { Upload } from '../types';
-import xlsx from 'xlsx'
 import { Customer } from '../entities/Customer';
+import { checkObjectField } from '../constants/functions';
  
-
-
-
-
 
 @ObjectType()
 export class PackageResponse {
@@ -36,6 +32,25 @@ export class PackagesResponse {
     status!: Boolean;
     @Field(() => [Package] , { nullable : true })
     packages?: Package[];
+}
+const createRecordCall = async (file : Upload , packageId : number) => {
+    let path = __dirname + "../../../static/files/excels/";
+    const dir = await storeUpload(file,path);
+    setTimeout(async() => {
+        const data = await jsonDataFromExcel(dir)
+        if(data?.length){
+            await data.forEach(async(call: any) => {
+                call =  await checkObjectField(call)
+                if(typeof call.mobile === "number") { call.mobile = undefined }
+                let { mobile , name , phone } = call;
+                let customer = await Customer.findOne({where:[{mobile},{phone}]});
+                if(!customer){
+                    customer = await Customer.create({mobile, name, phone}).save();
+                }
+                await Call.create({...call,customerId:customer.id , packageId}).save();
+            })
+        }
+    },100) 
 }
 
 
@@ -72,30 +87,14 @@ export class PackageResolver {
         @Arg('input') input: PackageInput,
         @Arg('file' , () => GraphQLUpload ,{nullable : true}) file: Upload
     ) : Promise<PackageResponse>{
-
         let errors = await packageValidator(input,null,file);
         if(errors?.length) return { status : false , errors};
         const p = await Package.create({...input}).save();
         if(file){
-            let path = __dirname + "../../../static/files/excels/";
-            const dir = await storeUpload(file,path);
-            setTimeout(async() => {
-                const data = await jsonDataFromExcel(dir)
-                if(data?.length){
-                    await data.forEach(async(call: any) => {
-                        let customer = await Customer.findOne({where:{mobile : call.mobile}});
-                        if(!customer){
-                            const {mobile,name,phone} = call
-                            customer = await Customer.create({mobile : mobile.trim(),name :name.trim(),phone : phone.trim()}).save();
-                        }
-                        await Call.create({...call,customerId:customer.id , packageId : p.id}).save()
-                    })
-                }
-            },100) 
+            if(file){
+                createRecordCall(file,p.id);
+            }
         }
-
-
-        
         return { status: true };
     }
 
@@ -109,6 +108,9 @@ export class PackageResolver {
         let errors = await packageValidator(input,id,file);
         if(errors?.length) return { status : false , errors};
         await Package.update({id} , {...input});
+        if(file){
+            createRecordCall(file,id);
+        }
         return { status: true};
     }
 

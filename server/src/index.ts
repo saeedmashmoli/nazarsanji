@@ -26,6 +26,8 @@ import { PermissionRole } from './entities/PermissionRole';
 import { Customer } from './entities/Customer';
 import { Call } from './entities/Call';
 import { Package } from './entities/Package';
+import { Parameter } from './entities/Parameter';
+import { Template } from './entities/Template';
 
 // resolvers
 import { UserResolver } from './resolvers/user';
@@ -39,6 +41,10 @@ import { PackageResolver } from './resolvers/package';
 
 // jobs
 import { deleteTokensJobs } from './jobs/deleteExpireTokens';
+import { ParameterResolver } from './resolvers/parameter';
+import { TemplateResolver } from './resolvers/template';
+import { ParameterTemplate } from './entities/ParameterTemplate';
+import { createParametersLoader } from './utilis/parametersLoader';
 
 
 
@@ -53,6 +59,7 @@ const main = async () => {
         // synchronize: true,
         migrations: [path.join(__dirname,"./migrations/*.{ts,js}")],
         entities: [
+            ParameterTemplate,
             User,
             Token,
             Role, 
@@ -64,7 +71,9 @@ const main = async () => {
             PermissionRole,
             Customer,
             Call,
-            Package
+            Package,
+            Template,
+            Parameter
         ]
     });
     // conn.runMigrations();
@@ -104,11 +113,13 @@ const main = async () => {
                 AnswerResolver,
                 CallResolver,
                 CustomerResolver,
-                PackageResolver
+                PackageResolver,
+                ParameterResolver,
+                TemplateResolver
             ],
             validate: false,
         }), 
-        context : ({ req , res }) => ({ req , res })
+        context : ({ req , res }) => ({ req , res, parameterLoader : createParametersLoader() })
         
     })
     apolloServer.applyMiddleware({ app , cors : false});

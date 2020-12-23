@@ -1,12 +1,14 @@
 import { Request , Response  } from "express";
 import { Stream } from "stream";
+import { createParametersLoader } from "./utilis/parametersLoader";
 
 
 
 export type MyContext = {
     req: Request ;
     res: Response;
-    payload?: { userId: String }
+    payload?: { userId: String };
+    parametersLoader: ReturnType<typeof createParametersLoader>;
 }
 export interface Upload{
     filename: string;
@@ -14,4 +16,5 @@ export interface Upload{
     encoding: string;
     createReadStream(): Stream;
 }
+
 

@@ -15,7 +15,7 @@ export class Question extends BaseEntity {
 
     @Field({ nullable : true })
     @Column({ nullable : true })
-    title: string;
+    title?: string;
 
     @Field(() => Boolean)
     @Column('boolean',{ default : 1})

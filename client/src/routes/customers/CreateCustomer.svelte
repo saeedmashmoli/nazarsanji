@@ -16,7 +16,7 @@
         $loading = true;
         notLoading()
     })     
-    const createUser = async () => {
+    const createCustomer = async () => {
         isLoading = true;
         const data = await createOrUpdateCustomerFn({ name , mobile , phone , status });
         if(data.status == true){
@@ -38,7 +38,7 @@
     }
 </script>
 <svelte:head>
-	<title>مشتری ها</title>
+	<title>افزودن مشتری</title>
 </svelte:head>
 
 <div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile main-container">
@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     <div class="field is-grouped submit-parent" >
-                        <button on:click={createUser} class="button is-link" class:is-loading={isLoading}>ذخیره</button>
+                        <button on:click={createCustomer} class="button is-link" class:is-loading={isLoading}>ذخیره</button>
                     </div>
                 </div>
             </div>

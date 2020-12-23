@@ -1,7 +1,7 @@
 <script>
    import { push, replace , querystring } from 'svelte-spa-router';
    import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn} from '../../utilis/functions';
-   import {  activeOrDeaciveCustomerFn, getCustomersFn} from '../../Api/customerApi';
+   import {  activeOrDeaciveTemplateFn, getTemplatesFn} from '../../Api/templateApi';
    import { userPermissions , loading } from '../../stores';
    import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
@@ -9,32 +9,34 @@
    import Input from '../../components/Input.svelte';
    import { onMount } from 'svelte';
    import qs from 'qs';
-   export let customers = [];
+   export let templates = [];
    export let currentPage = 1;
    export let limit = 10;
    export let last_page;
    export let total;
-   export let name;
-   export let mobile;
-   export let phone;
+   export let title;
+   export let tempNumber;
+   export let link;
+   export let status;
    export let isLoading = false;
    $: number = (currentPage - 1) * limit;
    onMount( async () => {
       $loading = true;
       const data = qs.parse($querystring)
       currentPage = parseInt(data.page)
-      name = data.name;
-      mobile = data.mobile;
-      phone = data.phone;
-      setCustomers()
+      title = data.title;
+      tempNumber = data.tempNumber;
+      link = data.link;
+      status = data.status;
+      setTemplates()
       notLoading()
    });
-   const setCustomers = async () => {
-      const input = {status : false, name , mobile , phone}
-      const data = await getCustomersFn(input ,currentPage , limit);
+   const setTemplates = async () => {
+      const input = {status : false, title , tempNumber : parseInt(tempNumber) , link}
+      const data = await getTemplatesFn(input ,currentPage , limit);
       if(data.status){
          const res  = data.docs
-         customers = res.customers
+         templates = res.templates
          currentPage = res.page
          last_page = res.pages
          total = res.total
@@ -44,25 +46,25 @@
    }
 
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}&name=${name ? name : ""}&mobile=${mobile ? mobile : ""}&phone=${phone ? phone : ""}`;
-       push("/customers/show-customer/"+data) ;
+      const data = `show?page=${page ? page : 1}&title=${title ? title : ""}&tempNumber=${tempNumber ? tempNumber : ""}&link=${link ? link : ""}`;
+       push("/templates/show-template/" + data) ;
       if(page) {currentPage = page}else{isLoading = true};
-      setCustomers();
+      setTemplates();
       setTimeout(() => {
          isLoading = false
          changeTabs(0)
       },500)
    };
-   const editPage = async (customerId) => {
-      push('/customers/update-customer/' + customerId)
+   const editPage = async (templateId) => {
+      push('/templates/update-template/' + templateId)
    }
-   const activeOrdeactiveHandler = async(customerId) => {
-      let customer = await customers.filter(p => p.id === customerId)[0]
-      customer.status = !customer.status
-      const data = await activeOrDeaciveCustomerFn(customerId , customer.status);
+   const activeOrdeactiveHandler = async(templateId) => {
+      let template = await templates.filter(p => p.id === templateId)[0]
+      template.status = !template.status
+      const data = await activeOrDeaciveTemplateFn(templateId , template.status);
       if (data.status === true) {
-         customers = await updateArrayFn(customers, customer)
-         actveOrDeactiveFn(data.status,customer.status,"مشتری");
+         templates = await updateArrayFn(templates, template)
+         actveOrDeactiveFn(data.status,template.status,"قالب");
       }
    }
 </script>
@@ -93,30 +95,30 @@
    }
 </style>
 <svelte:head>
-	<title>مشتری ها</title>
+	<title>قالب ها</title>
 </svelte:head>
 <Toast />
-<div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile main-container">
+<div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-tempNumber main-container">
    {#if $loading}
       <progress class="progress is-small is-primary" max="100">15%</progress>
    {:else}
       <div class="p-2">
          <div class="columns is-variable is-desktop">
             <div class="column">
-               <h1 class="title">مدیریت مشتری ها</h1>
+               <h1 class="title">مدیریت قالب ها</h1>
             </div>
             <div class="column navbar-end">
                <div class="buttons">
-                  {#if $userPermissions.includes("show-data")}
-                     <a href="#/calls/show-call/" class="button is-info is-rounded">بخش تماس ها</a>
+                  {#if $userPermissions.includes("show-parameter")}
+                     <a href="#/parameters/show-parameter" class="button is-info is-rounded">بخش پارامتر قالب</a>
                   {/if}
-                  {#if $userPermissions.includes("create-customer")}
-                     <a href="#/customers/create-customer" class="button is-link is-rounded">افزودن مشتری</a>
+                  {#if $userPermissions.includes("create-template")}
+                     <a href="#/templates/create-template" class="button is-link is-rounded">افزودن قالب</a>
                   {/if}
                </div>
             </div>
          </div>
-         {#if customers.length}
+         {#if templates.length}
                <div class="tabs">
                   <ul>
                      <!-- svelte-ignore a11y-missing-attribute -->
@@ -133,34 +135,34 @@
                                  <tr>
                                     <th style="width: 5%;">ردیف</th>
                                     <th style="width: 10%;" data-key="id">شناسه</th>
-                                    <th style="width: 35%;" data-key="name">نام مشتری</th>
-                                    <th style="width: 15%;" data-key="mobile">موبایل</th>
-                                    <th style="width: 15%;" data-key="phone">تلفن</th>
+                                    <th style="width: 35%;" data-key="title">نام قالب</th>
+                                    <th style="width: 15%;" data-key="tempNumber">کد سامانه پیامکی</th>
+                                    <th style="width: 15%;" data-key="link">لینک</th>
                                     <th style="width: 10%;">وضعیت</th>
                                     <th style="width: 10%;">ویرایش</th>
                                  </tr>
                               </thead>
                               <tbody>
-                                 {#each customers as customer , index}
+                                 {#each templates as template , index}
                                     <tr>
                                        <td style="width: 5%;">{index + number + 1}</td>
-                                       <td style="width: 10%;">{customer.id}</td>
-                                       <td style="width: 35%;">{customer.name}</td>
-                                       <td style="width: 15%;">{customer.mobile}</td>
-                                       <td style="width: 15%;">{customer.phone}</td>
+                                       <td style="width: 10%;">{template.id}</td>
+                                       <td style="width: 35%;">{template.title}</td>
+                                       <td style="width: 15%;">{template.tempNumber}</td>
+                                       <td style="width: 15%;">{template.link}</td>
                                        <td style="width: 10%;">
-                                          {#if $userPermissions.includes("status-customer")}
-                                             <button on:click={activeOrdeactiveHandler(customer.id)} 
-                                                class:is-success={customer.status} 
-                                                class:is-danger={!customer.status} 
-                                                class="button is-small ${ customer.status ? 'is-success' : 'is-danger'}" >
-                                                   <i class:fa-eye={customer.status} class:fa-eye-slash={!customer.status} class="fa"></i>
+                                          {#if $userPermissions.includes("status-template")}
+                                             <button on:click={activeOrdeactiveHandler(template.id)} 
+                                                class:is-success={template.status} 
+                                                class:is-danger={!template.status} 
+                                                class="button is-small ${ template.status ? 'is-success' : 'is-danger'}" >
+                                                   <i class:fa-eye={template.status} class:fa-eye-slash={!template.status} class="fa"></i>
                                              </button>
                                           {/if}
                                        </td>
                                        <td style="width: 10%;">
-                                          {#if $userPermissions.includes("update-customer")}
-                                             <button on:click={editPage(customer.id)} class="button is-small has-background-info-dark has-text-warning-light">
+                                          {#if $userPermissions.includes("update-template")}
+                                             <button on:click={editPage(template.id)} class="button is-small has-background-info-dark has-text-warning-light">
                                                 <i class="fa fa-edit"></i>
                                              </button>
                                           {/if}
@@ -182,9 +184,9 @@
                   </div>
                   <div value=1>
                      <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
-                        <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
-                        <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
+                        <Input label="نام " type="text" placeholder="نام قالب؟" bind:title={title} icon="fa-heading" />
+                        <Input label="کد سامانه پیامکی " type="number" placeholder="کد سامانه پیامکی قالب؟" bind:title={tempNumber} icon="fa-key" />
+                        <Input label="لینک " type="text" placeholder="لینک؟" bind:title={link} icon="fa-tags" />
                         <div style="display : block;text-align : left;">
                            <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
                         </div>

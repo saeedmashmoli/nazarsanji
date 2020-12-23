@@ -6,7 +6,8 @@
     import { replace , location } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
-    export let title = "";
+    export let title;
+    export let excel;
     export let status = true;
     export let errorMessages = [];        
     onMount( async () => {
@@ -25,7 +26,7 @@
         notLoading()
     })     
     const updatePackage = async () => {
-        const data = await createOrUpdatePackageFn({title , status } ,id);
+        const data = await createOrUpdatePackageFn({title , status }, excel ,id);
         if(data.status == true){
             replace('/packages/show-package/')
         }else{

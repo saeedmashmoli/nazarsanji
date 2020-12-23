@@ -89,12 +89,9 @@ export const getCustomersMutation = gql `
                 total
                 page
                 pages
-                
                 customers {
                     ...CustomerFragment
                 }
-                total
-
             }
         }
     }

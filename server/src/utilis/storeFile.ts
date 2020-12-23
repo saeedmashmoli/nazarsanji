@@ -9,7 +9,7 @@ export const storeUpload = async (file :Upload , dir : string) => {
     return dir+file.filename;
 } 
 export const jsonDataFromExcel = async (dir : string) => {
-        let wb = xlsx.readFile(dir,{cellDates : true});
+        let wb = xlsx.readFile(dir,{cellDates : true , });
         let ws = wb.Sheets[wb.SheetNames[0]];
         return await xlsx.utils.sheet_to_json(ws);
 }

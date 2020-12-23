@@ -38,7 +38,7 @@
         notLoading()
     })
         
-    const createAnswer = async () => {
+    const updateAnswer = async () => {
         const data = await createOrUpdateAnswerFn({title ,status ,link ,questionId ,flag , percent , image} ,id);
         if(data.status == true){
             push('/answers/show-answer/')
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class="field is-grouped submit-parent" >
-                        <button on:click={createAnswer} class="button is-link">ذخیره</button>
+                        <button on:click={updateAnswer} class="button is-link">ذخیره</button>
                     </div>
                 </div>
             </div>

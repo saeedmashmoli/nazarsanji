@@ -68,7 +68,7 @@ export class SurveyResolver {
     @Mutation(() => SurveyResponse)
     // @UseMiddleware(isAuth,isCan("survey-update" , "Survey"))
     async updateSurvey(
-        @Arg('id') id: number,
+        @Arg('id' , () => Int) id: number,
         @Arg('input') input: SurveyInput,
     ) : Promise<SurveyResponse>{
         let errors = await surveyValidator(input , id);

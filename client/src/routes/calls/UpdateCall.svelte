@@ -120,10 +120,12 @@
                         <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
                         <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
                         <div class="field">
-                            <label for="customer" class="label">
-                                نام : {customer.name}
-                                - موبایل : {customer.mobile}
-                                - تلفن : {customer.phone}
+                            <label for="customer" class="label column">
+                                <div class="columns pr-3 pl-3">
+                                    <div class="column">نام : {customer.name ? customer.name : ""}</div>
+                                    <div class="column">موبایل : {customer.mobile ? customer.mobile : ""}</div>
+                                    <div class="column">تلفن : {customer.phone ? customer.phone : ""}</div>
+                                </div>
                             </label>
                             <Select noOptionsMessage="برای تغییر نام مشتری را جستجو کنید" 
                                 loadOptions={loadSelectOptionsCustomers} 

@@ -39,6 +39,12 @@
 	import ShowPackage from './routes/packages/ShowPackage.svelte';
 	import CreatePackage from './routes/packages/CreatePackage.svelte';
 	import UpdatePackage from './routes/packages/UpdatePackage.svelte';
+	import ShowParameter from './routes/parameters/ShowParameter.svelte';
+	import CreateParameter from './routes/parameters/CreateParameter.svelte';
+	import UpdateParameter from './routes/parameters/UpdateParameter.svelte';
+	import ShowTemplate from './routes/templates/ShowTemplate.svelte';
+	import CreateTemplate from './routes/templates/CreateTemplate.svelte';
+	import UpdateTemplate from './routes/templates/UpdateTemplate.svelte';
 	import Profile from './routes/Profile.svelte';
 	import Notfound from './routes/errors/Notfound.svelte';
 	import Error401 from './routes/errors/Error.svelte';
@@ -107,6 +113,12 @@
 		"/customers/show-customer/*" : wrap({ asyncComponent : () => ShowCustomer , userData : { permit : "show-customer" , isAuth : true }  }),
 		"/customers/create-customer" : wrap({ asyncComponent : () => CreateCustomer , userData : { permit : "create-customer" , isAuth : true } }),
 		"/customers/update-customer/:id" : wrap({ asyncComponent : () => UpdateCustomer , userData : { permit : "update-customer" , isAuth : true } }),
+		"/parameters/show-parameter/*" : wrap({ asyncComponent : () => ShowParameter , userData : { permit : "show-parameter" , isAuth : true }  }),
+		"/parameters/create-parameter" : wrap({ asyncComponent : () => CreateParameter , userData : { permit : "create-parameter" , isAuth : true } }),
+		"/parameters/update-parameter/:id" : wrap({ asyncComponent : () => UpdateParameter , userData : { permit : "update-parameter" , isAuth : true } }),
+		"/templates/show-template/*" : wrap({ asyncComponent : () => ShowTemplate , userData : { permit : "show-template" , isAuth : true }  }),
+		"/templates/create-template" : wrap({ asyncComponent : () => CreateTemplate , userData : { permit : "create-template" , isAuth : true } }),
+		"/templates/update-template/:id" : wrap({ asyncComponent : () => UpdateTemplate , userData : { permit : "update-template" , isAuth : true } }),
 		"/packages/show-package" : wrap({ asyncComponent : () => ShowPackage , userData : { permit : "show-package" , isAuth : true }  }),
 		"/packages/create-package" : wrap({ asyncComponent : () => CreatePackage , userData : { permit : "create-package" , isAuth : true } }),
 		"/packages/update-package/:id" : wrap({ asyncComponent : () => UpdatePackage , userData : { permit : "update-package" , isAuth : true } }),

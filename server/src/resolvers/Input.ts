@@ -50,6 +50,26 @@ export class CustomerSearchInput {
     status?: boolean;
 }
 @InputType()
+export class ParameterSearchInput {
+    @Field({nullable : true})
+    title?: string;
+    @Field({nullable : true})
+    label?: string;
+    @Field()
+    status?: boolean;
+}
+@InputType()
+export class TemplateSearchInput {
+    @Field({nullable : true})
+    title?: string;
+    @Field(() => Int , {nullable : true})
+    tempNumber?: number;
+    @Field({nullable : true})
+    link?: string;
+    @Field({nullable : true})
+    status?: boolean;
+}
+@InputType()
 export class CallSearchInput {
     @Field({nullable : true})
     name?: string;
@@ -93,6 +113,28 @@ export class CustomerInput {
 export class PackageInput {
     @Field()
     title: string;
+    @Field()
+    status?: boolean;
+}
+@InputType()
+export class ParameterInput {
+    @Field({nullable : true})
+    title: string;
+    @Field({nullable : true})
+    label: string;
+    @Field()
+    status?: boolean;
+}
+@InputType()
+export class TemplateInput {
+    @Field({nullable : true})
+    title: string;
+    @Field({nullable : true})
+    link?: string;
+    @Field(() => Int , {nullable : true})
+    tempNumber?: number;
+    @Field(() => [Int] , {nullable : true})
+    parameters?: number[];
     @Field()
     status?: boolean;
 }

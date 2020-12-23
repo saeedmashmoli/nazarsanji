@@ -168,3 +168,25 @@ export const PackageFragments = {
         }
     `
 };
+export const ParameterFragments = {
+    parameter: gql `
+        fragment ParameterFragment on Parameter {
+            id
+            label
+            title
+            status
+        }
+    `
+};
+export const TemplateFragments = {
+    template: gql `
+        fragment TemplateFragment on Template {
+            id
+            title
+            tempNumber
+            link
+            status
+            parameters
+        }
+    `
+};

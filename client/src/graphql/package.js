@@ -25,7 +25,8 @@ export const createPackageMutation = gql `
 export const updatePackageMutation = gql `
     mutation UpdatePackage(
         $title : String!, 
-        $status : Boolean!, 
+        $status : Boolean!,
+        $file : Upload, 
         $id : Int!
     ){
         updatePackage(
@@ -34,6 +35,7 @@ export const updatePackageMutation = gql `
                 status : $status
             }, 
             id : $id
+            file : $file
         ){
             status
             errors{
