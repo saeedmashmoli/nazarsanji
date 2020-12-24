@@ -30,6 +30,7 @@
       notLoading()
    });
    const setCustomers = async () => {
+      currentPage = 1;
       const input = {status : false, name , mobile , phone}
       const data = await getCustomersFn(input ,currentPage , limit);
       if(data.status){

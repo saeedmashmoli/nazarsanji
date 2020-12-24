@@ -9,6 +9,7 @@
     export let title = "";
     export let link = "";
     export let tempNumber;
+    export let isDynamicLink = true;
     export let status = true;
     export let parameters;
     export let selectParameters = [];
@@ -27,6 +28,7 @@
             tempNumber = template.tempNumber;
             link = template.link;
             status = template.status;
+            isDynamicLink = template.isDynamicLink;
             selectParameters = res;
             parameters = template.parameters 
         }else{
@@ -39,7 +41,14 @@
         
         let value = parameters.length > 0 ? parameters : undefined
         isLoading = true;
-        const data = await createOrUpdateTemplateFn({ title, tempNumber : parseInt(tempNumber) ,parameters : value , link , status } , id);
+        const data = await createOrUpdateTemplateFn({ 
+            title, 
+            tempNumber : parseInt(tempNumber) ,
+            isDynamicLink,
+            parameters : value , 
+            link, 
+            status 
+        } , id);
         if(data.status == true){
             push('/templates/show-template/')
         }else{
@@ -96,6 +105,15 @@
                             </div>
                             <div class="d-inlineblock" style="position: relative; top: 5px">
                                 <label for="status" class="label">وضعیت</label> 
+                            </div>
+                            <div class="d-inlineblock" style="float: right"> 
+                                <div class="d-inlineblock status" >
+                                <input id="isDynamicLink" type="checkbox" class="switch is-rounded is-info" bind:checked={isDynamicLink}>
+                                <label for="isDynamicLink"></label>
+                                </div>
+                                <div class="d-inlineblock" style="position: relative; top: 5px">
+                                    <label for class="label">ارسال توکن همراه لینک پیامک</label> 
+                                </div>
                             </div>
                         </div>
                     </div>

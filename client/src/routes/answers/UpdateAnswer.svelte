@@ -1,15 +1,14 @@
 <script>
     import {  notLoading   } from '../../utilis/functions';
-    import { createOrUpdateAnswerFn , getAnswerFn} from '../../Api/answerApi';
-    import { getQuestionsFn } from '../../Api/questionApi';
+    import { createOrUpdateAnswerFn , getAnswerFn , getQuestionsForCreateOrUpdateAnswerFn} from '../../Api/answerApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push , location , replace } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
-    export let title = "";
-    export let link = "";
-    export let image = "";
+    export let title;
+    export let link;
+    export let image;
     export let percent;
     export let questionId ;
     export let status;
@@ -22,8 +21,9 @@
             replace('/not-found')
         } 
         const a = await getAnswerFn(id);
-        const  q = await getQuestionsFn(true);
-        if( q.status && a.status){
+        const  q = await getQuestionsForCreateOrUpdateAnswerFn();
+        questions = q
+        if( a.status){
             const answer = a.answer
             status = answer.status;
             link = answer.link;
@@ -31,7 +31,7 @@
             questionId = answer.questionId;
             title = answer.title;
             flag = answer.flag;
-            questions = q.questions
+           
         }else{
             replace('/not-found')
         }
@@ -39,6 +39,7 @@
     })
         
     const updateAnswer = async () => {
+
         const data = await createOrUpdateAnswerFn({title ,status ,link ,questionId ,flag , percent , image} ,id);
         if(data.status == true){
             push('/answers/show-answer/')
@@ -60,7 +61,9 @@
         questionId =value
     }
 </script>
-
+<svelte:head>
+	<title>ویرایش گزینه</title>
+</svelte:head>
 
 <div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile main-container">
     {#if $loading}
@@ -69,7 +72,7 @@
         <div class="p-2">
             <div class="columns is-variable is-desktop">
                 <div class="column">
-                    <h3 class="title text-center is-size-4">افزودن سوال</h3>
+                    <h3 class="title text-center is-size-4">ویرایش گزینه</h3>
                 </div>
             </div>
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
@@ -97,9 +100,7 @@
                                     <label for class="label">پاسخ نهایی</label> 
                                 </div>
                             </div>
-                            
                         </div>
-
                     </div>
                     <div class="field mt-3">
                         <label for class="label">انتخاب سوال</label>

@@ -1,5 +1,5 @@
 import { Customer } from '../entities/Customer';
-import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
 import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
@@ -7,6 +7,8 @@ import { CustomerInput, CustomerSearchInput } from './Input';
 import { customerValidator } from '../validators/customerValidator';
 import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
+import { MyContext } from '../types';
+import { Log } from '../entities/Log';
 
 @ObjectType()
 export class CustomerResponse {
@@ -77,6 +79,7 @@ export class CustomerResolver {
         const errors = await customerValidator(null,id);
         if(errors?.length) return { status : false , errors};
         const customer = await Customer.findOne({id});
+   
         return { status : true , customer }
     }
 
@@ -84,10 +87,12 @@ export class CustomerResolver {
     // @UseMiddleware(isAuth,isCan("Customer-create" , "Customer"))
     async createCustomer(
         @Arg('input') input: CustomerInput,
+        @Ctx() {payload} : MyContext
     ) : Promise<CustomerResponse>{
         const errors = await customerValidator(input,null);
         if(errors?.length) return { status : false , errors};
-        await Customer.create({...input}).save();
+        const customer = await Customer.create({...input}).save();
+
         return { status: true };
     }
 
@@ -96,11 +101,12 @@ export class CustomerResolver {
     async updateCustomer(
         @Arg('id' , () => Int ) id: number,
         @Arg('input') input: CustomerInput,
+        @Ctx() {payload} : MyContext
     ) : Promise<CustomerResponse>{
         const errors = await customerValidator(input,id);
         if(errors?.length) return { status : false , errors};
-        await Customer.update({id} , {...input});
-        await Customer.findOne({id});
+        const customer = await Customer.update({id} , {...input});
+
         return { status: true };
     }
 
@@ -108,11 +114,21 @@ export class CustomerResolver {
     // @UseMiddleware(isAuth,isCan("Customer-delete" , "Customer"))
     async activeOrDeactiveCustomer(
         @Arg('id' , () => Int) id: number,
-        @Arg('status') status: boolean
+        @Arg('status') status: boolean,
+        @Ctx() {payload} : MyContext
     ) : Promise<CustomerResponse>{
         const errors = await customerValidator(null,id);
         if(errors?.length) return { status : false , errors};
-        await Customer.update({id},{status});
+        const customer = await Customer.update({id},{status});
+
         return {status : true};
     }
 }
+
+// const data = {
+//     userId : payload?.userId ,
+//     modelId : 6 ,
+//     operation : `create : ${customer}`,
+//     rowId : customer.id
+// } as any
+// await Log.create({...data}).save();

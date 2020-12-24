@@ -19,12 +19,6 @@ export const callValidator = async (input: CallInput | null , id: number | null 
                 message : 'فیلد مشتری الزامی است'
             })
         }
-        if(input.packageId === undefined ){
-            errors.push({
-                field: 'packageId',
-                message : 'فیلد بسته الزامی است'
-            })
-        }
     }
 
 

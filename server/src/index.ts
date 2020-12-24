@@ -28,24 +28,29 @@ import { Call } from './entities/Call';
 import { Package } from './entities/Package';
 import { Parameter } from './entities/Parameter';
 import { Template } from './entities/Template';
+import { ParameterTemplate } from './entities/ParameterTemplate';
+import { CallPackage } from './entities/CallPackage';
+import { Sms } from './entities/Sms';
+import { Log } from './entities/Log';
+import { Model } from './entities/Model';
 
 // resolvers
 import { UserResolver } from './resolvers/user';
-import { PermissionRoleResolver } from './resolvers/permissionRole';
+import { RoleResolver } from './resolvers/role';
+import { PermissionResolver } from './resolvers/permission';
 import { QuestionResolver } from './resolvers/question';
 import { SurveyResolver } from './resolvers/survey';
 import { AnswerResolver } from './resolvers/answer';
 import { CallResolver } from './resolvers/call';
 import { CustomerResolver } from './resolvers/customer';
 import { PackageResolver } from './resolvers/package';
+import { SmsResolver } from './resolvers/sms';
+import { TemplateResolver } from './resolvers/template';
+import { ParameterResolver } from './resolvers/parameter';
+import { LogResolver } from './resolvers/log';
 
 // jobs
 import { deleteTokensJobs } from './jobs/deleteExpireTokens';
-import { ParameterResolver } from './resolvers/parameter';
-import { TemplateResolver } from './resolvers/template';
-import { ParameterTemplate } from './entities/ParameterTemplate';
-import { createParametersLoader } from './utilis/parametersLoader';
-
 
 
 
@@ -73,7 +78,11 @@ const main = async () => {
             Call,
             Package,
             Template,
-            Parameter
+            Parameter,
+            CallPackage,
+            Sms,
+            Log,
+            Model
         ]
     });
     // conn.runMigrations();
@@ -89,6 +98,7 @@ const main = async () => {
     }));
     app.use(cookieParser());
     app.use(pagination)
+
     // run jobs
     cron.schedule('7 12 * * *', async function() {
         await deleteTokensJobs();
@@ -107,7 +117,8 @@ const main = async () => {
         schema : await buildSchema({
             resolvers: [
                 UserResolver, 
-                PermissionRoleResolver,
+                PermissionResolver,
+                RoleResolver,
                 QuestionResolver,
                 SurveyResolver,
                 AnswerResolver,
@@ -115,11 +126,13 @@ const main = async () => {
                 CustomerResolver,
                 PackageResolver,
                 ParameterResolver,
-                TemplateResolver
+                TemplateResolver,
+                SmsResolver,
+                LogResolver
             ],
             validate: false,
         }), 
-        context : ({ req , res }) => ({ req , res, parameterLoader : createParametersLoader() })
+        context : ({ req , res }) => ({ req , res})
         
     })
     apolloServer.applyMiddleware({ app , cors : false});

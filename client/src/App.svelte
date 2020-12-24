@@ -45,6 +45,9 @@
 	import ShowTemplate from './routes/templates/ShowTemplate.svelte';
 	import CreateTemplate from './routes/templates/CreateTemplate.svelte';
 	import UpdateTemplate from './routes/templates/UpdateTemplate.svelte';
+	import ShowSms from './routes/sms/ShowSms.svelte';
+	import CreateSms from './routes/sms/CreateSms.svelte';
+	import ShowLog from './routes/logs/ShowLog.svelte';
 	import Profile from './routes/Profile.svelte';
 	import Notfound from './routes/errors/Notfound.svelte';
 	import Error401 from './routes/errors/Error.svelte';
@@ -52,8 +55,8 @@
 	import Nav from './components/Nav.svelte';
    	import SideBar from './components/SideBar.svelte';
 
+	import Comment from './routes/Comment.svelte';
 
-	
 
 	let loading = true;
 	let deleteNav = false;
@@ -119,18 +122,22 @@
 		"/templates/show-template/*" : wrap({ asyncComponent : () => ShowTemplate , userData : { permit : "show-template" , isAuth : true }  }),
 		"/templates/create-template" : wrap({ asyncComponent : () => CreateTemplate , userData : { permit : "create-template" , isAuth : true } }),
 		"/templates/update-template/:id" : wrap({ asyncComponent : () => UpdateTemplate , userData : { permit : "update-template" , isAuth : true } }),
-		"/packages/show-package" : wrap({ asyncComponent : () => ShowPackage , userData : { permit : "show-package" , isAuth : true }  }),
+		"/sms/show-sms/*" : wrap({ asyncComponent : () => ShowSms , userData : { permit : "show-sms" , isAuth : true }  }),
+		"/sms/create-sms" : wrap({ asyncComponent : () => CreateSms , userData : { permit : "create-sms" , isAuth : true } }),
+		"/packages/show-package/*" : wrap({ asyncComponent : () => ShowPackage , userData : { permit : "show-package" , isAuth : true }  }),
 		"/packages/create-package" : wrap({ asyncComponent : () => CreatePackage , userData : { permit : "create-package" , isAuth : true } }),
 		"/packages/update-package/:id" : wrap({ asyncComponent : () => UpdatePackage , userData : { permit : "update-package" , isAuth : true } }),
 		"/answers/show-answer/*" : wrap({ asyncComponent : () => ShowAnswer , userData : { permit : "show-answer" , isAuth : true } }),
 		"/answers/create-answer" : wrap({ asyncComponent : () => CreateAnswer , userData : { permit : "create-answer" , isAuth : true } }),
 		"/answers/update-answer/:id" : wrap({ asyncComponent : () => UpdateAnswer , userData : { permit : "update-answer" , isAuth : true } }),
-		"/surveys/show-survey" : wrap({ asyncComponent : () => ShowSurvey , userData : { permit : "show-survey" , isAuth : true } }),
+		"/surveys/show-survey/*" : wrap({ asyncComponent : () => ShowSurvey , userData : { permit : "show-survey" , isAuth : true } }),
 		"/surveys/create-survey" : wrap({ asyncComponent : () => CreateSurvey , userData : { permit : "create-survey" , isAuth : true } }),
 		"/surveys/update-survey/:id" : wrap({ asyncComponent : () => UpdateSurvey , userData : { permit : "update-survey" , isAuth : true } }),
+		"/logs/show-log" : wrap({ asyncComponent : () => ShowLog , userData : { permit : "show-log" , isAuth : true } }),
 		"/reports/show-report" : wrap({ asyncComponent : () => ShowReport , userData : { permit : "show-report" , isAuth : true } }),
 
 		"/" : wrap({ asyncComponent : () => Login , userData : { deleteNav : true } }),
+		"/comment/:id" : wrap({ asyncComponent : () => Comment , userData : { deleteNav : true } }),
 		"/home/:token" : wrap({ asyncComponent : () => Home , userData : { deleteNav : true } }) ,
 		"/forget-password" : wrap({ asyncComponent : () => ForgetPassword , userData : { deleteNav : true } }),
 		"/error" : wrap({ asyncComponent : () => Error401 , userData : { deleteNav : true } }),

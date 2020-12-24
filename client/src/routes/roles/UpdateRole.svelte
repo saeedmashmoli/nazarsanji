@@ -1,9 +1,9 @@
 <script>
     import {  notLoading , setSelectPermissions } from '../../utilis/functions';
-    import {getRoleFn , getPermissionsFn , createOrUpdateRoleFn} from '../../Api/permissionRoleApi';
+    import {getRoleFn , getPermissionsForCreateAndUpdateRoleFn , createOrUpdateRoleFn} from '../../Api/roleApi';
     import { onMount } from 'svelte';
     import { loading } from '../../stores';
-    import { location ,replace } from 'svelte-spa-router';
+    import { location ,replace , push} from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
     export let status;
@@ -14,13 +14,13 @@
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
-        if(!Number.isInteger(id)){
-            replace('/not-found')
-        } 
+        // if(!Number.isInteger(id)){
+        //     replace('/not-found')
+        // } 
         const result = await getRoleFn(id);
-        const res = await getPermissionsFn(false)
-        if(result.status && res.status){
-            selectPermissions = await setSelectPermissions(res.permissions)
+        const res = await getPermissionsForCreateAndUpdateRoleFn()
+        selectPermissions = await setSelectPermissions(res)
+        if(result.status){
             const data = result.role
             status = data.status;
             label = data.label;

@@ -1,7 +1,6 @@
 <script>
     import {  notLoading  } from '../../utilis/functions';
-    import { getTypesFn , createOrUpdateQuestionFn  , getQuestionFn } from '../../Api/questionApi';
-    import { getSurveysFn } from '../../Api/surveyApi';
+    import { getSurveysAndTypesForCreateOrUpdateQuestionFn , createOrUpdateQuestionFn  , getQuestionFn } from '../../Api/questionApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push , location } from 'svelte-spa-router';
@@ -17,19 +16,18 @@
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
-        const d = await getSurveysFn(true);
-        const t = await getTypesFn();
+        const d = await getSurveysAndTypesForCreateOrUpdateQuestionFn();
         const q = await getQuestionFn(id);
         if(!Number.isInteger(id)){
             replace('/not-found')
-        } else if(q.status && d.status && t.status){
+        } else if(q.status && d.status){
             title = q.question.title;
             status = q.question.status;
             shouldBe = q.question.shouldBe;
             surveyId = q.question.surveyId;
             typeId = q.question.typeId;
             surveys = d.surveys;
-            types = t.types
+            types = d.types
         }else{
             replace('/server-error')
         }

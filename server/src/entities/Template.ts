@@ -1,6 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, ManyToOne  } from "typeorm";
-import { Parameter } from "./Parameter";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, OneToMany  } from "typeorm";
+import { Sms } from "./Sms";
+
 
 
 
@@ -16,6 +17,10 @@ export class Template extends BaseEntity {
     @Column()
     title!: string;
 
+    @Field()
+    @Column({ default : true })
+    isDynamicLink?: boolean;
+
     @Field({ nullable : true })
     @Column({ nullable : true })
     link?: string;
@@ -28,6 +33,8 @@ export class Template extends BaseEntity {
     @Column('boolean',{ default : 1})
     status?: boolean;
 
+    @OneToMany(() => Sms, (send) => send.template)
+    sends: Sms[];
 
     @Field(() => String)
     @CreateDateColumn()

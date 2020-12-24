@@ -1,12 +1,28 @@
 import client from '../svelte-apollo';
-import { createUserMutation, updateUserMutation, getUsersMutation, activeOrDeactiveUserMutation, getUserQuery } from '../graphql/user';
+import {
+    createUserMutation,
+    updateUserMutation,
+    getUsersMutation,
+    activeOrDeactiveUserMutation,
+    getUserQuery,
+    getRolesForCreateAndUpdateUser
+} from '../graphql/user';
 
 
-export const getUsersFn = async() => {
+export const getRolesForCreateOrUpdateUserFn = async() => {
+    const response = await client.query({
+        query: getRolesForCreateAndUpdateUser
+    })
+    return response.data.getRolesForCreateUser
+}
+
+export const getUsersFn = async(input, page, limit) => {
     const response = await client.mutate({
         mutation: getUsersMutation,
         variables: {
-
+            ...input,
+            page,
+            limit
         }
     })
     return response.data.getUsers

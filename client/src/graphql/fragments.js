@@ -15,11 +15,6 @@ export const PermissionFragments = {
             title
             model
             status
-            roles {
-               title
-               label
-               status
-            }
         }  
     `
 }
@@ -115,6 +110,18 @@ export const AnswerFragments = {
         }
     `
 };
+export const CustomerFragments = {
+    customer: gql `
+        fragment CustomerFragment on Customer {
+            id
+            name
+            mobile
+            phone
+            status
+        }
+    `
+};
+
 export const CallFragments = {
     call: gql `
         fragment CallFragment on Call {
@@ -135,30 +142,14 @@ export const CallFragments = {
             status
             customerId
             customer {
-                name
-                mobile
-                phone
-                status
+                ...CustomerFragment
             }
-            packageId
-            package {
-                title
-                status
-            }
+            packages
         }
+        ${CustomerFragments.customer}
     `
 };
-export const CustomerFragments = {
-    customer: gql `
-        fragment CustomerFragment on Customer {
-            id
-            name
-            mobile
-            phone
-            status
-        }
-    `
-};
+
 export const PackageFragments = {
     package: gql `
         fragment PackageFragment on Package {
@@ -183,10 +174,48 @@ export const TemplateFragments = {
         fragment TemplateFragment on Template {
             id
             title
+            isDynamicLink
             tempNumber
             link
             status
             parameters
         }
+    `
+};
+export const SmsFragments = {
+    sms: gql `
+        fragment SmsFragment on Sms {
+            id
+            token
+            isSuccess
+            message
+            status
+            template {
+                ...TemplateFragment
+            }
+            call {
+                ...CallFragment
+            }
+        }
+        ${TemplateFragments.template}
+        ${CallFragments.call}
+    `
+};
+
+export const LogFragments = {
+    log: gql `
+        fragment LogFragment on Log {
+            id
+            operation
+            rowId
+            model {
+                label
+                title
+            }
+            user {
+                ...UserFragment
+            }
+        }
+        ${UserFragment.user}
     `
 };

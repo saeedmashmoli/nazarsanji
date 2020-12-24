@@ -1,15 +1,28 @@
 import { Field, InputType, Int  } from 'type-graphql';
 
+@InputType()
+export class UserSearchInput {
+    @Field({nullable : true})
+    name?: string;
+    @Field({nullable : true})
+    mobile?: string;
+    @Field({nullable : true})
+    email?: string;
+    @Field({nullable : true})
+    active?: boolean;
+    @Field( () => Int , {nullable : true})
+    roleId?: number;
+}
 
 @InputType()
 export class UserRegisterInput {
-    @Field()
+    @Field({nullable : true})
     name?: string;
     @Field()
     mobile!: string;
-    @Field()
+    @Field({nullable : true})
     email?: string;
-    @Field()
+    @Field({nullable : true})
     active?: boolean;
     @Field( () => Int , {nullable : true})
     roleId?: number;
@@ -28,12 +41,39 @@ export class QuestionInput {
     @Field()
     status?: boolean;
 }
+@InputType()
+export class QuestionSearchInput {
+    @Field({nullable : true})
+    title?: string;
+    @Field( () => Int , {nullable : true})
+    typeId?: number;
+    @Field( () => Int , {nullable : true})
+    answerId?: number;
+    @Field( () => Int , {nullable : true})
+    surveyId?: number;
+    @Field({nullable : true})
+    shouldBe?: boolean;
+    @Field({nullable : true})
+    status?: boolean;
+}
 
 @InputType()
 export class SurveyInput {
     @Field()
     title!: string;
     @Field()
+    status?: boolean;
+
+}
+@InputType()
+export class SurveySearchInput {
+    @Field( () => Int , {nullable : true})
+    questionId?: number;
+    @Field( () => Int , {nullable : true})
+    smsId?: number;
+    @Field({nullable : true})
+    title?: string;
+    @Field({nullable : true})
     status?: boolean;
 }
 @InputType()
@@ -60,6 +100,10 @@ export class ParameterSearchInput {
 }
 @InputType()
 export class TemplateSearchInput {
+    @Field(() => Int , {nullable : true})
+    smsId?: number;
+    @Field(() => Int , {nullable : true})
+    parameterId?: number;
     @Field({nullable : true})
     title?: string;
     @Field(() => Int , {nullable : true})
@@ -68,6 +112,8 @@ export class TemplateSearchInput {
     link?: string;
     @Field({nullable : true})
     status?: boolean;
+    @Field({nullable : true})
+    isDynamicLink?: boolean;
 }
 @InputType()
 export class CallSearchInput {
@@ -108,6 +154,15 @@ export class CustomerInput {
     @Field()
     status?: boolean;
 }
+@InputType()
+export class PackageSearchInput {
+    @Field({nullable : true})
+    title?: string;
+    @Field( () => Int , {nullable : true})
+    callId?: number;
+    @Field({nullable : true})
+    status?: boolean;
+}
 
 @InputType()
 export class PackageInput {
@@ -135,8 +190,42 @@ export class TemplateInput {
     tempNumber?: number;
     @Field(() => [Int] , {nullable : true})
     parameters?: number[];
-    @Field()
+    @Field({nullable : true})
     status?: boolean;
+    @Field({nullable : true})
+    isDynamicLink?: boolean;
+}
+@InputType()
+export class SmsInput {
+    @Field(() => Int , {nullable : true})
+    packageId?: number;
+    @Field(() => Int , {nullable : true})
+    surveyId?: number;
+    @Field(() => Int , {nullable : true})
+    templateId?: number;
+}
+@InputType()
+export class SmsSearchInput {
+    @Field({nullable : true})
+    name?: string;
+    @Field({nullable : true})
+    mobile?: string;
+    @Field({nullable : true})
+    phone?: string;
+    @Field(() => Int , {nullable : true})
+    callId?: number;
+    @Field(() => Int , {nullable : true})
+    customerId?: number;
+    @Field(() => Int , {nullable : true})
+    packageId?: number;
+    @Field(() => Int , {nullable : true})
+    templateId?: number;
+    @Field({nullable : true})
+    isSuccess?: boolean;
+    @Field({nullable : true})
+    status?: boolean;
+    @Field({nullable : true})
+    used?: boolean;
 }
 
 @InputType()
@@ -154,6 +243,19 @@ export class AnswerInput {
     @Field(() => Int , {nullable : true})
     percent?: number;
     @Field()
+    flag?: boolean;
+}
+@InputType()
+export class AnswerSearchInput {
+    @Field({nullable : true})
+    title?: string;
+    @Field(() => Int , {nullable : true})
+    questionId?: number;
+    @Field({nullable : true})
+    link?: string;
+    @Field({nullable : true})
+    status?: boolean;
+    @Field({nullable : true})
     flag?: boolean;
 }
 
@@ -187,8 +289,6 @@ export class CallInput {
     year?: string;
     @Field(() => Int , {nullable : true})
     customerId?: number;
-    @Field(() => Int , {nullable : true})
-    packageId?: number;
 }
 
 @InputType()
@@ -217,6 +317,20 @@ export class RoleInput {
 }
 
 @InputType()
+export class RoleSearchInput {
+    @Field({nullable : true})
+    title?: string;
+    @Field({nullable : true})
+    label?: string;
+    @Field(() => Int,{nullable : true})
+    roleId?: number
+    @Field({nullable : true})
+    status?: boolean;
+    @Field(() => [Int],{nullable : true})
+    permissionIds?: number[];
+}
+
+@InputType()
 export class PermissionInput {
     @Field()
     title!: string;
@@ -226,4 +340,31 @@ export class PermissionInput {
     model!: string;
     @Field()
     status?: boolean;
+}
+@InputType()
+export class PermissionSearchInput {
+    @Field(() => Int,{nullable : true})
+    permissionId?: number
+    @Field({nullable : true})
+    title?: string;
+    @Field({nullable : true})
+    label?: string;
+    @Field({nullable : true})
+    status?: boolean;
+    @Field({nullable : true})
+    model?: string;
+    @Field(() => [Int],{nullable : true})
+    roleIds?: number[];
+}
+
+@InputType()
+export class LogSearchInput {
+    @Field(() => Int,{nullable : true})
+    userId?: number
+    @Field(() => Int, {nullable : true})
+    modelId?: number;
+    @Field( () => Int, {nullable : true})
+    rowId?: number;
+    @Field({nullable : true})
+    operation?: string;
 }

@@ -1,11 +1,13 @@
 import { Parameter } from '../entities/Parameter';
-import { Arg, Field, Int, Mutation, ObjectType, Query, Resolver  } from 'type-graphql';
+import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver  } from 'type-graphql';
 import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { ParameterInput, ParameterSearchInput } from './Input';
 import { parameterValidator } from '../validators/parameterValidator';
 import { getConnection } from 'typeorm';
+import { MyContext } from 'src/types';
+import { Log } from '../entities/Log';
 
 
 @ObjectType()
@@ -76,11 +78,12 @@ export class ParameterResolver {
     // @UseMiddleware(isAuth,isCan("parameter-create" , "Parameter"))
     async createParameter(
         @Arg('input') input: ParameterInput,
+        @Ctx() { payload } : MyContext
     ) : Promise<ParameterResponse>{
         const errors = await parameterValidator(input);
         if(errors?.length) return { status : false , errors};
-        await Parameter.create({...input}).save();
-        
+       const parameter =  await Parameter.create({...input}).save();
+
         return { status: true };
     }
 
@@ -89,10 +92,12 @@ export class ParameterResolver {
     async updateParameter(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: ParameterInput,
+        @Ctx() { payload } : MyContext
     ) : Promise<ParameterResponse>{
         let errors = await parameterValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        await Parameter.update({id} , {...input});
+        const parameter = await Parameter.update({id} , {...input});
+
         return { status: true };
     }
 
@@ -100,11 +105,21 @@ export class ParameterResolver {
     // @UseMiddleware(isAuth,isCan("parameter-delete" , "Parameter"))
     async activeOrDeactiveParameter(
         @Arg('id' , () => Int) id: number,
-        @Arg('status') status: boolean
+        @Arg('status') status: boolean,
+        @Ctx() { payload } : MyContext
     ) : Promise<ParameterResponse>{
         const errors = await parameterValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        await Parameter.update({id},{ status });
+        const parameter = await Parameter.update({id},{ status });
+
         return {status : true};
     }
 }
+
+// const data = {
+//     userId : payload?.userId ,
+//     modelId : 8 ,
+//     operation : `create : ${parameter}`,
+//     rowId : parameter.id
+// } as any
+// await Log.create({...data}).save();

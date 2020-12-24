@@ -1,6 +1,14 @@
 import { gql } from '@apollo/client';
-import { AnswerFragments, ErrorFragments } from './fragments'
+import { AnswerFragments, ErrorFragments, QuestionFragments } from './fragments'
 
+export const getQuestionsForCreateAndUpdateAnswer = gql `
+    query getQuestionsForCreateAnswer{
+        getQuestionsForCreateAnswer{
+            ...QuestionFragment
+        }
+    }
+    ${QuestionFragments.question}
+`;
 export const createAnswerMutation = gql `
     mutation CreateAnswer( 
         $title : String, 
@@ -72,14 +80,37 @@ export const activeOrDeactiveAnswerMutation = gql `
         ${ErrorFragments.error}
     `
 export const getAnswersMutation = gql `
-    mutation GetAnswers($status : Boolean!){
-        getAnswers(status : $status) {
+    mutation GetAnswers(
+        $status : Boolean,
+        $questionId : Int,
+        $link : String,
+        $flag : Boolean,
+        $title : String,
+        $page : Int,
+        $limit : Int
+    ){
+        getAnswers(
+            input : {
+                title : $title, 
+                questionId : $questionId, 
+                link : $link, 
+                status : $status,
+                flag : $flag
+            }, 
+            page : $page, 
+            limit : $limit
+        ) {
             status
             errors {
                 ...ErrorFragment
             }
-            answers {
-                ...AnswerFragment
+            docs {
+                total
+                page
+                pages
+                answers {
+                    ...AnswerFragment
+                }
             }
         }
     }

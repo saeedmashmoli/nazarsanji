@@ -13,7 +13,7 @@ export const createSurveyMutation = gql `
     ${ErrorFragments.error}
 `
 export const updateSurveyMutation = gql `
-    mutation UpdateSurvey($title : String! , $status : Boolean! , $id : Float!){
+    mutation UpdateSurvey($title : String! , $status : Boolean! , $id : Int!){
         updateSurvey(input : {title : $title , status : $status } , id : $id){
             status
             errors{
@@ -35,14 +35,35 @@ export const activeOrDeactiveSurveyMutation = gql `
     ${ErrorFragments.error}
 `
 export const getSurveysMutation = gql `
-    mutation GetSurveys($status : Boolean!){
-        getSurveys(status : $status) {
+    mutation GetSurveys(
+        $questionId : Int,
+        $smsId : Int,
+        $title : String, 
+        $status : Boolean,
+        $page : Int,
+        $limit : Int
+    ){
+        getSurveys(
+            input : {
+                title : $title, 
+                status : $status,
+                questionId : $questionId,
+                smsId : $smsId,
+            }
+            page : $page,
+            limit : $limit
+        ) {
             status
             errors {
                 ...ErrorFragment
             }
-            surveys {
-                ...SurveyFragment
+            docs {
+                total
+                page
+                pages
+                surveys {
+                    ...SurveyFragment
+                }
             }
         }
     }

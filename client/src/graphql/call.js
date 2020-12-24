@@ -16,8 +16,7 @@ export const createCallMutation = gql `
         $moshaverDelayTime : Int,
         $month : String,
         $year : String,
-        $customerId : Int,
-        $packageId :  Int
+        $customerId : Int
     ){
         createCall(
             input : {
@@ -34,8 +33,7 @@ export const createCallMutation = gql `
                 moshaverDelayTime : $moshaverDelayTime, 
                 month : $month, 
                 year : $year,
-                customerId : $customerId,
-                packageId : $packageId
+                customerId : $customerId
             }
         ){
             status
@@ -62,8 +60,7 @@ export const updateCallMutation = gql `
         $moshaverDelayTime : Int,
         $month : String,
         $year : String,
-        $customerId : Int,
-        $packageId :  Int
+        $customerId : Int
     ){
         updateCall(
             input : {
@@ -80,8 +77,7 @@ export const updateCallMutation = gql `
                 moshaverDelayTime : $moshaverDelayTime, 
                 month : $month, 
                 year : $year,
-                customerId : $customerId,
-                packageId : $packageId
+                customerId : $customerId
             }, 
             id : $id
         ){

@@ -24,7 +24,7 @@
         notLoading()
     })     
     const updateSurvey = async () => {
-        const data = await createOrUpdateSurveyFn({title , status } ,id);
+        const data = await createOrUpdateSurveyFn({title , status} ,id);
         if(data.status == true){
             replace('/surveys/show-survey/')
         }else{

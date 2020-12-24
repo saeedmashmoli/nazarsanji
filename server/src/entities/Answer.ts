@@ -19,8 +19,8 @@ export class Answer extends BaseEntity {
     @ManyToOne(() => Question, question => question.answers)
     question: Question;
 
-    @Field({ nullable : true })
-    @Column({ nullable : true })
+    @Field(() => String , { nullable : true })
+    @Column({ nullable : true , length : 1000})
     title?: string;
 
     @Field(() => Int , { nullable : true })

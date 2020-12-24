@@ -1,7 +1,6 @@
 <script>
     import {  notLoading  } from '../../utilis/functions';
-    import { getTypesFn , createOrUpdateQuestionFn } from '../../Api/questionApi';
-    import { getSurveysFn } from '../../Api/surveyApi';
+    import { createOrUpdateQuestionFn , getSurveysAndTypesForCreateOrUpdateQuestionFn } from '../../Api/questionApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
@@ -16,11 +15,10 @@
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
-        const d = await getSurveysFn(true);
-        const t = await getTypesFn();
-        if(d.status || t.status){
+        const d = await getSurveysAndTypesForCreateOrUpdateQuestionFn();
+        if(d.status){
             surveys = d.surveys
-            types = t.types
+            types = d.types
         }else{
             replace('/server-error')
         }
@@ -28,7 +26,7 @@
     })
         
     const createQuestion = async () => {
-        const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId ,surveyId} );
+        const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId ,surveyId});
         if(data.status == true){
             push('/questions/show-question/')
         }else{

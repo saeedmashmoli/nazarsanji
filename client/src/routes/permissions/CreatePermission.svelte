@@ -1,6 +1,6 @@
 <script>
     import { notLoading } from '../../utilis/functions';
-    import {createOrUpdatePermissionFn} from '../../Api/permissionRoleApi';
+    import {createOrUpdatePermissionFn} from '../../Api/permissionApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';

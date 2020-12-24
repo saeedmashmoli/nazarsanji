@@ -16,7 +16,7 @@ export const createUserValidator = async (options: UserRegisterInput | null = nu
         }
     }
     if(options){
-        if(options.mobile == null ){
+        if(options.mobile == undefined ){
             errors.push({
                 field: 'mobile',
                 message : 'وارد کردن موبایل الزامی است'
@@ -35,7 +35,7 @@ export const createUserValidator = async (options: UserRegisterInput | null = nu
                 message : 'موبایل وارد شده قبلا ثبت نام کرده است'
             })
         }
-        if(options.email?.length !== 0 && !options.email?.includes('@')){
+        if(options.email !== "" && !options.email?.includes('@')){
             errors.push({
                 field: 'email',
                 message : 'ایمیل وارد شده معتبر نیست'
@@ -48,7 +48,7 @@ export const createUserValidator = async (options: UserRegisterInput | null = nu
                     message : 'رمز عبور بایستی بیشتر از دو کاراکتر باشد'
                 });
             }
-            if(options.roleId === null){
+            if(options.roleId === undefined){
                 errors.push({
                     field: 'roleId',
                     message : 'لطفا نقش کاربر را انتخاب کنید '

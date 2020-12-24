@@ -1,7 +1,6 @@
 <script>
     import { notLoading } from '../../utilis/functions';
-    import { getRolesFn} from '../../Api/permissionRoleApi';
-    import { getUserFn , createOrUpdateUserFn} from '../../Api/userApi';
+    import { getUserFn , createOrUpdateUserFn , getRolesForCreateOrUpdateUserFn} from '../../Api/userApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push , location , replace } from 'svelte-spa-router';
@@ -17,12 +16,12 @@
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;    
-        const result = await getRolesFn(true);
+        const result = await getRolesForCreateOrUpdateUserFn();
         const res = await getUserFn(id)
         if(!Number.isInteger(id)){
             replace('/not-found')
-        } else if(res.status && result.status){
-            roles = result.roles
+        } else if(res.status && result){
+            roles = result
             const data = res.user
             active = data.active;
             name = data.name;

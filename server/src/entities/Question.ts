@@ -12,10 +12,9 @@ export class Question extends BaseEntity {
     @PrimaryGeneratedColumn()
     id!: number;
     
-
-    @Field({ nullable : true })
-    @Column({ nullable : true })
-    title?: string;
+    @Field(() => String , { nullable : true })
+    @Column({ length : 1000})
+    title!: string;
 
     @Field(() => Boolean)
     @Column('boolean',{ default : 1})

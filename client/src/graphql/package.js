@@ -57,14 +57,33 @@ export const activeOrDeactivePackageMutation = gql `
     ${ErrorFragments.error}
 `
 export const getPackagesMutation = gql `
-    mutation GetPackages($status : Boolean!){
-        getPackages(status : $status) {
+    mutation GetPackages(
+        $status : Boolean,
+        $callId : Int,
+        $title : String, 
+        $page : Int,
+        $limit : Int
+    ){
+        getPackages(
+            input : {
+                status : $status,
+                title : $title, 
+                callId : $callId
+            },
+            page : $page,
+            limit : $limit
+        ) {
             status
             errors {
                 ...ErrorFragment
             }
-            packages {
-                ...PackageFragment
+            docs {
+                total
+                page
+                pages
+                packages {
+                    ...PackageFragment
+                }
             }
         }
     }

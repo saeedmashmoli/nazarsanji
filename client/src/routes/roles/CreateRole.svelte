@@ -1,9 +1,9 @@
 <script>
     import {  notLoading , setSelectPermissions  } from '../../utilis/functions';
-    import {getPermissionsFn , createOrUpdateRoleFn } from '../../Api/permissionRoleApi';
+    import {getPermissionsForCreateAndUpdateRoleFn , createOrUpdateRoleFn } from '../../Api/roleApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
-    import { push } from 'svelte-spa-router';
+    import { push ,replace } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let title = "";
     export let label = "";
@@ -13,12 +13,8 @@
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
-        const data = await getPermissionsFn(false);
-        if(data.status){
-            selectPermissions = await setSelectPermissions(data.permissions)
-        }else{
-            replace('/server-error')
-        }
+        const data = await getPermissionsForCreateAndUpdateRoleFn();
+        selectPermissions = await setSelectPermissions(data)
         notLoading()
     })
     const changePermissions =  (input) => {

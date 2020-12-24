@@ -1,6 +1,14 @@
 import { gql } from '@apollo/client';
-import { UserFragment, ErrorFragments } from './fragments'
+import { UserFragment, ErrorFragments, RoleFragments } from './fragments'
 
+export const getRolesForCreateAndUpdateUser = gql `
+    query getRolesForCreateUser{
+        getRolesForCreateUser{
+            ...RoleFragment
+        }
+    }
+    ${RoleFragments.role}
+`;
 export const activeOrDeactiveUserMutation = gql `
     mutation ActiveOrDeactiveUser($id : Int! , $active : Boolean!){
         activeOrDeactiveUser (id : $id , active : $active){
@@ -14,14 +22,37 @@ export const activeOrDeactiveUserMutation = gql `
 `
 
 export const getUsersMutation = gql `
-    mutation GetUsers{
-        getUsers {
+    mutation GetUsers(
+        $name: String, 
+        $mobile: String, 
+        $email: String, 
+        $active : Boolean, 
+        $roleId : Int
+        $page : Int,
+        $limit : Int
+    ){
+        getUsers(
+            input : {
+                name : $name, 
+                mobile : $mobile, 
+                email : $email, 
+                active : $active, 
+                roleId : $roleId
+            }
+            page : $page,
+            limit : $limit
+        ) {
             status
             errors {
                 ...ErrorFragment
             }
-            users {
-                ...UserFragment
+            docs {
+                total
+                page
+                pages
+                users {
+                    ...UserFragment
+                }
             }
         }
     }
@@ -45,8 +76,24 @@ export const getUserQuery = gql `
 `
 
 export const createUserMutation = gql `
-    mutation CreateUser($name: String!, $mobile: String!, $email: String!, $password : String! , $active : Boolean! , $roleId : Int) {
-        createUser(password : $password, options : { name : $name, mobile : $mobile, email : $email , active : $active , roleId : $roleId}) {
+    mutation CreateUser(
+        $name: String, 
+        $mobile: String!, 
+        $email: String, 
+        $password : String!, 
+        $active : Boolean, 
+        $roleId : Int
+    ) {
+        createUser(
+            password : $password, 
+            options : { 
+                name : $name, 
+                mobile : $mobile, 
+                email : $email , 
+                active : $active , 
+                roleId : $roleId
+            }
+        ) {
             status
             errors {
                 ...ErrorFragment
@@ -56,8 +103,26 @@ export const createUserMutation = gql `
     ${ErrorFragments.error}
 `
 export const updateUserMutation = gql `
-    mutation UpdateUser($name : String!, $mobile : String!, $email : String! , $roleId : Int, $password : String, $active : Boolean!, $id : Int!) {
-        updateUser(password : $password, options : { name : $name, mobile : $mobile, email : $email , active : $active , roleId : $roleId} , id : $id) {
+    mutation UpdateUser(
+        $name : String, 
+        $mobile : String!, 
+        $email : String, 
+        $roleId : Int, 
+        $password : String, 
+        $active : Boolean, 
+        $id : Int!
+    ) {
+        updateUser(
+            password : $password, 
+            options : { 
+                name : $name, 
+                mobile : $mobile, 
+                email : $email , 
+                active : $active , 
+                roleId : $roleId
+            }, 
+            id : $id
+        ) {
             status
             errors {
                 ...ErrorFragment
@@ -108,8 +173,20 @@ export const changePasswordRequest = gql `
     ${ErrorFragments.error}
 `
 export const updatePassword = gql `
-    mutation ChangePassword( $mobile : String! , $newPassword : String! , $confirmPassword : String! , $code : String! ){
-        changePassword(input: {mobile : $mobile, code : $code , newPassword : $newPassword , confirmPassword : $confirmPassword}){
+    mutation ChangePassword( 
+        $mobile : String! , 
+        $newPassword : String! , 
+        $confirmPassword : String! , 
+        $code : String! 
+    ){
+        changePassword(
+            input : {
+                mobile : $mobile, 
+                code : $code , 
+                newPassword : $newPassword , 
+                confirmPassword : $confirmPassword
+            }
+        ){
             status
             user {
                 ...UserFragment

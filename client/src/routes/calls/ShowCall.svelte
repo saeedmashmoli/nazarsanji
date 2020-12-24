@@ -4,7 +4,7 @@
    import {  activeOrDeaciveCallFn, getCallsFn} from '../../Api/callApi';
    import { userPermissions , loading } from '../../stores';
    import qs from 'qs';
-   import { onMount } from 'svelte';
+   import { onMount , createEventDispatcher } from 'svelte';
    import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
    import NoData from '../../components/NoData.svelte';
@@ -57,8 +57,9 @@
       }
    }
    async function changePage(page){
+      currentPage = page | 1;
       const data = `show?page=${page ? page : 1}&name=${name ? name : ""}&mobile=${mobile ? mobile : ""}&phone=${phone ? phone : ""}&callCode=${callCode ? callCode : ""}&month=${month ? month : ""}&year=${year ? year : ""}&issue=${issue ? issue : ""}&minorIssue=${minorIssue ? minorIssue : ""}&exactIssue=${exactIssue ? exactIssue : ""}&status=${status ? status : ""}`;
-       push("/calls/show-call/" + data) ;
+       replace("/calls/show-call/" + data) ;
       if(page) {currentPage = page}else{isLoading = true};
       setCalls();
       setTimeout(() => {
@@ -129,110 +130,111 @@
                </div>
             </div>
          </div> 
-         {#if calls.length}
-            <div class="tabs">
-               <ul>
-                  <!-- svelte-ignore a11y-missing-attribute -->
-                  <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
-                  <!-- svelte-ignore a11y-missing-attribute -->
-                  <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
-               </ul>
-               <div class="tab-content">
-                  <div value=0>
-                     <div class="box back-eee">
-                        <div class="table-container">
-                           <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
-                              <thead>
-                                 <tr>
-                                    <th style="width: 5%;">ردیف</th>
-                                    <th style="width: 5%;" data-key="id">شناسه</th>
-                                    <th style="width: 10%;" data-key="(row) => row.customer.name">نام مشتری</th>
-                                    <th style="width: 10%;" data-key="(row) => row.customer.mobile">موبایل</th>
-                                    <th style="width: 10%;" data-key="issue">موضوع اصلی</th>
-                                    <th style="width: 10%;" data-key="minorIssue">موضوع جزئی</th>
-                                    <th style="width: 10%;" data-key="exactIssue">موضوع دقیق</th>
-                                    <th style="width: 10%;" data-key="callTime">مدت مکالمه</th>
-                                    <th style="width: 10%;" data-key="callCode">سرخط</th>
-                                    <th style="width: 10%;" data-key="price">مبلغ مکالمه</th>
-                                    <th style="width: 5%;">وضعیت</th>
-                                    <th style="width: 5%;">ویرایش</th>
-                                 </tr>
-                              </thead>
-                              <tbody>
-                                 {#each calls as call , index}
-                                    <tr>
-                                       <td style="width: 5%;">{index + number + 1}</td>
-                                       <td style="width: 5%;">{call.id}</td>
-                                       <td style="width: 10%;">{call.customer.name}</td>
-                                       <td style="width: 10%;">{call.customer.mobile}</td>
-                                       <td style="width: 10%;">{call.issue}</td>
-                                       <td style="width: 10%;">{call.minorIssue}</td>
-                                       <td style="width: 10%;">{call.exactIssue}</td>
-                                       <td style="width: 10%;">{call.callTime}</td>
-                                       <td style="width: 10%;">{call.callCode}</td>
-                                       <td style="width: 10%;">{call.price}</td>
-                                       <td style="width: 5%;">
-                                          {#if $userPermissions.includes("status-call")}
-                                             <button on:click={activeOrdeactiveHandler(call.id)} 
-                                                class:is-success={call.status} 
-                                                class:is-danger={!call.status} 
-                                                class="button is-small ${ call.status ? 'is-success' : 'is-danger'}" >
-                                                   <i class:fa-eye={call.status} class:fa-eye-slash={!call.status} class="fa"></i>
-                                             </button>
-                                          {/if}
-                                       </td>
-                                       <td style="width: 5%;">
-                                          {#if $userPermissions.includes("update-call")}
-                                             <button on:click={editPage(call.id)} class="button is-small has-background-info-dark has-text-warning-light">
-                                                <i class="fa fa-edit"></i>
-                                             </button>
-                                          {/if}
-                                       </td>
-                                    </tr>
-                                 {/each}
-                              </tbody>
-                           </table> 
-                        </div>
+         <div class="tabs">
+            <ul>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
+            </ul>
+         </div>
+         
+         <div class="tab-content">
+            <div value=0>
+               {#if calls.length}
+                           <div class="box back-eee">
+                              <div class="table-container">
+                                 <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
+                                    <thead>
+                                       <tr>
+                                          <th style="width: 5%;">ردیف</th>
+                                          <th style="width: 5%;" data-key="id">شناسه</th>
+                                          <th style="width: 10%;" data-key="(row) => row.customer.name">نام مشتری</th>
+                                          <th style="width: 10%;" data-key="(row) => row.customer.mobile">موبایل</th>
+                                          <th style="width: 10%;" data-key="issue">موضوع اصلی</th>
+                                          <th style="width: 10%;" data-key="minorIssue">موضوع جزئی</th>
+                                          <th style="width: 10%;" data-key="exactIssue">موضوع دقیق</th>
+                                          <th style="width: 10%;" data-key="callTime">مدت مکالمه</th>
+                                          <th style="width: 10%;" data-key="callCode">سرخط</th>
+                                          <th style="width: 10%;" data-key="price">مبلغ مکالمه</th>
+                                          <th style="width: 5%;">وضعیت</th>
+                                          <th style="width: 5%;">ویرایش</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>
+                                       {#each calls as call , index}
+                                          <tr>
+                                             <td style="width: 5%;">{index + number + 1}</td>
+                                             <td style="width: 5%;">{call.id}</td>
+                                             <td style="width: 10%;">{call.customer.name}</td>
+                                             <td style="width: 10%;">{call.customer.mobile}</td>
+                                             <td style="width: 10%;">{call.issue}</td>
+                                             <td style="width: 10%;">{call.minorIssue}</td>
+                                             <td style="width: 10%;">{call.exactIssue}</td>
+                                             <td style="width: 10%;">{call.callTime}</td>
+                                             <td style="width: 10%;">{call.callCode}</td>
+                                             <td style="width: 10%;">{call.price}</td>
+                                             <td style="width: 5%;">
+                                                {#if $userPermissions.includes("status-call")}
+                                                   <button on:click={activeOrdeactiveHandler(call.id)} 
+                                                      class:is-success={call.status} 
+                                                      class:is-danger={!call.status} 
+                                                      class="button is-small ${ call.status ? 'is-success' : 'is-danger'}" >
+                                                         <i class:fa-eye={call.status} class:fa-eye-slash={!call.status} class="fa"></i>
+                                                   </button>
+                                                {/if}
+                                             </td>
+                                             <td style="width: 5%;">
+                                                {#if $userPermissions.includes("update-call")}
+                                                   <button on:click={editPage(call.id)} class="button is-small has-background-info-dark has-text-warning-light">
+                                                      <i class="fa fa-edit"></i>
+                                                   </button>
+                                                {/if}
+                                             </td>
+                                          </tr>
+                                       {/each}
+                                    </tbody>
+                                 </table> 
+                              </div>
+                           </div>
+                           {#if last_page > 1}
+                              <Paginate
+                                 {currentPage}
+                                 {last_page}
+                                 middleCount={2}
+                                 on:changePage={(ev) => changePage(ev.detail)}
+                              ></Paginate>
+                           {/if}
+               {:else}
+                  <NoData />
+               {/if}
+            </div>
+            <div value=1>
+               <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                  <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
+                  <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
+                  <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
+                  <Input label="موضوع اصلی" type="text" placeholder="موضوع اصلی مشاوره؟" bind:title={issue} icon="fa-tasks" />
+                  <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
+                  <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
+                  <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
+                  <Input label="ماه" type="text" placeholder="ماه مکالمه؟" bind:title={month} icon="fa-calendar" />
+                  <Input label="سال" type="text" placeholder="سال مکالمه؟" bind:title={year} icon="fa-calendar" />
+                  <div class="field" style="direction: ltr;">
+                     <div class="d-inlineblock status" >
+                        <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
+                        <label for="status"></label>
                      </div>
-                     {#if last_page > 1}
-                        <Paginate
-                           {currentPage}
-                           {last_page}
-                           middleCount={2}
-                           on:changePage={(ev) => changePage(ev.detail)}
-                        ></Paginate>
-                     {/if}
+                     <div class="d-inlineblock" style="position: relative; top: 5px">
+                        <label for class="label">وضعیت</label> 
+                     </div>
                   </div>
-                  <div value=1>
-                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
-                        <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
-                        <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
-                        <Input label="موضوع اصلی" type="text" placeholder="موضوع اصلی مشاوره؟" bind:title={issue} icon="fa-tasks" />
-                        <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
-                        <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
-                        <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
-                        <Input label="ماه" type="text" placeholder="ماه مکالمه؟" bind:title={month} icon="fa-calendar" />
-                        <Input label="سال" type="text" placeholder="سال مکالمه؟" bind:title={year} icon="fa-calendar" />
-                        <div class="field" style="direction: ltr;">
-                           <div class="d-inlineblock status" >
-                              <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
-                              <label for="status"></label>
-                           </div>
-                           <div class="d-inlineblock" style="position: relative; top: 5px">
-                              <label class="label">وضعیت</label> 
-                           </div>
-                     </div>
-                        <div style="display : block;text-align : left;">
-                           <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
-                        </div>
-                     </div>
+                  <div style="display : block;text-align : left;">
+                     <button class:is-loading={isLoading} on:click={() => changePage(1)} class="button is-link">جستجو</button>
                   </div>
                </div>
             </div>
-         {:else}
-            <NoData />
-         {/if}
+         </div>
       </div>
    {/if}
 </div>

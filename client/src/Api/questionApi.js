@@ -5,8 +5,14 @@ import {
     activeOrDeactiveQuestionMutation,
     getQuestionsMutation,
     getQuestionQuery,
-    getTypesQuery
+    getSurveysAndTypesForCreateQuestion
 } from '../graphql/question';
+export const getSurveysAndTypesForCreateOrUpdateQuestionFn = async() => {
+    const response = await client.query({
+        query: getSurveysAndTypesForCreateQuestion
+    })
+    return response.data.getSurveysAndTypesForCreateQuestion
+}
 export const createOrUpdateQuestionFn = async(input, id = null) => {
     if (id) {
         const response = await client.mutate({
@@ -38,20 +44,16 @@ export const activeOrDeaciveQuestionFn = async(id, status) => {
     })
     return response.data.activeOrDeactiveQuestion
 }
-export const getQuestionsFn = async(status) => {
+export const getQuestionsFn = async(input, page, limit) => {
     const response = await client.mutate({
         mutation: getQuestionsMutation,
         variables: {
-            status
+            ...input,
+            page,
+            limit
         }
     })
     return response.data.getQuestions
-}
-export const getTypesFn = async() => {
-    const response = await client.query({
-        query: getTypesQuery
-    })
-    return response.data.getTypes
 }
 export const getQuestionFn = async(id) => {
     const response = await client.query({

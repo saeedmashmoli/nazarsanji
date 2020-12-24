@@ -1,5 +1,5 @@
 import { Template } from '../entities/Template';
-import { Arg, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
 import {  FieldError } from './response';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
@@ -8,6 +8,8 @@ import { templateValidator } from '../validators/templateValidator';
 import { getConnection } from 'typeorm';
 import { Parameter } from '../entities/Parameter';
 import { ParameterTemplate } from '../entities/ParameterTemplate';
+import { MyContext } from '../types';
+import { Log } from '../entities/Log';
 
 
 
@@ -75,12 +77,17 @@ export class TemplateResolver {
         @Arg('page', () => Int,{nullable : true}) page: number,
         @Arg('input', { nullable : true}) input: TemplateSearchInput
     ) : Promise<TemplatesResponse>{
-        const { status , title , tempNumber , link } = input;
+        const { status , title , tempNumber , link ,isDynamicLink ,parameterId ,smsId} = input;
         let currentPage = page || 1;
         let take = limit || 10;
         let skip = (currentPage - 1) * take;
         let query = `from template as s 
-        where ${status ? `status = ${status}` : "status = status"}
+        ${parameterId ? `left join parameter_template as pt on pt.templateId = s.id` : ""}
+        ${smsId ? `left join sms as a on a.templateId = s.id` : ""}
+        where ${status ? `s.status = ${status}` : "s.status = s.status"}
+        ${smsId ? `and a.id = ${smsId}` : ""}
+        ${parameterId ? `and pt.parameterId = ${parameterId}` : ""}
+        ${isDynamicLink ? `and isDynamicLink = ${isDynamicLink} `: ""}
         ${title ? `and title like '%${title}%' `: ""}
         ${tempNumber ? `and tempNumber like '%${tempNumber}%' `: ""}
         ${link ? `and link like '%${link}%' `: ""}` ;
@@ -104,11 +111,13 @@ export class TemplateResolver {
     // @UseMiddleware(isAuth,isCan("template-create" , "Template"))
     async createTemplate(
         @Arg('input') input: TemplateInput,
+        @Ctx() {payload} : MyContext
     ) : Promise<TemplateResponse>{
-        const {parameters, tempNumber , title , link , status} = input;
+        const {parameters, tempNumber , title , link , status , isDynamicLink} = input;
         const errors = await templateValidator(input);
         if(errors?.length) return { status : false , errors};
-        const template = await Template.create({tempNumber,link,title , status}).save();
+        const template = await Template.create({tempNumber,link,title , status , isDynamicLink}).save();
+  
         if(parameters){
             await parameters?.forEach(p => {
                 this.addParameterToTemplate(template.id,p)
@@ -124,11 +133,13 @@ export class TemplateResolver {
     async updateTemplate(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: TemplateInput,
+        @Ctx() { payload} : MyContext
     ) : Promise<TemplateResponse>{
-        const {parameters, tempNumber , title , link , status} = input;
+        const {parameters, tempNumber , title , link , status ,isDynamicLink } = input;
         let errors = await templateValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        await Template.update({id} , {tempNumber,link,title , status});
+        const template = await Template.update({id} , {tempNumber,link,title , status ,isDynamicLink});
+
         const oleParameters = await ParameterTemplate.find({templateId : id});
         if(oleParameters){
             await oleParameters.forEach( param => {
@@ -137,7 +148,7 @@ export class TemplateResolver {
                 }
             })
         }
-        //sync permissions to role
+        //sync parameters to template
         await parameters?.forEach(param => {
             this.addParameterToTemplate(id,param)
         })
@@ -148,11 +159,21 @@ export class TemplateResolver {
     // @UseMiddleware(isAuth,isCan("template-delete" , "Template"))
     async activeOrDeactiveTemplate(
         @Arg('id' , () => Int) id: number,
-        @Arg('status') status: boolean
+        @Arg('status') status: boolean,
+        @Ctx() { payload} : MyContext
     ) : Promise<TemplateResponse>{
         const errors = await templateValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        await Template.update({id},{ status });
+        const template = await Template.update({id},{ status });
+
         return {status : true};
     }
 }
+
+// const data = {
+//     userId : payload?.userId ,
+//     modelId : 7 ,
+//     operation : `activeOrDeactive : ${template}`,
+//     rowId : id 
+// } as any
+// await Log.create({...data}).save();

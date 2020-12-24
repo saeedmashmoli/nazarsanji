@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import { User } from '../entities/User';
 import {MyContext} from '../types';
-import {ChangePasswordInput, UserRegisterInput} from './Input';
+import {ChangePasswordInput, UserRegisterInput, UserSearchInput} from './Input';
 import { createUserValidator  , changePasswordValidator} from '../validators/userValidator';
 import { createAccessToken , createRefreshToken } from '../constants/auth';
 import { isAuth } from '../middlewares/isAuthMiddleware';
@@ -11,7 +11,20 @@ import { Token } from '../entities/Token';
 import sms from '../constants/sms';
 import { FieldError } from './response';
 import { Role } from '../entities/Role';
+import { Log } from '../entities/Log';
 
+
+@ObjectType()
+export class PaginatedUsers {
+    @Field()
+    total!: number;
+    @Field()
+    page!: number;
+    @Field()
+    pages!: number;
+    @Field(() => [User],{ nullable : true })
+    users?: User[];
+}
 
 
 @ObjectType()
@@ -29,8 +42,8 @@ class UsersResponse {
     errors?: FieldError[];
     @Field(() => Boolean)
     status!: Boolean;
-    @Field(() => [User] , {nullable : true})
-    users?: User[];
+    @Field(() => PaginatedUsers , {nullable : true})
+    docs?: PaginatedUsers;
 }
 
 
@@ -49,6 +62,10 @@ export class UserResolver {
         await getConnection().getRepository(User).increment({ id : userId } , "tokenVersion" , 1);
         return true;
     }
+    @Query(() => [Role])
+    async getRolesForCreateUser() : Promise<Role[]> {
+        return await Role.find({where : {status : true}});
+    }
 
     @Query(() => User , {nullable : true})
     @UseMiddleware(isAuth)
@@ -57,18 +74,39 @@ export class UserResolver {
         return user;
     }
     @Mutation(() => UsersResponse)
-    async getUsers() : Promise<UsersResponse>{
-        const users = await User.find({});
-        return { status : true , users }
+    async getUsers(
+        @Arg('limit', () => Int, {nullable : true}) limit: number,
+        @Arg('page', () => Int,{nullable : true}) page: number,
+        @Arg('input') input: UserSearchInput,
+    ) : Promise<UsersResponse>{
+        const { active , name , mobile , email , roleId } = input;
+        const currentPage = page || 1;
+        const take = limit || 10;
+        const skip = (currentPage - 1) * take;
+        const tableName = "`user`";
+        const query = `from ${tableName} as s 
+        where s.active = ${active ? active : "s.active"} 
+        ${name ? ` and s.name LIKE '%${name}%' `: ""}
+        ${mobile ? ` and s.mobile LIKE '%${mobile}%' `: ""}
+        ${email ? ` and s.email LIKE '%${email}%' `: ""}
+        ${roleId ? ` and s.roleId = ${roleId} `: ""}
+        `;
+        const t = await getConnection().query(`select count(*) as 'count' ${query}`);
+        const users = await getConnection().query(`select s.* ${query} order by id desc limit ${skip},${take}`);
+        const total = t[0].count;
+        let pages = Math.floor((total % take > 0) ? (total / take) + 1 : (total / take)) as number
+        return {status : true , docs : {users , total , page : currentPage , pages}}
     }
     @Mutation(() => UserResponse)
     async activeOrDeactiveUser(
         @Arg('id' , () => Int) id: number,
-        @Arg('active' ) active: boolean
+        @Arg('active' ) active: boolean,
+        @Ctx() {payload} : MyContext
     ) : Promise<UserResponse>{
         const errors = await createUserValidator(null, null, id)
         if(errors?.length) return { errors , status: false }
-        await User.update({id} , {active});
+        const user = await User.update({id} , {active});
+
         return { status : true }
     }
     @Query(() => UserResponse)
@@ -125,35 +163,41 @@ export class UserResolver {
     @Mutation( () => UserResponse)
     async createUser(
         @Arg('options') options: UserRegisterInput,
-        @Arg('password' , {nullable : true}) password: string
+        @Arg('password' , {nullable : true}) password: string,
+        @Ctx() {payload} : MyContext
     ) : Promise<UserResponse>{ 
         const errors = await createUserValidator(options, password)
         if(errors?.length) return { errors , status: false }
         password = await bcrypt.hash(password, 10);
-        await User.create({...options,password}).save();
+        const user = await User.create({...options,password}).save();
+
+
         return {status: true};
     }
     @Mutation( () => UserResponse)
     async updateUser(
         @Arg('options') options: UserRegisterInput,
         @Arg('id', () => Int) id : number,
-        @Arg('password' , {nullable : true}) password: string
+        @Arg('password' , {nullable : true}) password: string,
+        @Ctx() {payload} : MyContext
     ) : Promise<UserResponse>{ 
         const errors = await createUserValidator(options , password , id)
         if(errors?.length) return { errors , status: false }
+        let user;
         if(password) {
             password = await bcrypt.hash(password, 10);
-            await User.update({id} , {...options , password});
+            user = await User.update({id} , {...options , password});
         }else{
-            await User.update({id} , {...options});
+           user = await User.update({id} , {...options});
         }
+
         return {status: true};
     }
     @Mutation( () => UserResponse)
     async login(
         @Arg('username') username:string,
         @Arg('password') password: string,
-        @Ctx() { res } : MyContext
+        @Ctx() { res , payload } : MyContext
     ) : Promise<UserResponse>{ 
         const user = await User.findOne({ where : {mobile : username }});
         let errors = [];
@@ -191,3 +235,11 @@ export class UserResolver {
         return true;
     }
 }
+
+// const data = {
+//     userId : payload?.userId ,
+//     modelId : 10 ,
+//     operation : `edit : ${user}`,
+//     rowId : id 
+// } as any
+// await Log.create({...data}).save();

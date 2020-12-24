@@ -31,6 +31,7 @@
     export let packageId;
     export let customer;
     export let status = true;
+    export let packageIds = [];
     export let packages = [];
     export let errorMessages = [];
     export let isLoading = false;        
@@ -58,7 +59,7 @@
             year = call.year;
             customer = call.customer
             customerId = call.customerId;
-            packageId = call.packageId;
+            packageIds = call.packages;
             status = call.status;
             packages = p.packages;
         }else{
@@ -69,10 +70,10 @@
     const updateCall = async () => {
         isLoading = true;
         const data = await createOrUpdateCallFn({ 
-            issue , minorIssue , exactIssue , price , packageId, 
+            issue , minorIssue , exactIssue , price ,  
             customerId , month , year , status , callCode , callPrice , callTime ,
             operatorCallTime , operatorDelayTime , moshaverCallTime , moshaverDelayTime
-         }, id);
+         },packageIds, id);
         if(data.status == true){
             push('/calls/show-call/')
         }else{
@@ -122,9 +123,9 @@
                         <div class="field">
                             <label for="customer" class="label column">
                                 <div class="columns pr-3 pl-3">
-                                    <div class="column">نام : {customer.name ? customer.name : ""}</div>
-                                    <div class="column">موبایل : {customer.mobile ? customer.mobile : ""}</div>
-                                    <div class="column">تلفن : {customer.phone ? customer.phone : ""}</div>
+                                    <div class="column">نام : {customer?.name ? customer.name : ""}</div>
+                                    <div class="column">موبایل : {customer?.mobile ? customer.mobile : ""}</div>
+                                    <div class="column">تلفن : {customer?.phone ? customer.phone : ""}</div>
                                 </div>
                             </label>
                             <Select noOptionsMessage="برای تغییر نام مشتری را جستجو کنید" 

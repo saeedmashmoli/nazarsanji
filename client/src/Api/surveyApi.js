@@ -37,11 +37,13 @@ export const activeOrDeaciveSurveyFn = async(id, status) => {
     })
     return response.data.activeOrDeactiveSurvey
 }
-export const getSurveysFn = async(status) => {
+export const getSurveysFn = async(input, page, limit) => {
     const response = await client.mutate({
         mutation: getSurveysMutation,
         variables: {
-            status
+            ...input,
+            page,
+            limit
         }
     })
     return response.data.getSurveys

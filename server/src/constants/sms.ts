@@ -86,7 +86,7 @@ class SMS {
                 "Mobile" : mobile,
                 "TemplateId" : templateId
             }
-             await axios({
+            const response : any =  await axios({
                 method: "POST",
                 url: `${SMS_ENDPOINT}/UltraFastSend`,
                 data ,
@@ -94,7 +94,7 @@ class SMS {
                     "x-sms-ir-secure-token" : TokenKey
                 }
             })
-            return true
+            return await response.data as boolean;
         } else {
             return false;
         }

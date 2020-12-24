@@ -53,6 +53,20 @@
                         > <i class="fas fa-tachometer-alt icon"></i> داشبورد
                         </a>
                     </li>
+                    {#if $userPermissions.includes("show-report")}
+                        <li><a 
+                            class:is-active={checkRoute(["/reports/show-report/"])} 
+                            href="#/reports/show-report/"> <i class="fa fa-file icon" aria-hidden="true"></i>گزارشات
+                            </a>
+                        </li>
+                    {/if}  
+                    {#if $userPermissions.includes("show-log")}
+                        <li><a 
+                            class:is-active={checkRoute(["/logs/show-sms/"])}
+                            href="#/logs/show-log/"> <i class="fas fa-history icon" ></i> لاگ ها
+                            </a>
+                        </li>
+                    {/if} 
                     {#if $userPermissions.includes("show-role")}
                         <li><a 
                             class:is-active={checkRoute([
@@ -71,6 +85,27 @@
                             </a>
                         </li>
                     {/if}
+                    {#if $userPermissions.includes("show-survey")}
+                        <li><a 
+                            class:is-active={checkRoute(["/surveys/show-survey/","/surveys/create-survey","/surveys/update-survey"])}
+                            href="#/surveys/show-survey/"> <i class="fas fa-poll icon" ></i> نظرسنجی ها
+                            </a>
+                        </li>
+                    {/if} 
+                    {#if $userPermissions.includes("show-question")}
+                        <li><a 
+                            class:is-active={checkRoute(["/questions/show-question/","/questions/create-question","/questions/update-question"])}
+                            href="#/questions/show-question/"> <i class="fas fa-question icon"></i>سوالات
+                            </a>
+                        </li>
+                    {/if} 
+                    {#if $userPermissions.includes("show-answer")}
+                        <li><a 
+                            class:is-active={checkRoute(["/answers/show-answer/","/answers/create-answer","/answers/update-answer"])}
+                            href="#/answers/show-answer/"> <i class="fas fa-reply icon"></i>گزینه ها
+                            </a>
+                        </li>
+                    {/if} 
                     {#if $userPermissions.includes("show-call")}
                         <li>
                             <a 
@@ -98,20 +133,7 @@
                             </a>
                         </li>
                     {/if}
-                    {#if $userPermissions.includes("show-report")}
-                        <li><a 
-                            class:is-active={checkRoute(["/reports/show-report/"])} 
-                            href="#/reports/show-report/"> <i class="fa fa-file icon" aria-hidden="true"></i>گزارشات
-                            </a>
-                        </li>
-                    {/if}  
-                    {#if $userPermissions.includes("show-template")}
-                        <li><a 
-                            class:is-active={checkRoute(["/templates/show-template/","/templates/create-template","/templates/update-template"])}
-                            href="#/templates/show-template/"> <i class="fas fa-columns icon" ></i> قالب ها
-                            </a>
-                        </li>
-                    {/if} 
+
                     {#if $userPermissions.includes("show-parameter")}
                         <li><a 
                             class:is-active={checkRoute(["/parameters/show-parameter/","/parameters/create-parameter","/parameters/update-parameter"])}
@@ -119,24 +141,17 @@
                             </a>
                         </li>
                     {/if} 
-                    {#if $userPermissions.includes("show-survey")}
+                    {#if $userPermissions.includes("show-template")}
                         <li><a 
-                            class:is-active={checkRoute(["/surveys/show-survey/","/surveys/create-survey","/surveys/update-survey"])}
-                            href="#/surveys/show-survey/"> <i class="fas fa-poll icon" ></i> نظرسنجی ها
+                            class:is-active={checkRoute(["/templates/show-template/","/templates/create-template","/templates/update-template"])}
+                            href="#/templates/show-template/"> <i class="fas fa-columns icon" ></i> قالب ها
                             </a>
                         </li>
                     {/if} 
-                    {#if $userPermissions.includes("show-question")}
+                    {#if $userPermissions.includes("show-sms")}
                         <li><a 
-                            class:is-active={checkRoute(["/questions/show-question/","/questions/create-question","/questions/update-question"])}
-                            href="#/questions/show-question/"> <i class="fas fa-question icon"></i>سوالات
-                            </a>
-                        </li>
-                    {/if} 
-                    {#if $userPermissions.includes("show-answer")}
-                        <li><a 
-                            class:is-active={checkRoute(["/answers/show-answer/","/answers/create-answer","/answers/update-answer"])}
-                            href="#/answers/show-answer/"> <i class="fas fa-reply icon"></i>گزینه ها
+                            class:is-active={checkRoute(["/sms/show-sms/","/sms/create-sms","/sms/update-sms"])}
+                            href="#/sms/show-sms/"> <i class="fas fa-sms icon" ></i> پیامک ها
                             </a>
                         </li>
                     {/if} 

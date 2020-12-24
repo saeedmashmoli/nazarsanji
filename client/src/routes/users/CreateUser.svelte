@@ -1,10 +1,9 @@
 <script>
     import { notLoading } from '../../utilis/functions';
-    import { getRolesFn} from '../../Api/permissionRoleApi';
-    import { createOrUpdateUserFn} from '../../Api/userApi';
+    import { createOrUpdateUserFn , getRolesForCreateOrUpdateUserFn} from '../../Api/userApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
-    import { push } from 'svelte-spa-router';
+    import { push ,replace } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let name = "";
     export let mobile = "";
@@ -17,16 +16,14 @@
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;
-        const result = await getRolesFn(true);
-        if(result.status){
-            roles = result.roles
-        }else{
-            replace('/not-found')
+        const result = await getRolesForCreateOrUpdateUserFn();
+        if(result){
+            roles = result
         }
         notLoading()
     })     
     const createUser = async () => {
-        isLoading = true;
+        // isLoading = true;
         const data = await createOrUpdateUserFn({ name , email , roleId , mobile , active , password });
         if(data.status == true){
             push('/users/show-user/')
@@ -34,7 +31,6 @@
             errorMessages = data.errors;
             isLoading = false;
         }
-        
     }
     $: checkErrors = (field) => {
         let i = {status : false ,message : ""};

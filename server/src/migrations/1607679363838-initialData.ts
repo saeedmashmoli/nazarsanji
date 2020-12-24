@@ -45,6 +45,9 @@ export class initialData1607679363838 implements MigrationInterface {
             ('create-call','ایجاد تماس', 'Call'),
             ('update-call','ویرایش تماس', 'Call'),
             ('status-call','تغییر وضعیت تماس', 'Call'),
+            ('show-sms','نمایش پیامک ها', 'Sms'),
+            ('create-sms','ایجاد پیامک', 'Sms'),
+            ('status-sms','تغییر وضعیت پیامک', 'Sms'),
             ('show-customer','مدیریت مشتری ها', 'Customer'),
             ('create-customer','ایجاد مشتری', 'Customer'),
             ('update-customer','ویرایش مشتری', 'Customer'),
@@ -53,11 +56,12 @@ export class initialData1607679363838 implements MigrationInterface {
             ('create-package','ایجاد بسته', 'Package'),
             ('update-package','ویرایش بسته', 'Package'),
             ('status-package','تغییر وضعیت بسته', 'Package'),
-            ('show-report','گزارشات', 'Report');
-        `);
+            ('show-report','گزارشات', 'Report'),
+            ('show-log','نمایش تاریخچه', 'Log');`);
         await queryRunner.query(
-            "insert into permission_role (`roleId` ,`permissionId`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),(1,34),(1,35),(1,36),(1,37),(1,38),(1,39),(1,40),(1,41),(1,42),(1,43),(1,44),(1,45);"
+            "insert into permission_role (`roleId` ,`permissionId`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),(1,34),(1,35),(1,36),(1,37),(1,38),(1,39),(1,40),(1,41),(1,42),(1,43),(1,44),(1,45),(1,46),(1,47),(1,48),(1,49);"
         );
+
         await queryRunner.query(`
             insert into type (title) values ('تک انتخابی'),('چند انتخابی'),('تشریحی'),('گردونه'),('خوشامد گویی'),('خداحافظی');
         `)
@@ -70,13 +74,26 @@ export class initialData1607679363838 implements MigrationInterface {
             ('issue','ارسال موضوع مشاوره'),
             ('minorIssue','ارسال موضوع جزئی مشاوره'),
             ('exactIssue','ارسال موضوع جزئی مشاوره')
-            ;`)
+        ;`)
+        await queryRunner.query(`
+            insert into model (title , label) values 
+            ('survey' , 'تغییرات مربوط به نظرسنجی ها'), 
+            ('question' , 'تغییرات مربوط به سوالات '),
+            ('answer' , 'تغییرات مربوط به گزینه ها'), 
+            ('package' , 'تغییرات مربوط به بسته های تماس ها'),
+            ('call' , 'تغییرات مربوط به تماس ها'),
+            ('customer' , 'تغییرات مربوط به اطلاعات مشتری ها'),
+            ('template' , 'تغییرات مربوط به قالب های پیامک'),
+            ('parameter' , 'تغییرات مربوط به پارامترهای قالب پیامک'),
+            ('sms' , 'تغییرات مربوط به پیامک ها'),
+            ('user' , 'تغییرات مربوط به کاربر ها'),
+            ('role' , 'تغییرات مربوط به نقش ها'),
+            ('permission' , 'تغییرات مربوط به دسترسی ها');`)
         await queryRunner.query(
             "insert into user (name ,mobile,`roleId` , active , password ) values (?,?,?,?,?);",
             ["ادمین", "09196426612",
             1,1,await bcrypt.hash("123456" , 10)]
         )
-        
     }
     public async down(_: QueryRunner): Promise<void> {}
 

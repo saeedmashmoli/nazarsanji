@@ -8,7 +8,6 @@ import {
     getParametersForCreateAndUpdateTemplate
 } from '../graphql/template';
 export const createOrUpdateTemplateFn = async(input, id = null) => {
-    console.log(input.parameters)
     if (id) {
         const response = await client.mutate({
             mutation: updateTemplateMutation,

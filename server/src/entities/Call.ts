@@ -1,7 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, ManyToOne  } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, ManyToOne, OneToMany  } from "typeorm";
 import { Customer } from "./Customer";
-import { Package } from "./Package";
+import { Sms } from "./Sms";
 
 @ObjectType()
 @Entity()
@@ -70,13 +70,8 @@ export class Call extends BaseEntity {
     @ManyToOne(() => Customer , customer => customer.calls)
     customer: Customer;
 
-    @Field()
-    @Column()
-    packageId!: number;
-
-    @Field(() => Package)
-    @ManyToOne(() => Package , p => p.calls)
-    package: Package;
+    @OneToMany(() => Sms, (send) => send.call)
+    sends: Sms[];
 
     @Field(() => Boolean)
     @Column('boolean',{ default : 1})

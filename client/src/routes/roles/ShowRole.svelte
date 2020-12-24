@@ -1,23 +1,66 @@
 <script>
-   import { userPermissions ,loading } from '../../stores';
-   import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
-   import { onMount } from 'svelte';
-   import { push, replace  } from 'svelte-spa-router';
-   import { notLoading   ,updateArrayFn , actveOrDeactiveFn } from '../../utilis/functions';
-   import {getRolesFn , activeOrDeactiveRoleFn} from '../../Api/permissionRoleApi';
-   import { dataTableSettings } from '../../utilis/constants';
+   import { push, replace , querystring } from 'svelte-spa-router';
+   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn} from '../../utilis/functions';
+   import {getRolesFn , activeOrDeactiveRoleFn} from '../../Api/roleApi';
+   import { userPermissions , loading } from '../../stores';
+   import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
+   import NoData from '../../components/NoData.svelte';
+   import Input from '../../components/Input.svelte';
+   import { onMount } from 'svelte';
+   import qs from 'qs';
+   export let currentPage = 1;
+   export let limit = 10;
+   export let last_page;
+   export let total;
+   export let title;
+   export let label;
+   export let status;
+   export let roleId;
+   export let permissionIds;
    export let roles = [];
+   export let isLoading = false;
+   $: number = (currentPage - 1) * limit;
    onMount( async () => {
       $loading = true;
-      const data = await getRolesFn(false);
+      const data = qs.parse($querystring)
+      currentPage = Number(data.page)
+      title = data.title;
+      label = data.tempNumber;
+      status = Boolean(data.status);
+      setRoles()
+      notLoading()
+   })
+   const setRoles = async () => {
+      const input = {
+         status, 
+         title , 
+         label, 
+         roleId,
+         permissionIds
+      }
+      const data = await getRolesFn(input ,currentPage , limit);
       if(data.status){
-         roles = data.roles;
+         const res  = data.docs
+         roles = res.roles
+         currentPage = res.page
+         last_page = res.pages
+         total = res.total
       }else{
          replace('/server-error')
       }
-      notLoading()
-   })
+   }
+
+   async function changePage(page){
+      const data = `show?page=${page ? page : 1}${title ? "&title="+title : ""}${label ? "&label="+label : ""}${roleId ? "&roleId="+roleId : ""}${status ? "&status="+status : ""}${permissionIds ? "&permissionIds="+permissionIds : ""}`;
+      push("/roles/show-role/" + data) ;
+      if(page) {currentPage = page}else{isLoading = true};
+      setRoles();
+      setTimeout(() => {
+         isLoading = false
+         changeTabs(0)
+      },200)
+   };
    const editPage = async (roleId) => {
       push('/roles/update-role/'+roleId)
    }
@@ -35,6 +78,27 @@
 <style>
    .buttons{
       direction: ltr;
+   }
+   @media only screen and (max-width: 767px) {
+      .buttons{
+         direction: rtl;
+      }
+   }
+   .tabs {
+    display: flex;
+    flex-direction: column;
+   }
+
+   .tab-content div {
+      display: none;
+   }
+
+   .tab-content div:first-child {
+      display: block;
+   }
+
+   .tab-content {
+      padding: 1em;
    }
 
 </style>
@@ -62,46 +126,92 @@
             </div>
          </div>
       </div>
-      <Datatable settings={dataTableSettings} bind:data={roles}>
-         <thead>
-            <tr>
-               <th style="width: 5%;">ردیف</th>
-               <th style="width: 5%;" data-key="id">شناسه</th>
-               <th style="width: 40%;" data-key="title">عنوان</th>
-               <th style="width: 40%;" data-key="label">شرح</th>
-               <th style="width: 5%;" >وضعیت</th>
-               <th style="width: 5%;" >ویرایش</th>
-            </tr>
-            <ColumnFilterInputs />
-         </thead>
-         <tbody>
-            {#each $rows as row , index}
-               <tr>
-                  <td style="width: 5%;">{index + 1}</td>
-                  <td style="width: 5%;">{row.id}</td>
-                  <td style="width: 40%;">{row.title}</td>
-                  <td style="width: 40%;">{row.label}</td>
-                  <td style="width: 5%;">
-                     {#if $userPermissions.includes("status-role")}
-                        <button on:click={activeOrDeactiveRole(row.id)} 
-                        class:is-success={row.status} 
-                        class:is-danger={!row.status} 
-                        class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                           <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                        </button>
-                     {/if}
-                  </td>
-                  {#if $userPermissions.includes("update-role")}
-                     <td style="width: 5%;">
-                        <button on:click={editPage(row.id)} class="button is-small has-background-info-dark has-text-warning-light">
-                           <i class="fa fa-edit"></i>
-                        </button>
-                     </td>
-                  {/if}
-               </tr>
-            {/each}
-         </tbody>
-     </Datatable>   
+      <div class="tabs">
+         <ul>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
+         </ul>
+      </div>
+      <div class="tab-content">
+         <div value=0>
+            {#if roles.length}
+               <div class="box back-eee">
+                  <div class="table-container">
+                     <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
+                        <thead>
+                           <tr>
+                              <th style="width: 5%;">ردیف</th>
+                              <th style="width: 5%;" data-key="id">شناسه</th>
+                              <th style="width: 40%;" data-key="title">عنوان</th>
+                              <th style="width: 40%;" data-key="label">شرح</th>
+                              <th style="width: 5%;" >وضعیت</th>
+                              <th style="width: 5%;" >ویرایش</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {#each roles as role , index}
+                              <tr>
+                                 <td style="width: 5%;">{index + number + 1}</td>
+                                 <td style="width: 5%;">{role.id}</td>
+                                 <td style="width: 40%;">{role.title}</td>
+                                 <td style="width: 40%;">{role.label}</td>
+                                 <td style="width: 5%;">
+                                    {#if $userPermissions.includes("status-role")}
+                                       <button on:click={activeOrDeactiveRole(role.id)} 
+                                       class:is-success={role.status} 
+                                       class:is-danger={!role.status} 
+                                       class="button is-small ${ role.status ? 'is-success' : 'is-danger'}" >
+                                          <i class:fa-eye={role.status} class:fa-eye-slash={!role.status} class="fa"></i>
+                                       </button>
+                                    {/if}
+                                 </td>
+                                 {#if $userPermissions.includes("update-role")}
+                                    <td style="width: 5%;">
+                                       <button on:click={editPage(role.id)} class="button is-small has-background-info-dark has-text-warning-light">
+                                          <i class="fa fa-edit"></i>
+                                       </button>
+                                    </td>
+                                 {/if}
+                              </tr>
+                           {/each}
+                        </tbody>
+                     </table> 
+                  </div>
+               </div>
+               {#if last_page > 1}
+                  <Paginate
+                     {currentPage}
+                     {last_page}
+                     middleCount={2}
+                     on:changePage={(ev) => changePage(ev.detail)}
+                  ></Paginate>
+               {/if}
+            {:else}
+               <NoData />
+            {/if} 
+         </div> 
+         <div value=1>
+            <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+               <Input label="عنوان " type="text" placeholder="عنوان نقش؟" bind:title={title} icon="fa-heading" />
+               <Input label="شرح " type="text" placeholder="شرح نقش؟" bind:title={label} icon="fa-heading" />
+               <div style="display: block;" class="field">
+                  <div class="d-inlineblock"> 
+                     <div class="d-inlineblock status" >
+                           <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
+                           <label for="status" class="label">وضعیت</label> 
+                     </div>
+                  </div>
+               </div>
+               
+               <div style="display : block;text-align : left;">
+                  <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
+               </div>
+            </div>
+         </div>
+      </div>
+     
    </div>
    {/if}
 </div>

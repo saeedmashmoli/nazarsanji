@@ -1,23 +1,64 @@
 <script>
-   import { push, replace  } from 'svelte-spa-router';
-   import { Datatable, rows , ColumnFilterInputs } from 'svelte-simple-datatables';
-   import { notLoading , updateArrayFn , actveOrDeactiveFn } from '../../utilis/functions';
+   import { push, replace , querystring  } from 'svelte-spa-router';
+   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn} from '../../utilis/functions';
    import { activeOrDeaciveSurveyFn , getSurveysFn} from '../../Api/surveyApi';
    import { userPermissions , loading } from '../../stores';
+   import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
-   import { dataTableSettings } from '../../utilis/constants';
+   import NoData from '../../components/NoData.svelte';
+   import Input from '../../components/Input.svelte';
    import { onMount } from 'svelte';
+   import qs from 'qs';
+   export let currentPage = 1;
+   export let limit = 10;
+   export let last_page;
+   export let total;
+   export let title;
+   export let status;
+   export let questionIds;
+   export let surveyIds;
+   export let smsIds;
    export let surveys = [];
+   export let isLoading = false;
+   $: number = (currentPage - 1) * limit;
    onMount( async () => {
       $loading = true;
-      const data = await getSurveysFn(false);
+      const data = qs.parse($querystring)
+      currentPage = Number(data.page)
+      title = data.title;
+      smsIds = Number(data.smsIds);
+      surveyIds = Number(data.surveyIds);
+      questionIds = Number(data.questionIds);
+      status = Boolean(data.status);
+      setSurveys()
+      notLoading()
+   })
+   const setSurveys = async () => {
+      const input = {
+         status, 
+         title
+      }
+      const data = await getSurveysFn(input ,currentPage , limit);
       if(data.status){
-         surveys = data.surveys
+         const res  = data.docs
+         surveys = res.surveys
+         currentPage = res.page
+         last_page = res.pages
+         total = res.total
       }else{
          replace('/server-error')
       }
-      notLoading()
-   })
+   }
+   async function changePage(page){
+      const data = `show?page=${page ? page : 1}${smsIds ? "&smsIds="+smsIds : ""}${questionIds ? "&questionIds="+questionIds : ""}${surveyIds ? "&surveyIds="+surveyIds : ""}${status ? "&status="+status : ""}${title ? "&title="+title : ""}`;
+      push("/surveys/show-survey/" + data) ;
+      if(page) {currentPage = page}else{isLoading = true};
+      setSurveys();
+      setTimeout(() => {
+         isLoading = false
+         changeTabs(0)
+      },500)
+   };
    const editPage = async (surveyId) => {
       push('/surveys/update-survey/' + surveyId)
    }
@@ -39,6 +80,22 @@
       .buttons{
          direction: rtl;
       }
+   }
+   .tabs {
+    display: flex;
+    flex-direction: column;
+   }
+
+   .tab-content div {
+      display: none;
+   }
+
+   .tab-content div:first-child {
+      display: block;
+   }
+
+   .tab-content {
+      padding: 1em;
    }
 </style>
 <svelte:head>
@@ -65,44 +122,87 @@
                </div>
             </div>
          </div>
-         <Datatable settings={dataTableSettings} data={surveys}>
-            <thead>
-               <tr>
-                  <th style="width: 5%;">ردیف</th>
-                  <th style="width: 5%;" data-key="id">شناسه</th>
-                  <th style="width: 30%;" data-key="title">عنوان</th>
-                  <th style="width: 5%;">وضعیت</th>
-                  <th style="width: 5%;">ویرایش</th>
-               </tr>
-               <ColumnFilterInputs />
-            </thead>
-            <tbody>
-               {#each $rows as row , index}
-                  <tr>
-                     <td style="width: 5%;">{index + 1}</td>
-                     <td style="width: 5%;">{row.id}</td>
-                     <td style="width: 30%;">{row.title}</td>
-                     <td style="width: 5%;">
-                        {#if $userPermissions.includes("status-survey")}
-                           <button on:click={activeOrDeactiveHandler(row.id)} 
-                              class:is-success={row.status} 
-                              class:is-danger={!row.status} 
-                              class="button is-small ${ row.status ? 'is-success' : 'is-danger'}" >
-                                 <i class:fa-eye={row.status} class:fa-eye-slash={!row.status} class="fa"></i>
-                           </button>
-                        {/if}
-                     </td>
-                     <td style="width: 5%;">
-                        {#if $userPermissions.includes("update-survey")}
-                           <button on:click={editPage(row.id)} class="button is-small has-background-info-dark has-text-warning-light">
-                              <i class="fa fa-edit"></i>
-                           </button>
-                        {/if}
-                     </td>
-                  </tr>
-               {/each}
-            </tbody>
-         </Datatable>
+         <div class="tabs">
+            <ul>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
+            </ul>
+         </div>
+         <div class="tab-content">
+            <div value=0>
+               {#if surveys.length}
+                  <div class="box back-eee">
+                     <div class="table-container">
+                        <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
+                           <thead>
+                              <tr>
+                                 <th style="width: 5%;">ردیف</th>
+                                 <th style="width: 5%;" data-key="id">شناسه</th>
+                                 <th style="width: 30%;" data-key="title">عنوان</th>
+                                 <th style="width: 5%;">وضعیت</th>
+                                 <th style="width: 5%;">ویرایش</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {#each surveys as survey , index}
+                                 <tr>
+                                    <td style="width: 5%;">{index + number + 1}</td>
+                                    <td style="width: 5%;">{survey.id}</td>
+                                    <td style="width: 30%;">{survey.title}</td>
+                                    <td style="width: 5%;">
+                                       {#if $userPermissions.includes("status-survey")}
+                                          <button on:click={activeOrDeactiveHandler(survey.id)} 
+                                             class:is-success={survey.status} 
+                                             class:is-danger={!survey.status} 
+                                             class="button is-small ${ survey.status ? 'is-success' : 'is-danger'}" >
+                                                <i class:fa-eye={survey.status} class:fa-eye-slash={!survey.status} class="fa"></i>
+                                          </button>
+                                       {/if}
+                                    </td>
+                                    <td style="width: 5%;">
+                                       {#if $userPermissions.includes("update-survey")}
+                                          <button on:click={editPage(survey.id)} class="button is-small has-background-info-dark has-text-warning-light">
+                                             <i class="fa fa-edit"></i>
+                                          </button>
+                                       {/if}
+                                    </td>
+                                 </tr>
+                              {/each}
+                           </tbody>
+                        </table> 
+                     </div>
+                  </div>
+                  {#if last_page > 1}
+                     <Paginate
+                        {currentPage}
+                        {last_page}
+                        middleCount={2}
+                        on:changePage={(ev) => changePage(ev.detail)}
+                     ></Paginate>
+                  {/if}
+               {:else}
+                  <NoData />
+               {/if} 
+            </div> 
+            <div value=1>
+               <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                  <Input label="عنوان" type="text" placeholder="عنوان" bind:title={title} icon="fa-heading" />
+                  <div style="display: block;" class="field">
+                     <div class="d-inlineblock"> 
+                        <div class="d-inlineblock status" >
+                              <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
+                              <label for="status" class="label">وضعیت</label> 
+                        </div>
+                     </div>
+                  </div>
+                  <div style="display : block;text-align : left;">
+                     <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
+                  </div>
+               </div>
+            </div>
+         </div>
       </div>
    {/if}
 </div>

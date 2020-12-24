@@ -1,27 +1,24 @@
 <script>
     import {  notLoading   } from '../../utilis/functions';
-    import { createOrUpdateAnswerFn } from '../../Api/answerApi';
-    import { getQuestionsFn } from '../../Api/questionApi';
+    import { createOrUpdateAnswerFn , getQuestionsForCreateOrUpdateAnswerFn} from '../../Api/answerApi';
     import { loading } from '../../stores';
     import { onMount } from 'svelte';
-    import { push } from 'svelte-spa-router';
+    import { push , replace } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let title = "";
     export let link = "";
     export let image = "";
     export let percent;
-    export let questionId ;
+    export let questionId;
     export let status = true;
     export let flag = false;
     export let questions = [];
     export let errorMessages = [];
     onMount(async () => {
         $loading = true;
-        const  q = await getQuestionsFn(true);
-        if(q.status){
-            questions = q.questions
-        }else{
-            replace('/server-error')
+        const  data = await getQuestionsForCreateOrUpdateAnswerFn();
+        if(data){
+            questions = data
         }
         notLoading()
     })
@@ -49,7 +46,9 @@
         questionId =value
     }
 </script>
-
+<svelte:head>
+	<title>افزودن گزینه</title>
+</svelte:head>
 
 <div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile main-container">
     {#if $loading}
@@ -58,7 +57,7 @@
         <div class="p-2">
             <div class="columns is-variable is-desktop">
                 <div class="column">
-                    <h3 class="title text-center is-size-4">افزودن سوال</h3>
+                    <h3 class="title text-center is-size-4">افزودن گزینه</h3>
                 </div>
             </div>
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">

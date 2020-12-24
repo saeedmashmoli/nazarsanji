@@ -39,11 +39,13 @@ export const activeOrDeacivePackageFn = async(id, status) => {
     })
     return response.data.activeOrDeactivePackage
 }
-export const getPackagesFn = async(status) => {
+export const getPackagesFn = async(input, page, limit) => {
     const response = await client.mutate({
         mutation: getPackagesMutation,
         variables: {
-            status
+            ...input,
+            page,
+            limit
         }
     })
     return response.data.getPackages

@@ -13,11 +13,11 @@
     })     
     const createSurvey = async () => {
         const data = await createOrUpdateSurveyFn({title , status });
-        if(data.status == true){
-            push('/surveys/show-survey/')
-        }else{
-            errorMessages = data.errors
-        }
+        // if(data.status == true){
+        //     push('/surveys/show-survey/')
+        // }else{
+        //     errorMessages = data.errors
+        // }
     }
     $: checkErrors = (field) => {
         let i = {status : false ,message : ""};

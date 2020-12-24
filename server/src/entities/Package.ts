@@ -1,6 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, OneToMany  } from "typeorm";
-import { Call } from "./Call";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn  } from "typeorm";
 
 @ObjectType()
 @Entity()
@@ -17,8 +16,6 @@ export class Package extends BaseEntity {
     @Column('boolean',{ default : 1})
     status: boolean;
 
-    @OneToMany(() => Call, (call) => call.package)
-    calls: Call[];
 
     @Field(() => String)
     @CreateDateColumn()

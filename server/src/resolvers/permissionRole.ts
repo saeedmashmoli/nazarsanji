@@ -2,12 +2,24 @@ import { Role } from '../entities/Role';
 import { Permission } from '../entities/Permission';
 import { Arg, Field, Int, Mutation, ObjectType, Query, Resolver  } from 'type-graphql';
 import { FieldError } from './response';
-import { PermissionInput, RoleInput } from './Input';
-import { permissionValidator, roleValidator } from '../validators/permissionRoleValidator';
+import { RoleInput, RoleSearchInput } from './Input';
+import { roleValidator } from '../validators/permissionRoleValidator';
 import { PermissionRole } from '../entities/PermissionRole';
 import { getConnection } from 'typeorm';
 // import { isAuth } from '../middlewares/isAuthMiddleware';
 // import {isCan} from '../middlewares/isCanMiddleware';
+
+@ObjectType()
+export class PaginatedRoles {
+    @Field()
+    total: number;
+    @Field()
+    page!: number;
+    @Field()
+    pages!: number;
+    @Field(() => [Role] , { nullable : true })
+    roles?: Role[];
+}
 
 @ObjectType()
 class RoleResponse {
@@ -18,35 +30,18 @@ class RoleResponse {
     @Field(() => Role , {nullable : true})
     role?: Role;
 }
-@ObjectType()
-class PermissionResponse {
-    @Field(() => [FieldError] , {nullable : true})
-    errors?: FieldError[];
-    @Field(() => Boolean)
-    status!: Boolean;
-    @Field(() => Permission , {nullable : true})
-    permission?: Permission;
-}
+
 @ObjectType()
 class RolesResponse {
     @Field(() => [FieldError] , {nullable : true})
     errors?: FieldError[];
     @Field(() => Boolean)
     status!: Boolean;
-    @Field(() => [Role])
-    roles?: Role[];
-}
-@ObjectType()
-class PermissionsResponse {
-    @Field(() => [FieldError] , {nullable : true})
-    errors?: FieldError[];
-    @Field(() => Boolean)
-    status!: Boolean;
-    @Field(() => [Permission] , {nullable : true})
-    permissions?: Permission[];
+    @Field(() => PaginatedRoles)
+    docs?: PaginatedRoles;
 }
 
-@Resolver()
+@Resolver(Role)
 export class PermissionRoleResolver {
     protected async addPermitToRole(roleId: number , permissionId : number) {
         await PermissionRole.create({roleId , permissionId}).save();
@@ -54,17 +49,34 @@ export class PermissionRoleResolver {
     protected async deletePermitFromRole(roleId: number , permissionId : number) {
         await PermissionRole.delete({roleId , permissionId});
     }
+    @Query(() => [Permission])
+    async getPermissionsForCreateRole() : Promise<Permission[]> {
+        return await Permission.find({where : {status : true}});
+    }
+
     
     @Mutation(() => RolesResponse)
     // @UseMiddleware(isAuth,isCan("role-show" , "Role"))
     async getRoles(
-        @Arg('status') status: Boolean
+        @Arg('limit', () => Int, {nullable : true}) limit: number,
+        @Arg('page', () => Int,{nullable : true}) page: number,
+        @Arg('input', { nullable : true}) input: RoleSearchInput
     ) : Promise<RolesResponse>{
-        const roles = await getConnection().query(` 
-            select r.* from role as r 
-            where ${status ? "status = true" : "status = status"}
-        `);
-        return { status : true , roles }
+        const { status , title , label , permissionIds , roleId } = input;
+        let currentPage = page || 1;
+        let take = limit || 10;
+        let skip = (currentPage - 1) * take;
+        let query = `from role as s 
+        ${permissionIds ? `left join permission_role as pr on pr.roleId = s.id` : ""}
+        where ${status ? `s.status = ${status}` : "s.status = s.status"}
+        ${roleId ? `and s.roleId = ${roleId}` : ""}
+        ${title ? `and s.title like '%${title}%' `: ""}
+        ${label ? `and s.label like '%${label}%' `: ""}
+        `;
+        const t = await getConnection().query(`select count(*) as 'count' ${query}`);
+        const roles = await getConnection().query(`select s.* ${query} order by id desc limit ${skip},${take}`);
+        let pages = Math.floor((t[0].count % take > 0) ? (t[0].count / take) + 1 : (t[0].count / take)) as number
+        return { status : true , docs : { roles , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => RoleResponse)
     // @UseMiddleware(isAuth,isCan("role-show" , "Role"))
@@ -76,6 +88,7 @@ export class PermissionRoleResolver {
         const role = await Role.findOne({ where : {id}});
         return { status : true , role }
     }
+
 
     @Mutation(() => RoleResponse)
     // @UseMiddleware(isAuth,isCan("role-create" , "Role"))
@@ -91,7 +104,6 @@ export class PermissionRoleResolver {
         await input.permissions?.forEach(p => {
             this.addPermitToRole(role.id,parseInt(p))
         })
-
         return {status : true};
     }
 
@@ -134,63 +146,5 @@ export class PermissionRoleResolver {
         if(errors?.length) return {status : false , errors}
         await Role.update({id},{status});
         return { status : true };;
-    }
-    @Mutation(() => PermissionsResponse)
-    // @UseMiddleware(isAuth,isCan("permission-show" , "Permission"))
-    async getPermissions(
-        @Arg('status') status : boolean
-    ) : Promise<PermissionsResponse>{
-        let permissions = [];
-        if(status == true){
-            permissions = await Permission.find({where : {status} , order : {id : 'DESC'}})
-        }else{
-            permissions = await Permission.find({order : {id : 'DESC'}})
-        }
-        return { permissions , status : true}
-    }
-    @Query(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-show" , "Permission"))
-    async getPermission(
-        @Arg('id' , () => Int) id : number
-    ) : Promise<PermissionResponse>{
-        const errors = await permissionValidator(null,id);
-        if(errors?.length) return {status : false , errors}
-        const permission = await Permission.findOne({id})
-        return { permission , status : true}
-    }
-
-    @Mutation(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-create" , "Permission"))
-    async createPermission(
-        @Arg('input') input: PermissionInput,
-    ) : Promise<PermissionResponse>{
-        const errors = await permissionValidator(input,null);
-        if(errors?.length) return {status : false , errors}
-        await Permission.create({...input}).save();
-        return {status :true};
-    }
-
-    @Mutation(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-update" , "Permission"))
-    async updatePermission(
-        @Arg('id' , () => Int) id: number,
-        @Arg('input') input: PermissionInput,
-    ) : Promise<PermissionResponse>{
-        const errors = await permissionValidator(input,id);
-        if(errors?.length) return {status : false , errors}
-        await Permission.update({id},{...input});
-        return {status :true};
-    }
-
-    @Mutation(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-delete" , "Permission"))
-    async activeOrDeactivePermission(
-        @Arg('id' , () => Int) id: number,
-        @Arg('status') status: boolean
-    ) : Promise<PermissionResponse>{
-        const errors = await permissionValidator(null,id);
-        if(errors?.length) return {status : false , errors}
-        await Permission.update({id},{ status});
-        return { status : true };;
-    }
+    } 
 }

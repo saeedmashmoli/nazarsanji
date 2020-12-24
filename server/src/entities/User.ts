@@ -1,7 +1,8 @@
 import { Token } from "./Token";
 import { Field, ObjectType  } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToOne, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToOne, ManyToOne, OneToMany } from "typeorm";
 import { Role } from "./Role";
+import { Log } from './Log';
 
 @ObjectType()
 @Entity()
@@ -39,10 +40,12 @@ export class User extends BaseEntity {
     @Column()
     roleId!: number;
 
-    
     @Field(() => Role)
     @ManyToOne(() => Role)
     role: Role;
+    
+    @OneToMany(() => Log, log => log.user)
+    logs: Log[];
 
     @Field()
     @Column()

@@ -7,7 +7,6 @@
         getSelectionLabel
     } from '../../utilis/functions';
     import Select from 'svelte-select';
-    import {getCustomersFn} from '../../Api/customerApi';
     import {getPackagesFn} from '../../Api/packageApi';
     import { createOrUpdateCallFn} from '../../Api/callApi';
     import {loading} from '../../stores';

@@ -86,6 +86,10 @@ body {
     transition: all ease 0.5s;
 }
 
+.disable-cursor {
+    cursor: none !important;
+}
+
 @media(min-width: 1024px) {
     .menu-container {
         width: 16.66667%;

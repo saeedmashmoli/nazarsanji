@@ -22,15 +22,15 @@
    onMount( async () => {
       $loading = true;
       const data = qs.parse($querystring)
-      currentPage = parseInt(data.page)
+      currentPage = Number(data.page)
       title = data.title;
       label = data.mobile;
-      status = data.status;
+      status = Boolean(data.status);
       setParameters()
       notLoading()
    });
    const setParameters = async () => {
-      const input = {status : false, title , label}
+      const input = {status, title , label}
       const data = await getParametersFn(input ,currentPage , limit);
       if(data.status){
          const res  = data.docs
@@ -44,7 +44,7 @@
    }
 
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}&title=${title ? title : ""}&label=${label ? label : ""}&status=${status ? status : ""}`;
+      const data = `show?page=${page ? page : 1}${title ? "&title="+title : ""}${label ? "&label="+label : ""}${status ? "&status="+status : ""}`;
       push("/parameters/show-parameter/" + data) ;
       if(page) {currentPage = page}else{isLoading = true};
       setParameters();
@@ -116,83 +116,90 @@
                </div>
             </div>
          </div>
-         {#if parameters.length}
-               <div class="tabs">
-                  <ul>
-                     <!-- svelte-ignore a11y-missing-attribute -->
-                     <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
-                     <!-- svelte-ignore a11y-missing-attribute -->
-                     <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
-                  </ul>
-               <div class="tab-content">
-                  <div value=0>
-                     <div class="box back-eee">
-                        <div class="table-container">
-                           <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
-                              <thead>
+         <div class="tabs">
+            <ul>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
+            </ul>
+         </div>
+         <div class="tab-content">
+            <div value=0>
+               {#if parameters.length}
+                  <div class="box back-eee">
+                     <div class="table-container">
+                        <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
+                           <thead>
+                              <tr>
+                                 <th style="width: 5%;">ردیف</th>
+                                 <th style="width: 10%;" data-key="id">شناسه</th>
+                                 <th style="width: 25%;" data-key="title">عنوان</th>
+                                 <th style="width: 40%;" data-key="label">شرح</th>
+                                 <th style="width: 10%;">وضعیت</th>
+                                 <th style="width: 10%;">ویرایش</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {#each parameters as parameter , index}
                                  <tr>
-                                    <th style="width: 5%;">ردیف</th>
-                                    <th style="width: 10%;" data-key="id">شناسه</th>
-                                    <th style="width: 25%;" data-key="title">عنوان</th>
-                                    <th style="width: 40%;" data-key="label">شرح</th>
-                                    <th style="width: 10%;">وضعیت</th>
-                                    <th style="width: 10%;">ویرایش</th>
+                                    <td style="width: 5%;">{index + number + 1}</td>
+                                    <td style="width: 10%;">{parameter.id}</td>
+                                    <td style="width: 25%;">{parameter.title}</td>
+                                    <td style="width: 40%;">{parameter.label}</td>
+                                    <td style="width: 10%;">
+                                       {#if $userPermissions.includes("status-parameter")}
+                                          <button on:click={activeOrdeactiveHandler(parameter.id)} 
+                                             class:is-success={parameter.status} 
+                                             class:is-danger={!parameter.status} 
+                                             class="button is-small ${ parameter.status ? 'is-success' : 'is-danger'}" >
+                                                <i class:fa-eye={parameter.status} class:fa-eye-slash={!parameter.status} class="fa"></i>
+                                          </button>
+                                       {/if}
+                                    </td>
+                                    <td style="width: 10%;">
+                                       {#if $userPermissions.includes("update-parameter")}
+                                          <button on:click={editPage(parameter.id)} class="button is-small has-background-info-dark has-text-warning-light">
+                                             <i class="fa fa-edit"></i>
+                                          </button>
+                                       {/if}
+                                    </td>
                                  </tr>
-                              </thead>
-                              <tbody>
-                                 {#each parameters as parameter , index}
-                                    <tr>
-                                       <td style="width: 5%;">{index + number + 1}</td>
-                                       <td style="width: 10%;">{parameter.id}</td>
-                                       <td style="width: 25%;">{parameter.title}</td>
-                                       <td style="width: 40%;">{parameter.label}</td>
-                                       <td style="width: 10%;">
-                                          {#if $userPermissions.includes("status-parameter")}
-                                             <button on:click={activeOrdeactiveHandler(parameter.id)} 
-                                                class:is-success={parameter.status} 
-                                                class:is-danger={!parameter.status} 
-                                                class="button is-small ${ parameter.status ? 'is-success' : 'is-danger'}" >
-                                                   <i class:fa-eye={parameter.status} class:fa-eye-slash={!parameter.status} class="fa"></i>
-                                             </button>
-                                          {/if}
-                                       </td>
-                                       <td style="width: 10%;">
-                                          {#if $userPermissions.includes("update-parameter")}
-                                             <button on:click={editPage(parameter.id)} class="button is-small has-background-info-dark has-text-warning-light">
-                                                <i class="fa fa-edit"></i>
-                                             </button>
-                                          {/if}
-                                       </td>
-                                    </tr>
-                                 {/each}
-                              </tbody>
-                           </table> 
-                        </div>
+                              {/each}
+                           </tbody>
+                        </table> 
                      </div>
-                     {#if last_page > 1}
-                        <Paginate
-                           {currentPage}
-                           {last_page}
-                           middleCount={2}
-                           on:changePage={(ev) => changePage(ev.detail)}
-                        ></Paginate>
-                     {/if}
                   </div>
-                  <div value=1>
-                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input label="عنوان " type="text" placeholder="عنوان پارامتر؟" bind:title={title} icon="fa-heading" />
-                        <Input label="شرح" type="text" placeholder="شرح پارامتر؟" bind:title={label} icon="fa-tags" />
-                        <div style="display : block;text-align : left;">
-                           <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
+               {#if last_page > 1}
+                  <Paginate
+                     {currentPage}
+                     {last_page}
+                     middleCount={2}
+                     on:changePage={(ev) => changePage(ev.detail)}
+                  ></Paginate>
+               {/if}
+               {:else}
+                  <NoData />
+               {/if}
+            </div>
+            <div value=1>
+               <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                  <Input label="عنوان " type="text" placeholder="عنوان پارامتر؟" bind:title={title} icon="fa-heading" />
+                  <Input label="شرح" type="text" placeholder="شرح پارامتر؟" bind:title={label} icon="fa-tags" />
+                  <div style="display: block;" class="field">
+                     <div class="d-inlineblock"> 
+                        <div class="d-inlineblock status" >
+                              <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
+                              <label for="status" class="label">وضعیت</label> 
                         </div>
                      </div>
+                  </div>
+                  <div style="display : block;text-align : left;">
+                     <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
                   </div>
                </div>
             </div>
-         {:else}
-            <NoData />
-         {/if} 
-         
+         </div>
       </div>
    {/if}
 </div>

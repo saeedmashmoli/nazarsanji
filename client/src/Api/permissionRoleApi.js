@@ -20,24 +20,7 @@ export let getPermissionsFn = async(status) => {
     })
     return response.data.getPermissions
 }
-export let getRolesFn = async(status) => {
-    let response = await client.mutate({
-        mutation: GetRolesMutation,
-        variables: {
-            status
-        }
-    })
-    return response.data.getRoles
-}
-export const getRoleFn = async(id) => {
-    let response = await client.query({
-        query: GetRoleQuery,
-        variables: {
-            id
-        }
-    })
-    return response.data.getRole
-}
+
 export const getPermissionFn = async(id) => {
     let response = await client.query({
         query: GetPermissionQuery,
@@ -47,26 +30,7 @@ export const getPermissionFn = async(id) => {
     })
     return response.data
 }
-export let createOrUpdateRoleFn = async(input, id = null) => {
-    if (id) {
-        const response = await client.mutate({
-            mutation: UpdateRoleMutation,
-            variables: {
-                ...input,
-                id
-            }
-        })
-        return response.data.updateRole;
-    } else {
-        const response = await client.mutate({
-            mutation: CreateRoleMutation,
-            variables: {
-                ...input
-            }
-        })
-        return response.data.createRole;
-    }
-}
+
 export let createOrUpdatePermissionFn = async(input, id = null) => {
     if (id) {
         const response = await client.mutate({
@@ -87,16 +51,7 @@ export let createOrUpdatePermissionFn = async(input, id = null) => {
         return response.data.createPermission;
     }
 }
-export const activeOrDeactiveRoleFn = async(id, status) => {
-    const response = await client.mutate({
-        mutation: activeOrDeactiveRoleMutation,
-        variables: {
-            id,
-            status
-        }
-    })
-    return response.data.activeOrDeactiveRole
-}
+
 
 export const activeOrDeactivePermissionFn = async(id, status) => {
     const response = await client.mutate({
