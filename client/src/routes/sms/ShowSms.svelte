@@ -7,6 +7,10 @@
    import Toast from '../../components/Toast.svelte';
    import NoData from '../../components/NoData.svelte';
    import Input from '../../components/Input.svelte';
+   import moment from 'moment-jalaali';
+   import fa from "moment/src/locale/fa";
+   moment.locale("fa", fa);
+   moment.loadPersian();
    import { onMount } from 'svelte';
    import qs from 'qs';
    export let sends = [];
@@ -141,15 +145,15 @@
                            <thead>
                               <tr>
                                  <th style="width: 5%;">ردیف</th>
-                                 <th style="width: 5%;" data-key="id">شناسه</th>
-                                 <th style="width: 10%;" data-key="token">توکن</th>
-                                 <th style="width: 15%;" data-key="name">نام مشتری</th>
-                                 <th style="width: 10%;" data-key="mobile">موبایل</th>
-                                 <th style="width: 15%;" data-key="template">قالب</th>
-                                 <th style="width: 5%;">وضعیت توکن</th>
-                                 <th style="width: 10%;">وضعیت ارسال پیامک</th>
+                                 <th style="width: 5%;">شناسه</th>
+                                 <th style="width: 10%;">توکن</th>
+                                 <th style="width: 15%;">نام مشتری</th>
+                                 <th style="width: 10%;">موبایل</th>
+                                 <th style="width: 15%;">قالب</th>
+                                 <th style="width: 10%;">زمان ارسال</th>
+                                 <th style="width: 10%;">توکن / ارسال</th>
                                  <th style="width: 20%;">پیام سامانه پیامکی</th>
-                                 <th style="width: 5%;">فعال / غیرفعال</th>
+                                 <th style="width: 5%;">تغییر وضعیت</th>
                               </tr>
                            </thead>
                            <tbody>
@@ -161,17 +165,15 @@
                                     <td style="width: 15%;">{send.call.customer?.name}</td>
                                     <td style="width: 10%;">{send.call.customer?.mobile}</td>
                                     <td style="width: 15%;">{send.template.title}</td>
+                                    <td style="width: 10%;">{moment(parseInt(send.createdAt)).format('jYYYY/jM/jD HH:mm:ss')}</td>
                                     <td style="width: 5%;">
                                        <!-- svelte-ignore a11y-missing-attribute -->
                                        <button 
                                           class:is-success={send.used} 
                                           class:is-danger={!send.used} 
-                                          class="button disable-cursor is-small ${ send.used ? 'is-success' : 'is-danger'}" >
-                                          <i  class={send.used ? "fas" : "fa"} class:fa-times={!send.used} class:fa-check={!send.used}></i>
+                                          class="button disable-cursor is-small" >
+                                          <i  class={send.used ? "fas" : "fa"} class:fa-times={!send.used} class:fa-check={send.used}></i>
                                        </button>
-                                    </td>
-                                    <td style="width: 10%;">
-                                       <!-- svelte-ignore a11y-missing-attribute -->
                                        <button 
                                           class:is-success={send.isSuccess} 
                                           class:is-danger={!send.isSuccess} 
@@ -223,6 +225,7 @@
                               <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
                               <label for="status" class="label">وضعیت</label> 
                         </div>
+
                      </div>
                      <div class="column" style="display: inline-block;"> 
                            <div class="d-inlineblock status" >

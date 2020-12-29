@@ -1,8 +1,9 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, ManyToOne, UpdateDateColumn  } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, ManyToOne, UpdateDateColumn, OneToMany  } from "typeorm";
 import { Call } from "./Call";
 import { Survey } from "./Survey";
 import { Template } from "./Template";
+import { Comment } from "./Comment";
 
 
 @ObjectType()
@@ -44,10 +45,6 @@ export class Sms extends BaseEntity {
     @Column('boolean',{ default : 0})
     isSuccess?: boolean;
 
-    @Field()
-    @Column({ nullable : true})
-    code?: number;
-
     @Field(() => String,{nullable : true})
     @Column({ nullable : true, length : 1000})
     message?: string;
@@ -55,10 +52,17 @@ export class Sms extends BaseEntity {
     @Field(() => Boolean)
     @Column('boolean',{ default : 0})
     used: boolean;
+    
+    @Field(() => Boolean)
+    @Column('boolean',{ default : 0})
+    checkSms: boolean;
 
     @Field(() => Boolean)
     @Column('boolean',{ default : 1})
     status: boolean;
+
+    @OneToMany(() => Comment, (comment) => comment.sms)
+    comments: Comment[];
 
     @Field(() => String)
     @CreateDateColumn()

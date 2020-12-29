@@ -6,10 +6,12 @@
     import { push } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let title = "";
-    export let typeId ;
-    export let surveyId ;
+    export let typeId;
+    export let surveyId;
+    export let turn;
     export let status = true;
     export let shouldBe = true;
+    export let isUsedOk = false;
     export let surveys = [];
     export let types = [];
     export let errorMessages = [];
@@ -26,7 +28,7 @@
     })
         
     const createQuestion = async () => {
-        const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId ,surveyId});
+        const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId , turn ,surveyId});
         if(data.status == true){
             push('/questions/show-question/')
         }else{
@@ -67,8 +69,10 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان سوال؟" type="text" bind:title={title} icon="fa-heading" />
+                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان سوال؟" type="textarea" bind:title={title} icon="fa-heading" />
                         <p class="help is-danger">{checkErrors("title").message}</p>
+                        <Input errorClass={checkErrors("turn").status} label="نوبت نمایش" placeholder="نوبت نمایش سوال؟" type="number" bind:title={turn} icon="fa-arrows-v" />
+                        <p class="help is-danger">{checkErrors("turn").message}</p>
                        
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock"> 
@@ -89,7 +93,15 @@
                                     <label for class="label">الزام پاسخگویی</label> 
                                 </div>
                             </div>
-                            
+                            <div class="d-inlineblock" style="float: right;margin-right : 2%"> 
+                                <div class="d-inlineblock status" >
+                                <input id="isUsedOk" type="checkbox" class="switch is-rounded is-info" bind:checked={isUsedOk}>
+                                <label for="isUsedOk"></label>
+                                </div>
+                                <div class="d-inlineblock" style="position: relative; top: 5px">
+                                    <label for class="label">تایید کامنت</label> 
+                                </div>
+                            </div>
                         </div>
 
                     </div>

@@ -30,7 +30,7 @@
             {:else if type=="number"}
                 <input autocomplete="off" class="input" type="number"  bind:value={title}>
             {:else if type=="textarea"}
-                <textarea placeholder={placeholder} class="input" bind:value={title}></textarea>
+                <textarea resize="off" style="height : 200px" placeholder={placeholder} class="input" bind:value={title}></textarea>
             {/if}
             <span class="icon is-small is-left">
                 <i class={`fas ${icon}`}></i>

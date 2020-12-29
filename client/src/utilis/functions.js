@@ -78,3 +78,14 @@ export const loadSelectOptionsCustomers = async(filterText) => {
         }
     }
 }
+export const checkOperator = (a, b, op) => {
+    const operators = {
+        '<': function(a, b) { return a < b },
+        '>': function(a, b) { return a > b },
+        '<=': function(a, b) { return a <= b },
+        '>=': function(a, b) { return a >= b },
+        '===': function(a, b) { return a === b },
+        '!==': function(a, b) { return a !== b },
+    };
+    return operators[op](a, b)
+}

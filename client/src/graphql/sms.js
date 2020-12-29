@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client';
-import { SmsFragments, ErrorFragments, TemplateFragments, PackageFragments } from './fragments'
+import { SmsFragments, SurveyFragments, ErrorFragments, TemplateFragments, PackageFragments } from './fragments'
 
-export const getPackagesAndTemplatesForCreateSmsQuery = gql `
-    query  getPackagesAndTemplatesForCreateSms{
-        getPackagesAndTemplatesForCreateSms{
+export const getOptionsForCreateSmsQuery = gql `
+    query  getOptionsForCreateSms{
+        getOptionsForCreateSms{
             status
             errors {
                 ...ErrorFragment
@@ -14,9 +14,13 @@ export const getPackagesAndTemplatesForCreateSmsQuery = gql `
             templates {
                 ...TemplateFragment
             }
+            surveys {
+                ...SurveyFragment
+            }
            
         }
     }
+    ${SurveyFragments.survey}
     ${TemplateFragments.template}
     ${PackageFragments.package}
     ${ErrorFragments.error}
@@ -26,12 +30,14 @@ export const getPackagesAndTemplatesForCreateSmsQuery = gql `
 export const createSmsMutation = gql `
     mutation CreateSms(
         $packageId : Int, 
-        $templateId : Int
+        $templateId : Int,
+        $surveyId : Int
     ){
         createSms(
             input : { 
                 packageId : $packageId,
-                templateId : $templateId
+                templateId : $templateId,
+                surveyId : $surveyId
             }
         ){
             status

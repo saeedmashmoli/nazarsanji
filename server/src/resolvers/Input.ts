@@ -32,12 +32,16 @@ export class UserRegisterInput {
 export class QuestionInput {
     @Field()
     title!: string;
+    @Field(() => Int , {nullable : true})
+    turn?: number;
     @Field( () => Int , {nullable : true})
     typeId?: number;
     @Field( () => Int , {nullable : true})
     surveyId?: number;
     @Field()
     shouldBe?: boolean;
+    @Field()
+    isUsedOk?: boolean;
     @Field()
     status?: boolean;
 }
@@ -106,6 +110,7 @@ export class TemplateSearchInput {
     parameterId?: number;
     @Field({nullable : true})
     title?: string;
+
     @Field(() => Int , {nullable : true})
     tempNumber?: number;
     @Field({nullable : true})
@@ -186,6 +191,8 @@ export class TemplateInput {
     title: string;
     @Field({nullable : true})
     link?: string;
+    @Field({nullable : true})
+    body?: string;
     @Field(() => Int , {nullable : true})
     tempNumber?: number;
     @Field(() => [Int] , {nullable : true})
@@ -367,4 +374,58 @@ export class LogSearchInput {
     rowId?: number;
     @Field({nullable : true})
     operation?: string;
+}
+
+@InputType()
+export class CommentSearchInput {
+    @Field(() => Int,{nullable : true})
+    questionId?: number
+    @Field(() => Int,{nullable : true})
+    smsId?: number
+    @Field(() => Int, {nullable : true})
+    answerId?: number;
+    @Field(() => Int, {nullable : true})
+    customerId?: number;
+    @Field(() => Int, {nullable : true})
+    typeId?: number;
+    @Field(() => Int, {nullable : true})
+    callId?: number;
+    @Field({nullable : true})
+    status?: boolean;
+    @Field({nullable : true})
+    text?: boolean;
+}
+@InputType()
+export class CommentInput {
+    @Field(() => Int)
+    smsId!: number
+    @Field(() => Int)
+    questionId!: number
+    @Field(() => [Int], {nullable : true})
+    answerIds?: number[];
+    @Field({nullable : true })
+    text?: string;
+    @Field({nullable : true })
+    flag?: boolean;
+}
+
+@InputType()
+export class ConditionSearchInput {
+    @Field(() => Int,{nullable : true})
+    surveyId?: number
+    @Field({nullable : true})
+    status?: boolean;
+}
+@InputType()
+export class ConditionInput {
+    @Field(() => Int , {nullable : true})
+    consQuestionId?: number
+    @Field(() => Int , {nullable : true})
+    questionId?: number
+    @Field(() => Int, {nullable : true})
+    answerId?: number;
+    @Field(() => Int, {nullable : true })
+    criteriaId?: number;
+    @Field({nullable : true})
+    status?: boolean;
 }

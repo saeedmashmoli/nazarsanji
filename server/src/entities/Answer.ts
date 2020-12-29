@@ -1,6 +1,8 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, ManyToOne  } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, ManyToOne, OneToMany  } from "typeorm";
 import { Question } from "./Question";
+import { Comment } from "./Comment";
+import { Condition } from "./Condition";
 
 
 
@@ -10,6 +12,11 @@ export class Answer extends BaseEntity {
     @Field()
     @PrimaryGeneratedColumn()
     id!: number;
+
+    @OneToMany(() => Comment, (comment) => comment.answer)
+    comments: Comment[];
+    @OneToMany(() => Condition, (condition) => condition.answer)
+    conditions: Condition[];
 
     @Field()
     @Column()

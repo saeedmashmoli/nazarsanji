@@ -145,10 +145,12 @@
                            <thead>
                               <tr>
                                  <th style="width: 5%;">ردیف</th>
-                                 <th style="width: 5%;" data-key="id">شناسه</th>
-                                 <th style="width: 30%;" data-key="title">عنوان</th>
-                                 <th style="width: 15%;" data-key="(row) => row.type.title">نوع سوال</th>
-                                 <th style="width: 30%;" data-key="(row) => row.survey.title">نظرسنجی مربوطه</th>
+                                 <th style="width: 5%;">شناسه</th>
+                                 <th style="width: 30%;">عنوان</th>
+                                 <th style="width: 10%;">نوع سوال</th>
+                                 <th style="width: 25%;">نظرسنجی مربوطه</th>
+                                 <th style="width: 10%;">نوبت نمایش</th>
+                                 <th style="width: 10%;">تایید کامنت</th>
                                  <th style="width: 5%;">وضعیت</th>
                                  <th style="width: 5%;">ویرایش</th>
                               </tr>
@@ -158,9 +160,18 @@
                                  <tr>
                                     <td style="width: 5%;">{index + number + 1}</td>
                                     <td style="width: 5%;">{question.id}</td>
-                                    <td style="width: 30%;">{question.title}</td>
+                                    <td style="width: 25%;">{question.title.slice(0,40)}{question.title.length > 40 ? "..." : ""}</td>
                                     <td style="width: 15%;">{question.type.title}</td>
-                                    <td style="width: 30%;">{question.survey.title}</td>
+                                    <td style="width: 25%;">{question.survey.title.slice(0,40)} {question.survey.title.length > 40 ? "..." : ""}</td>
+                                    <td style="width: 10%;">{question.turn}</td>
+                                    <td style="width: 10%;">
+                                       <button 
+                                          class:is-success={question.isUsedOk} 
+                                          class:is-danger={!question.isUsedOk} 
+                                          class="button disable-cursor is-small" >
+                                          <i  class={question.isUsedOk ? "fas" : "fa"} class:fa-times={!question.isUsedOk} class:fa-check={question.isUsedOk}></i>
+                                       </button>
+                                    </td>
                                     <td style="width: 5%;">
                                        {#if $userPermissions.includes("status-question")}
                                           <button on:click={activeOrdeactiveHandler(question.id)} 

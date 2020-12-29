@@ -66,32 +66,16 @@ export const SurveyFragments = {
         }
   `
 };
-
-
-export const QuestionFragments = {
-    question: gql `
-        fragment QuestionFragment on Question {
+export const CriteriaFragments = {
+    criteria: gql `
+        fragment CriteriaFragment on Criteria {
             id
+            symbol
             title
             status
-            typeId
-            type {
-                ...TypeFragment
-            }
-            shouldBe
-            surveyId
-            survey {
-                ...SurveyFragment
-            }
         }
-        ${TypeFragments.type}
-        ${SurveyFragments.survey}
-  `
+    `
 };
-
-
-
-
 export const AnswerFragments = {
     answer: gql `
         fragment AnswerFragment on Answer {
@@ -110,6 +94,72 @@ export const AnswerFragments = {
         }
     `
 };
+export const ConditionFragments = {
+    condition: gql `
+        fragment ConditionFragment on Condition {
+            id
+            status
+            consQuestionId
+            consQuestion{
+                title
+                id
+                survey {
+                    ...SurveyFragment
+                }
+            }
+            questionId
+            question {
+                title 
+            }
+            answerId
+            answer {
+                ...AnswerFragment
+            }
+            criteriaId
+            criteria {
+                ...CriteriaFragment
+            }
+        }
+        ${SurveyFragments.survey}
+        ${AnswerFragments.answer}
+        ${CriteriaFragments.criteria}
+    `
+};
+export const QuestionFragments = {
+    question: gql `
+        fragment QuestionFragment on Question {
+            id
+            title
+            turn
+            status
+            typeId
+            type {
+                ...TypeFragment
+            }
+            shouldBe
+            isUsedOk
+            surveyId
+            survey {
+                ...SurveyFragment
+            }
+            answers {
+                ...AnswerFragment
+            }
+            conditions {
+                ...ConditionFragment
+            }
+        }
+        ${AnswerFragments.answer}
+        ${ConditionFragments.condition}
+        ${TypeFragments.type}
+        ${SurveyFragments.survey}
+  `
+};
+
+
+
+
+
 export const CustomerFragments = {
     customer: gql `
         fragment CustomerFragment on Customer {
@@ -174,6 +224,7 @@ export const TemplateFragments = {
         fragment TemplateFragment on Template {
             id
             title
+            body
             isDynamicLink
             tempNumber
             link
@@ -188,6 +239,7 @@ export const SmsFragments = {
             id
             token
             isSuccess
+            used
             message
             status
             template {
@@ -217,5 +269,34 @@ export const LogFragments = {
             }
         }
         ${UserFragment.user}
+    `
+};
+
+
+
+export const CommentFragments = {
+    comment: gql `
+        fragment CommentFragment on Comment {
+            id
+            smsId
+            sms {
+                ...SmsFragment
+            }
+            questionId
+            question {
+                ...QuestionFragment
+            }
+            
+            answerId
+            answer {
+                ...AnswerFragment
+            }
+            text
+            status
+            createdAt
+        }
+        ${SmsFragments.sms}
+        ${AnswerFragments.answer}
+        ${QuestionFragments.question}
     `
 };

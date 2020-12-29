@@ -3,6 +3,8 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, 
 import { Answer } from "./Answer";
 import { Survey } from "./Survey";
 import { Type } from "./Type";
+import { Condition } from "./Condition";
+import { Comment } from "./Comment";
 
 
 @ObjectType()
@@ -16,6 +18,10 @@ export class Question extends BaseEntity {
     @Column({ length : 1000})
     title!: string;
 
+    @Field()
+    @Column()
+    turn!: number;
+
     @Field(() => Boolean)
     @Column('boolean',{ default : 1})
     status?: boolean;
@@ -23,6 +29,11 @@ export class Question extends BaseEntity {
     @Field(() => Boolean)
     @Column('boolean',{ default : 1})
     shouldBe?: boolean;
+
+    @Field(() => Boolean)
+    @Column('boolean',{ default : 0})
+    isUsedOk?: boolean;
+
 
     @Field()
     @Column()
@@ -40,8 +51,14 @@ export class Question extends BaseEntity {
     @ManyToOne(() => Survey , survey => survey.questions)
     survey: Survey;
 
+    //has many relations
     @OneToMany(() => Answer, (answer) => answer.question)
     answers: Answer[];
+    @OneToMany(() => Condition, (condition) => condition.question)
+    conditions: Condition[];
+    @OneToMany(() => Comment, (comment) => comment.question)
+    comments: Comment[];
+
 
     @Field(() => String)
     @CreateDateColumn()

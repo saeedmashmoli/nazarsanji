@@ -4,7 +4,7 @@ import {
     activeOrDeactiveSmsMutation,
     getSendsMutation,
     getSmsQuery,
-    getPackagesAndTemplatesForCreateSmsQuery
+    getOptionsForCreateSmsQuery
 } from '../graphql/sms';
 export const createSmsFn = async(input) => {
     const response = await client.mutate({
@@ -26,11 +26,11 @@ export const activeOrDeaciveSmsFn = async(id, status) => {
     })
     return response.data.activeOrDeactiveSms
 }
-export const getPackagesAndTemplatesForCreateSmsFn = async() => {
+export const getOptionsForCreateSmsFn = async() => {
     const response = await client.query({
-        query: getPackagesAndTemplatesForCreateSmsQuery
+        query: getOptionsForCreateSmsQuery
     })
-    return response.data.getPackagesAndTemplatesForCreateSms
+    return response.data.getOptionsForCreateSms
 }
 export const getSendsFn = async(input, page, limit) => {
     const response = await client.mutate({

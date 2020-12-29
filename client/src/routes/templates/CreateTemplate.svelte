@@ -7,6 +7,7 @@
     import Input from '../../components/Input.svelte';
     export let title = "";
     export let link = "";
+    export let body = "";
     export let tempNumber;
     export let isDynamicLink = true;
     export let status = true;
@@ -42,7 +43,8 @@
             parameters : value,
             isDynamicLink, 
             link, 
-            status 
+            status,
+            body 
         });
         if(data.status == true){
             push('/templates/show-template/')
@@ -81,6 +83,7 @@
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                         <Input label="عنوان " type="text" placeholder="عنوان قالب؟" bind:title={title} icon="fa-heading" />
                         <p class="help is-danger">{checkErrors("title").message}</p>
+                        <Input label="متن پیامک" type="textarea" placeholder="متن پیامک؟" bind:title={body} icon="fa-text" />
                         <Input label="کد قالب در سامانه sms.ir " type="number" placeholder="کد قالب در سامانه sms.ir" bind:title={tempNumber} icon="fa-key" />
                         <p class="help is-danger">{checkErrors("tempNumber").message}</p>
                         <Input label="لینک " type="text" placeholder="لینک ارجاع به صفحه" bind:title={link} icon="fa-tags" />
@@ -99,7 +102,7 @@
                                 <label for="isDynamicLink"></label>
                                 </div>
                                 <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label for class="label">ارسال توکن همراه لینک پیامک</label> 
+                                    <label for class="label">ارسال توکن</label> 
                                 </div>
                             </div>
                         </div>

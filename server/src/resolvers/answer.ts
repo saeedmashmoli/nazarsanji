@@ -6,7 +6,7 @@ import { AnswerInput , AnswerSearchInput } from './Input';
 import { FieldError } from './response';
 import { answerValidator } from '../validators/answerValidator';
 import { Question } from '../entities/Question';
-import { getConnection } from 'typeorm';
+import { getConnection ,Not ,In } from 'typeorm';
 import { Log } from '../entities/Log';
 import { MyContext } from '../types';
 
@@ -52,7 +52,7 @@ export class AnswerResolver {
 
     @Query(() => [Question])
     async getQuestionsForCreateAnswer() : Promise<Question[]> {
-        return await Question.find({where : {status : true}});
+        return await Question.find({where : {status : true , typeId : Not(In([5,6,3]))}});
     }
 
 

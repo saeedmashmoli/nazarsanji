@@ -9,7 +9,8 @@ import { Survey } from '../entities/Survey';
 import { Type } from '../entities/Type';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
+import { Condition } from '../entities/Condition';
+import { Answer } from '../entities/Answer';
 
 @ObjectType()
 export class PaginatedQuestions {
@@ -74,6 +75,15 @@ export class QuestionResolver {
     type( 
       @Root() question : Question,
     ){return Type.findOne(question.typeId)}
+    @FieldResolver(() => [Answer])
+    async answers( 
+      @Root() question : Question,
+    ){return await Answer.find({where : {questionId : question.id , status : true}})}
+
+    @FieldResolver(() => [Condition])
+    async conditions( 
+      @Root() question : Question,
+    ){return await Condition.find({where : {consQuestionId : question.id , status : true}})}
 
     @Query(() => SurveysAndTypesResponse)
     async getSurveysAndTypesForCreateQuestion() : Promise<SurveysAndTypesResponse> {

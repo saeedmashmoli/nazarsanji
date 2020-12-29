@@ -45,9 +45,13 @@
 	import ShowTemplate from './routes/templates/ShowTemplate.svelte';
 	import CreateTemplate from './routes/templates/CreateTemplate.svelte';
 	import UpdateTemplate from './routes/templates/UpdateTemplate.svelte';
+	import ShowCondition from './routes/conditions/ShowCondition.svelte';
+	import CreateCondition from './routes/conditions/CreateCondition.svelte';
+	import UpdateCondition from './routes/conditions/UpdateCondition.svelte';
 	import ShowSms from './routes/sms/ShowSms.svelte';
 	import CreateSms from './routes/sms/CreateSms.svelte';
 	import ShowLog from './routes/logs/ShowLog.svelte';
+	import Comment from './routes/Comment.svelte';
 	import Profile from './routes/Profile.svelte';
 	import Notfound from './routes/errors/Notfound.svelte';
 	import Error401 from './routes/errors/Error.svelte';
@@ -55,7 +59,8 @@
 	import Nav from './components/Nav.svelte';
    	import SideBar from './components/SideBar.svelte';
 
-	import Comment from './routes/Comment.svelte';
+
+
 
 
 	let loading = true;
@@ -110,6 +115,9 @@
 		"/questions/show-question/*" : wrap({ asyncComponent : () => ShowQuestion , userData : { permit : "show-question" , isAuth : true } }),
 		"/questions/create-question" : wrap({ asyncComponent : () => CreateQuestion , userData : { permit : "create-question" , isAuth : true } }),
 		"/questions/update-question/:id" : wrap({ asyncComponent : () => UpdateQuestion ,  userData : { permit : "update-question" , isAuth : true } }),
+		"/conditions/show-condition/*" : wrap({ asyncComponent : () => ShowCondition , userData : { permit : "show-condition" , isAuth : true } }),
+		"/conditions/create-condition" : wrap({ asyncComponent : () => CreateCondition , userData : { permit : "create-condition" , isAuth : true } }),
+		"/conditions/update-condition/:id" : wrap({ asyncComponent : () => UpdateCondition ,  userData : { permit : "update-condition" , isAuth : true } }),
 		"/calls/show-call/*" : wrap({ asyncComponent : () => ShowCall , userData : { permit : "show-call" , isAuth : true }  }),
 		"/calls/create-call" : wrap({ asyncComponent : () => CreateCall , userData : { permit : "create-call" , isAuth : true } }),
 		"/calls/update-call/:id" : wrap({ asyncComponent : () => UpdateCall , userData : { permit : "update-call" , isAuth : true } }),

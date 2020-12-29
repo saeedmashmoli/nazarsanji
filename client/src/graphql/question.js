@@ -19,7 +19,8 @@ export const getSurveysAndTypesForCreateQuestion = gql `
 `;
 export const createQuestionMutation = gql `
     mutation CreateQuestion(
-        $title : String!, 
+        $title : String!,
+        $turn : Int,  
         $status : Boolean!, 
         $shouldBe : Boolean!, 
         $typeId : Int, 
@@ -27,6 +28,7 @@ export const createQuestionMutation = gql `
     ){
         createQuestion(
             input : {
+                turn : $turn,
                 title : $title, 
                 status : $status, 
                 shouldBe : $shouldBe, 
@@ -45,6 +47,7 @@ export const createQuestionMutation = gql `
 export const updateQuestionMutation = gql `
     mutation UpdateQuestion(
         $title : String!, 
+        $turn : Int,
         $status : Boolean!, 
         $id : Int!, 
         $shouldBe : Boolean!, 
@@ -53,6 +56,7 @@ export const updateQuestionMutation = gql `
     ){
         updateQuestion(
             input : {
+                turn : $turn,
                 title : $title, 
                 status : $status, 
                 shouldBe : $shouldBe, 

@@ -113,10 +113,10 @@ export class TemplateResolver {
         @Arg('input') input: TemplateInput,
         @Ctx() {payload} : MyContext
     ) : Promise<TemplateResponse>{
-        const {parameters, tempNumber , title , link , status , isDynamicLink} = input;
+        const {parameters, tempNumber , title , link , status , isDynamicLink , body} = input;
         const errors = await templateValidator(input);
         if(errors?.length) return { status : false , errors};
-        const template = await Template.create({tempNumber,link,title , status , isDynamicLink}).save();
+        const template = await Template.create({tempNumber,link,title , status , body , isDynamicLink}).save();
   
         if(parameters){
             await parameters?.forEach(p => {
@@ -135,10 +135,10 @@ export class TemplateResolver {
         @Arg('input') input: TemplateInput,
         @Ctx() { payload} : MyContext
     ) : Promise<TemplateResponse>{
-        const {parameters, tempNumber , title , link , status ,isDynamicLink } = input;
+        const {parameters, tempNumber , title , link , status ,isDynamicLink ,body } = input;
         let errors = await templateValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        const template = await Template.update({id} , {tempNumber,link,title , status ,isDynamicLink});
+        const template = await Template.update({id} , {tempNumber,link,title , body,  status ,isDynamicLink});
 
         const oleParameters = await ParameterTemplate.find({templateId : id});
         if(oleParameters){

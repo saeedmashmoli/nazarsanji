@@ -19,6 +19,12 @@ export const questionValidator = async (input: QuestionInput | null = null , id 
                 message : 'فیلد عنوان الزامی است'
             });
         }
+        if(input.turn === null ){
+            errors.push({
+                field: 'turn',
+                message : 'فیلد نوبت نمایش الزامی است'
+            });
+        }
         if(input.typeId === undefined ){
             errors.push({
                 field: 'typeId',

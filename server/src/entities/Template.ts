@@ -17,6 +17,10 @@ export class Template extends BaseEntity {
     @Column()
     title!: string;
 
+    @Field({ nullable : true })
+    @Column({ nullable : true , length : 1000 })
+    body?: string;
+
     @Field()
     @Column({ default : true })
     isDynamicLink?: boolean;

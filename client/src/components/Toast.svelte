@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
-	// $: document.documentElement.style.setProperty('--color', customColor)
     let toasts = []; 
 	let retainMs = 3500; 
 

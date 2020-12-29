@@ -13,6 +13,7 @@ export const getParametersForCreateAndUpdateTemplate = gql `
 export const createTemplateMutation = gql `
     mutation CreateTemplate(
         $isDynamicLink : Boolean!,
+        $body : String,
         $title : String!, 
         $tempNumber : Int,
         $status : Boolean!,
@@ -26,7 +27,8 @@ export const createTemplateMutation = gql `
                 title : $title, 
                 status : $status,
                 link : $link,
-                tempNumber : $tempNumber
+                tempNumber : $tempNumber,
+                body : $body
             }
         ){
             status
@@ -42,6 +44,7 @@ export const updateTemplateMutation = gql `
         $isDynamicLink : Boolean!,
         $title : String, 
         $tempNumber : Int,
+        $body : String,
         $status : Boolean!,
         $link : String ,
         $parameters : [Int!],
@@ -54,7 +57,8 @@ export const updateTemplateMutation = gql `
                 status : $status,
                 link : $link,
                 tempNumber : $tempNumber,
-                parameters : $parameters
+                parameters : $parameters,
+                body : $body
             }
             id : $id
         ){

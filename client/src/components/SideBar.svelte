@@ -106,6 +106,13 @@
                             </a>
                         </li>
                     {/if} 
+                    {#if $userPermissions.includes("show-condition")}
+                        <li><a 
+                            class:is-active={checkRoute(["/conditions/show-condition/","/conditions/create-condition","/conditions/update-condition"])}
+                            href="#/conditions/show-condition/"> <i class="fas fa-disease icon"></i>شروط نمایش سوالات
+                            </a>
+                        </li>
+                    {/if} 
                     {#if $userPermissions.includes("show-call")}
                         <li>
                             <a 

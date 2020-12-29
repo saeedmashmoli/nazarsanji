@@ -8,8 +8,7 @@ import { surveyValidator } from '../validators/surveyValidator';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
 import { Log } from '../entities/Log';
-import { isAuth} from '../middlewares/isAuthMiddleware';
-import { isCan} from '../middlewares/isCanMiddleware';
+
 
 @ObjectType()
 export class PaginatedSurveys {
@@ -84,7 +83,7 @@ export class SurveyResolver {
     }
 
     @Mutation(() => SurveyResponse)
-    @UseMiddleware(isAuth,isCan("survey-create" , "Survey"))
+    // @UseMiddleware(isAuth,isCan("survey-create" , "Survey"))
     async createSurvey(
         @Arg('input') input: SurveyInput,
         @Ctx() {payload} : MyContext
@@ -92,7 +91,7 @@ export class SurveyResolver {
         const errors = await surveyValidator(input);
         if(errors?.length) return { status : false , errors};
         const survey = await Survey.create({...input}).save();
-        console.log(payload)
+
 
         return { status: true };
     }
@@ -117,11 +116,11 @@ export class SurveyResolver {
     async activeOrDeactiveSurvey(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
-        @Ctx() {payload} : MyContext
+        // @Ctx() {payload} : MyContext
     ) : Promise<SurveyResponse>{
         const errors = await surveyValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        const survey = await Survey.update({id},{ status });
+        await Survey.update({id},{ status });
 
         return {status : true};
     }

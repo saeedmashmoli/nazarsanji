@@ -5,23 +5,26 @@
         getOptionLabel , 
         getSelectionLabel
     } from '../../utilis/functions';
-    import { createSmsFn , getPackagesAndTemplatesForCreateSmsFn } from '../../Api/smsApi';
+    import { createSmsFn , getOptionsForCreateSmsFn } from '../../Api/smsApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
     import Select from 'svelte-select';
     export let packageId;
     export let templateId;
+    export let surveyId;
     export let templates = [];
     export let packages = [];
+    export let surveys = [];
     export let errorMessages = [];
     export let isLoading = false;        
     onMount( async() => {
         $loading = true;
-        const data = await getPackagesAndTemplatesForCreateSmsFn(true);
+        const data = await getOptionsForCreateSmsFn(true);
         if( data.status){
             packages = data.packages;
-            templates = data.templates
+            templates = data.templates;
+            surveys = data.surveys
         }else{
             replace('/server-error')
         }
@@ -29,8 +32,8 @@
     })     
     const createSend = async () => {
         isLoading = true;
-        const data = await createSmsFn({ packageId , templateId });
-        console.log(data)
+        const data = await createSmsFn({ packageId , templateId ,surveyId});
+
         if(data.status == true){
             push('/sms/show-sms/')
         }else{
@@ -53,6 +56,9 @@
     }
     const changePackageId =  (input) => {
         packageId = parseInt(input.detail.id)
+    }
+    const changeSurveyId =  (input) => {
+        surveyId = parseInt(input.detail.id)
     }
 </script>
 <svelte:head>
@@ -98,6 +104,19 @@
                             />
                             <p class="help is-danger">{checkErrors("templateId").message}</p>
                         </div>
+                        <div class="field">
+                            <label for="survey" class="label">انتخاب نظرسنجی پیامک</label>
+                            <Select 
+                                items={surveys} 
+                                {getSelectionLabel} 
+                                {optionIdentifier} 
+                                {getOptionLabel} 
+                                noOptionsMessage="هیچگونه نظرسنجی فعالی جهت ارسال پیامک وجود ندارد"
+                                on:select={changeSurveyId} 
+                                placeholder="جستجوی نظرسنجی پیامک..." 
+                            />
+                            <p class="help is-danger">{checkErrors("surveyId").message}</p>
+                        </div>
                     </div>
                     <div class="field is-grouped submit-parent" >
                         <button on:click={createSend} class="button is-link" class:is-loading={isLoading}>ذخیره</button>
@@ -107,5 +126,7 @@
         </div>
     {/if}
 </div>
+
+
 
 

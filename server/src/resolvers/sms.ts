@@ -13,6 +13,8 @@ import sms from '../constants/sms';
 import { generateUniqueString } from '../constants/functions';
 import { MyContext } from '../types';
 import { Log } from '../entities/Log';
+import { Survey } from '../entities/Survey';
+import { link } from 'fs';
 
 
 
@@ -57,6 +59,8 @@ export class PackagesAndTemplatesResponse {
     templates?: Template[];
     @Field(() => [Package] , { nullable : true })
     packages?: Package[];
+    @Field(() => [Survey] , { nullable : true })
+    surveys?: Survey[];
 }
 
 
@@ -69,6 +73,7 @@ export class SmsResolver {
         on p.id = t.parameterId
         where t.templateId = ${template?.id}
         `);
+
         let data = [];
         parameters.forEach((param : any) => {
             for (let [key, value] of Object.entries(call)) {
@@ -78,11 +83,21 @@ export class SmsResolver {
             }
         })
         if(template.link){
-            let link = template.isDynamicLink ? template.link + token : template.link
+            let link = template.isDynamicLink ? template.link + token : template.link;
             await data.push({"Parameter" : "link" , "ParameterValue" : link })
         }
-
-        const response = await sms.ultraFastSend(call.mobile,template.tempNumber,data) as any;
+        
+        let response;
+        if(template.tempNumber !== 0){
+            // response = await sms.ultraFastSend(call.mobile,template.tempNumber,data) as any;
+        }else{
+            let body = template.body;
+            await data.forEach(async(obj) => {
+                body = body?.replace(`[${obj.Parameter}]`,obj.ParameterValue);
+            })
+            response = await sms.sendMessage(body as string,call.mobile)as any;
+        }
+        
         return response;
     }
 
@@ -97,10 +112,11 @@ export class SmsResolver {
     ){return Template.findOne(send.templateId)}
 
     @Query(() => PackagesAndTemplatesResponse)
-    async getPackagesAndTemplatesForCreateSms() : Promise<PackagesAndTemplatesResponse> {
+    async getOptionsForCreateSms() : Promise<PackagesAndTemplatesResponse> {
         const templates = await Template.find({where : {status : true}});
         const packages = await Package.find({where : {status : true}}); 
-        return {status : true , templates , packages}
+        const surveys = await Survey.find({where : {status : true}});
+        return {status : true , templates , packages , surveys}
     }
     
     @Mutation(() => SendsResponse)
@@ -168,7 +184,7 @@ export class SmsResolver {
             }
         }
         const calls = await getConnection().query(`
-            select c.*,cu.mobile,cu.customer from ${"`call`"} as c 
+            select c.*, cu.mobile , cu.name from ${"`call`"} as c 
             left join call_package as p
             on c.id = p.callId
             left join customer as cu
@@ -181,25 +197,16 @@ export class SmsResolver {
             if(call.mobile){
                 // send sms 
                 let token = await generateUniqueString(6);
-                console.log(token)
-                const response = await this.sendSms(template , call , token) as any;
-                let isSuccess = response?.IsSuccessful;
-                let code = response?.VerificationCodeId;
-                let message = response?.Message;
-                const sms = await Sms.create({callId : call.id , templateId : template.id , token , isSuccess , code , surveyId , message}).save();
-                const data = {
-                    userId : payload?.userId ,
-                    modelId : 9 ,
-                    operation : `create : ${sms}`,
-                    rowId : sms?.id 
-                } as any
-                await Log.create({...data}).save();
+                const response = await this.sendSms(template , call , token);
+                const callId = call.id as number;
+                const templateId = template.id as number;
+                let isSuccess = response?.IsSuccessful as boolean;
+                let code = response?.VerificationCodeId as number;
+                let message = response?.Message as string;
+                const sms = {callId, templateId, token , isSuccess, code , surveyId ,  message };
+                await Sms.create({...sms}).save();
             }
         })
-
-
-        // create sms
-        // await Sms.create({...input}).save();
         
         return { status: true };
        
@@ -215,13 +222,14 @@ export class SmsResolver {
         const errors = await smsValidator(null,id);
         if(errors?.length) return { status : false , errors};
         await Sms.update({id},{ status });
-        const data = {
-            userId : payload?.userId ,
-            modelId : 9 ,
-            operation : `activeOrDeactive : ${sms}`,
-            rowId : id 
-        } as any
-        await Log.create({...data}).save();
         return {status : true};
     }
 }
+
+// const data = {
+//     userId : payload?.userId ,
+//     modelId : 9 ,
+//     operation : `create : ${sms}`,
+//     rowId : sms?.id 
+// } as any
+// await Log.create({...data}).save();

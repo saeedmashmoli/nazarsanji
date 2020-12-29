@@ -5,7 +5,7 @@ import {  FieldError } from './response';
 // import {isCan} from '../middlewares/isCanMiddleware';
 import { PackageInput, PackageSearchInput } from './Input';
 import { packageValidator } from '../validators/packageValidator';
-import { getConnection } from 'typeorm';
+import { Connection, getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
 
 import {GraphQLUpload } from "graphql-upload";
@@ -46,24 +46,28 @@ export class PackagesResponse {
     @Field(() => PaginatedPackages , { nullable : true })
     docs?: PaginatedPackages;
 }
+const checkCustomer = async (mobile : any) => {
+
+    let customer = await Customer.findOne({where:{mobile}});
+    return await customer
+}
 const createRecordCall = async (file : Upload , packageId : number , userId : number) => {
     let path = __dirname + "../../../static/files/excels/";
     const dir = await storeUpload(file,path);
     setTimeout(async() => {
         const data = await jsonDataFromExcel(dir)
         if(data?.length){
-            await data.forEach(async(call: any) => {
+            data.forEach(async(call: any) => {
                 call =  await checkObjectField(call)
-                if(typeof call.mobile === "number") { call.mobile = undefined }
                 let { mobile , name , phone } = call;
-                let customer = await Customer.findOne({where:[{mobile},{phone}]});
+                if(typeof mobile === "number") {mobile = undefined }
+                let customer =  await Customer.findOne({where:{mobile}})
                 if(!customer){
                     customer = await Customer.create({mobile, name, phone}).save();
-       
                 }
-               const newCall =  await Call.create({...call,customerId:customer.id}).save();
+                const newCall =  await Call.create({...call,customerId:customer.id}).save();
 
-               await CallPackage.create({callId : newCall.id , packageId}).save()
+                await CallPackage.create({callId : newCall.id , packageId}).save()
             })
         }
     },100) 

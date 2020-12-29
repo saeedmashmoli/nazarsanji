@@ -33,6 +33,9 @@ import { CallPackage } from './entities/CallPackage';
 import { Sms } from './entities/Sms';
 import { Log } from './entities/Log';
 import { Model } from './entities/Model';
+import { Comment } from './entities/Comment';
+import { Criteria } from './entities/Criteria';
+import { Condition } from './entities/Condition';
 
 // resolvers
 import { UserResolver } from './resolvers/user';
@@ -48,6 +51,8 @@ import { SmsResolver } from './resolvers/sms';
 import { TemplateResolver } from './resolvers/template';
 import { ParameterResolver } from './resolvers/parameter';
 import { LogResolver } from './resolvers/log';
+import { CommentResolver } from './resolvers/comment';
+import { ConditionResolver } from './resolvers/condition';
 
 // jobs
 import { deleteTokensJobs } from './jobs/deleteExpireTokens';
@@ -82,7 +87,10 @@ const main = async () => {
             CallPackage,
             Sms,
             Log,
-            Model
+            Model,
+            Condition,
+            Comment,
+            Criteria
         ]
     });
     // conn.runMigrations();
@@ -128,7 +136,9 @@ const main = async () => {
                 ParameterResolver,
                 TemplateResolver,
                 SmsResolver,
-                LogResolver
+                LogResolver,
+                CommentResolver,
+                ConditionResolver
             ],
             validate: false,
         }), 
