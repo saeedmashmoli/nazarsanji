@@ -45,7 +45,7 @@
          roles = result
       }
       setUsers()
-      notLoading()
+
    }) 
    const setUsers = async () => {
       const input = {
@@ -62,6 +62,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }

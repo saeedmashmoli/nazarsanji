@@ -14,11 +14,11 @@
     })     
     const createPackage = async () => {
         const data = await createOrUpdatePackageFn({title , status } , excel);
-        // if(data.status == true){
-        //     push('/packages/show-package/')
-        // }else{
-        //     errorMessages = data.errors
-        // }
+        if(data.status == true){
+            push('/packages/show-package/')
+        }else{
+            errorMessages = data.errors
+        }
     }
     $: checkErrors = (field) => {
         let i = {status : false ,message : ""};

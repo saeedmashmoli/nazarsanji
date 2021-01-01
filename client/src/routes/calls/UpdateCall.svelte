@@ -1,17 +1,16 @@
 <script>
         import { 
         notLoading , 
-        loadSelectOptionsCustomers , 
+        loadSelectOptionsCustomers,
         optionIdentifier , 
         getOptionLabel , 
         getSelectionLabel
     } from '../../utilis/functions';
     import Select from 'svelte-select';
-    import {getPackagesFn} from '../../Api/packageApi';
-    import { createOrUpdateCallFn , getCallFn} from '../../Api/callApi';
+    import { createOrUpdateCallFn , getCallFn , getOptionsForCreateAndUpdateCallFn} from '../../Api/callApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
-    import { push , location} from 'svelte-spa-router';
+    import { push , location , replace} from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
     export let issue = "";
@@ -28,21 +27,29 @@
     export let month = "";
     export let year = "";
     export let customerId;
-    export let packageId;
     export let customer;
     export let status = true;
-    export let packageIds = [];
     export let packages = [];
+    export let selectPackages = [];
     export let errorMessages = [];
     export let isLoading = false;        
+    $: packageIds = () => {
+        let array = [];
+        packages.forEach(pack => {
+            array.push(pack.id);
+        })
+        return array;
+    };
     onMount( async() => {
         $loading = true;
         if(!Number.isInteger(id)){
             replace('/not-found')
         } 
         const c = await getCallFn(id)
-        const p = await getPackagesFn(true);
-        if(p.status && c.status ){
+        const p = await getOptionsForCreateAndUpdateCallFn();
+        selectPackages = p;
+        // console.log(c)
+        if(c.status){
             const call =  c.call
             issue = call.issue;
             minorIssue = call.minorIssue;
@@ -59,21 +66,22 @@
             year = call.year;
             customer = call.customer
             customerId = call.customerId;
-            packageIds = call.packages;
+            // packageIds = call.packages;
             status = call.status;
-            packages = p.packages;
+            packages = call.packages;
         }else{
             replace('/not-found')
         }
         notLoading()
-    })     
+    });
+         
     const updateCall = async () => {
         isLoading = true;
         const data = await createOrUpdateCallFn({ 
             issue , minorIssue , exactIssue , price ,  
             customerId , month , year , status , callCode , callPrice , callTime ,
-            operatorCallTime , operatorDelayTime , moshaverCallTime , moshaverDelayTime
-         },packageIds, id);
+            operatorCallTime , operatorDelayTime , moshaverCallTime , moshaverDelayTime,
+         },packageIds(),id);
         if(data.status == true){
             push('/calls/show-call/')
         }else{
@@ -94,10 +102,10 @@
     }
 
     const changeCustomerId = (input) => {
-        customerId = parseInt(input.detail.id)
+        customerId = parseInt(input.detail)
     }
     const changePackageId =  (input) => {
-        packageId = parseInt(input.detail.id)
+        packages = input.detail;
     }
 </script>
 <svelte:head>
@@ -139,14 +147,19 @@
                             <p class="help is-danger">{checkErrors("customerId").message}</p>
                         </div>
                         <div class="field">
-                            <label for="package" class="label">انتخاب بسته</label>
+                            <label for="package" class="label"> بسته: 
+                                {#each packages as pack}
+                                    {pack.title + " "} 
+                                {/each}
+                            </label>
                             <Select 
-                                items={packages} 
+                                items={selectPackages}
+                                isMulti
                                 {getSelectionLabel} 
                                 {optionIdentifier} 
                                 {getOptionLabel} 
                                 on:select={changePackageId} 
-                                placeholder="جستجوی بسته..." 
+                                placeholder="نام بسته را وارد کنید" 
                             />
                             <p class="help is-danger">{checkErrors("packageId").message}</p>
                         </div>

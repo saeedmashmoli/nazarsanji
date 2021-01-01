@@ -52,7 +52,7 @@
          surveys = result.surveys;
       }
       setConditions()
-      notLoading()
+
    });
    const setConditions = async () => {
       const input = {status , surveyId}
@@ -63,6 +63,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }

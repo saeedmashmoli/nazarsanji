@@ -1,5 +1,12 @@
+import moment from 'moment-jalaali';
+import fa from "moment/src/locale/fa";
+import { Persian } from "../utilis/fa";
+moment.locale("fa", fa);
+moment.loadPersian();
 import { loading } from '../stores';
 import { getCustomersFn } from '../Api/customerApi';
+import { getPackagesFn } from '../Api/packageApi';
+
 
 export let setSelectPermissions = async(permissions) => {
     let result = [];
@@ -66,15 +73,24 @@ export const updateArrayFn = (array, object) => {
 }
 
 export const optionIdentifier = 'id';
-export const getOptionLabel = (option) => option.name || option.title;
-export const getSelectionLabel = (option) => option.name || option.title;
+export const getOptionLabel = (option) => option.name || option.label || option.title;
+export const getSelectionLabel = (option) => option.name || option.label || option.title;
 
 export const loadSelectOptionsCustomers = async(filterText) => {
     filterText = filterText ? filterText.replace(' ', '_') : '';
-    if (filterText.length >= 3) {
+    if (filterText.length >= 2) {
         const cus = await getCustomersFn({ status: true, name: filterText }, 1, 20);
         if (cus.status) {
             return cus.docs.customers
+        }
+    }
+}
+export const loadSelectOptionsPackages = async(filterText) => {
+    filterText = filterText ? filterText.replace(' ', '_') : '';
+    if (filterText.length >= 2) {
+        const pack = await getPackagesFn({ status: true, title: filterText }, 1, 20);
+        if (pack.status) {
+            return pack.docs.packages
         }
     }
 }
@@ -88,4 +104,19 @@ export const checkOperator = (a, b, op) => {
         '!==': function(a, b) { return a !== b },
     };
     return operators[op](a, b)
+}
+export const getJalaliDate = (date) => {
+    return moment(parseInt(date)).format('HH:mm:ss jYYYY/jM/jD')
+}
+export const flatpickrOptions = {
+    element: ['#beginDate', '#endDate'],
+    "locale": Persian,
+    defaultDate: moment(new Date()).format('jYYYY/jM/jD'),
+}
+export const flatpickrTimeOptions = {
+    element: ['#beginTime', '#endTime'],
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true
 }

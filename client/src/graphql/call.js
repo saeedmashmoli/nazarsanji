@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client';
-import { CallFragments, ErrorFragments } from './fragments'
+import { CallFragments, ErrorFragments, PackageFragments } from './fragments'
 
 export const createCallMutation = gql `
     mutation CreateCall(
+        $beginDate : String,
+        $endDate : String,
+        $beginTime : String,
+        $endTime : String,
         $issue : String,
         $minorIssue : String,
         $exactIssue : String,
@@ -16,7 +20,8 @@ export const createCallMutation = gql `
         $moshaverDelayTime : Int,
         $month : String,
         $year : String,
-        $customerId : Int
+        $customerId : Int,
+        $packageIds : [Int!]
     ){
         createCall(
             input : {
@@ -33,8 +38,13 @@ export const createCallMutation = gql `
                 moshaverDelayTime : $moshaverDelayTime, 
                 month : $month, 
                 year : $year,
-                customerId : $customerId
-            }
+                customerId : $customerId,
+                beginDate : $beginDate,
+                endDate : $endDate,
+                beginTime : $beginTime,
+                endTime : $endTime
+            },
+            packageIds : $packageIds
         ){
             status
             errors{
@@ -46,6 +56,7 @@ export const createCallMutation = gql `
 `
 export const updateCallMutation = gql `
     mutation UpdateCall(
+
         $id : Int!, 
         $issue : String,
         $minorIssue : String,
@@ -60,7 +71,8 @@ export const updateCallMutation = gql `
         $moshaverDelayTime : Int,
         $month : String,
         $year : String,
-        $customerId : Int
+        $customerId : Int,
+        $packageIds : [Int!]
     ){
         updateCall(
             input : {
@@ -77,9 +89,11 @@ export const updateCallMutation = gql `
                 moshaverDelayTime : $moshaverDelayTime, 
                 month : $month, 
                 year : $year,
-                customerId : $customerId
+                customerId : $customerId,
+
             }, 
-            id : $id
+            id : $id,
+            packageIds : $packageIds
         ){
             status
             errors{
@@ -102,7 +116,11 @@ export const activeOrDeactiveCallMutation = gql `
 `
 export const getCallsMutation = gql `
     mutation GetCalls(
-        $status : Boolean!, 
+        $beginDate : String,
+        $endDate : String,
+        $beginTime : String,
+        $endTime : String,
+        $status : Boolean, 
         $name : String, 
         $phone : String, 
         $mobile : String,
@@ -126,7 +144,11 @@ export const getCallsMutation = gql `
                 exactIssue : $exactIssue
                 callCode : $callCode, 
                 year : $year, 
-                month : $month
+                month : $month,
+                beginDate : $beginDate,
+                endDate : $endDate,
+                beginTime : $beginTime,
+                endTime : $endTime
             }, 
             page : $page, 
             limit : $limit
@@ -162,4 +184,12 @@ export const getCallQuery = gql `
     }
     ${ErrorFragments.error}
     ${CallFragments.call}
+`
+export const getOptionsForCreateAndUpdateCallQuery = gql `
+    query GetOptions {
+        getOptionsForCreateAndUpdateCall{
+            ...PackageFragment
+        }
+    }
+    ${PackageFragments.package}
 `

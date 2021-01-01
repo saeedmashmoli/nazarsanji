@@ -31,7 +31,7 @@
       model = data.model;
       status = Boolean(data.status);
       setPermissions()
-      notLoading()
+
    })
    const setPermissions = async () => {
       const input = {
@@ -49,6 +49,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }

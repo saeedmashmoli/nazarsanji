@@ -7,6 +7,9 @@
     export let middleCount = 3;
     export let middle;
     export let pagesArray = [];
+    $: last = () => {
+        return last_page
+    }
     onMount(() => {
         if(document.documentElement.clientWidth < 767){
             checkDevice = true;
@@ -19,11 +22,11 @@
         pagesArray = getMiddleArray(last_page , middle , currentPage)
     })
     const dispatch = createEventDispatcher();
-    function changePage(page){
+    const changePage = async (page) => {
         if (page !== currentPage) {
             dispatch('changePage', page);
         }
-        pagesArray = getMiddleArray(last_page , middle , page)
+        pagesArray = await getMiddleArray(last_page , middle , page)
     }
 
 </script>
@@ -49,7 +52,7 @@
             <li><span>...</span></li>
         {/if}
         <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a on:click={() => changePage(last_page)} class="pagination-link" class:is-current={currentPage == last_page}>{last_page}</a></li>
+        <li><a on:click={() => changePage(last())} class="pagination-link" class:is-current={currentPage == last_page}>{last()}</a></li>
         {#if currentPage !== last_page}
             <!-- svelte-ignore a11y-missing-attribute -->
             <li><a on:click={() => changePage(currentPage + 1)} class="pagination-next">»</a></li>

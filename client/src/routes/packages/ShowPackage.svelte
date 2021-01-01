@@ -27,7 +27,7 @@
       title = data.title;
       status = Boolean(data.status);
       setPackages()
-      notLoading()
+
    })
    const setPackages = async () => {
       const input = { status, title, callId }
@@ -38,6 +38,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }
    }
    async function changePage(page){

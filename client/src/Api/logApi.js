@@ -7,6 +7,7 @@ export const getModelsAndUsersForShowLogFn = async() => {
     const response = await client.query({
         query: getUsersAndModelsForShowLogsQuery
     })
+
     return response.data.getUsersAndModelsForShowLogs
 }
 
@@ -19,6 +20,5 @@ export const getLogsFn = async(input, page, limit) => {
             limit
         }
     })
-
     return response.data.getLogs
 }

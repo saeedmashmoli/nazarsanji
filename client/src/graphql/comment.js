@@ -90,7 +90,13 @@ export const activeOrDeactiveCommentMutation = gql `
 `
 export const getCommentsMutation = gql `
     mutation GetComments(
-        $surveyId: Int,
+        $customerId: Int,
+        $callId: Int,
+        $smsId: Int
+        $answerId: Int,
+        $questionId: Int,
+        $typeId: Int,
+        $text: String,
         $status : Boolean,
         $page: Int,
         $limit: Int
@@ -98,7 +104,13 @@ export const getCommentsMutation = gql `
         getComments(
             input : {
                 status : $status,
-                surveyId : $surveyId,
+                customerId : $customerId,
+                callId : $callId,
+                smsId : $smsId,
+                answerId : $answerId,
+                questionId : $questionId,
+                typeId : $typeId,
+                text : $text
             }, 
             page : $page, 
             limit : $limit

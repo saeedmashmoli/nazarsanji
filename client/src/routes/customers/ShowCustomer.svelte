@@ -27,7 +27,7 @@
       mobile = data.mobile;
       phone = data.phone;
       setCustomers()
-      notLoading()
+
    });
    const setCustomers = async () => {
       const input = {status : false, name , mobile , phone}
@@ -38,13 +38,14 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }
    }
 
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}&name=${name ? name : ""}&mobile=${mobile ? mobile : ""}&phone=${phone ? phone : ""}`;
+      const data = `show?page=${page ? page : 1}${name ? "&name="+name : ""}${mobile ? "&mobile="+mobile : ""}${phone ? "&phone="+phone : ""}`;
        push("/customers/show-customer/"+data) ;
       if(page) {currentPage = page}else{isLoading = true};
       setCustomers();

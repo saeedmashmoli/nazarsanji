@@ -53,7 +53,7 @@
                         <p class="help is-danger">{checkErrors("title").message}</p>
                         <Input errorClass={checkErrors("label").status} label="شرح" placeholder="شرح دسترسی؟" type="text" bind:title={label} icon="fa-tags" />
                         <p class="help is-danger">{checkErrors("label").message}</p>
-                        <Input errorClass={checkErrors("model").status} label="بخش" placeholder="بخش دسترسی؟" type="text" bind:title={label} icon="fa-tags" />
+                        <Input errorClass={checkErrors("model").status} label="بخش" placeholder="بخش دسترسی؟" type="text" bind:title={model} icon="fa-tags" />
                         <p class="help is-danger">{checkErrors("model").message}</p>
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >

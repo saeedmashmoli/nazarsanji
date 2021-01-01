@@ -1,5 +1,5 @@
-import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, OneToMany, ManyToOne  } from "typeorm";
+import { Field, ObjectType  } from "type-graphql";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn , BaseEntity, UpdateDateColumn, ManyToOne  } from "typeorm";
 import { Model } from "./Model";
 import { User } from "./User";
 
@@ -12,8 +12,12 @@ export class Log extends BaseEntity {
     id!: number;   
 
     @Field()
-    @Column({length : 255})
+    @Column()
     operation!: string;
+
+    @Field()
+    @Column({type : 'simple-json'})
+    data!: string;
 
     @Field()
     @Column()

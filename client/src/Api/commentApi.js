@@ -3,7 +3,8 @@ import {
     getOptionsForCreateAndUpdateCommentQuery,
     createCommentMutation,
     getCommentsMutation,
-    updateCommentMutation
+    updateCommentMutation,
+    activeOrDeactiveCommentMutation
 
 } from '../graphql/comment';
 export const getOptionsFn = async(token) => {

@@ -1,8 +1,8 @@
 import { Sms } from '../entities/Sms';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { SmsInput, SmsSearchInput } from './Input';
 import { smsValidator } from '../validators/smsValidator';
 import { Package } from '../entities/Package';
@@ -10,12 +10,10 @@ import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
 import { Template } from '../entities/Template';
 import sms from '../constants/sms';
-import { generateUniqueString } from '../constants/functions';
+import { convertJalaaliToGregorianDate, generateUniqueString } from '../constants/functions';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
 import { Survey } from '../entities/Survey';
-import { link } from 'fs';
-
+import { createLog } from '../constants/functions';
 
 
 @ObjectType()
@@ -89,7 +87,7 @@ export class SmsResolver {
         
         let response;
         if(template.tempNumber !== 0){
-            // response = await sms.ultraFastSend(call.mobile,template.tempNumber,data) as any;
+            response = await sms.ultraFastSend(call.mobile,template.tempNumber,data) as any;
         }else{
             let body = template.body;
             await data.forEach(async(obj) => {
@@ -110,6 +108,10 @@ export class SmsResolver {
     template( 
         @Root() send : Sms,
     ){return Template.findOne(send.templateId)}
+    @FieldResolver(() => Survey)
+    survey( 
+        @Root() send : Sms,
+    ){return Survey.findOne(send.surveyId)}
 
     @Query(() => PackagesAndTemplatesResponse)
     async getOptionsForCreateSms() : Promise<PackagesAndTemplatesResponse> {
@@ -120,13 +122,15 @@ export class SmsResolver {
     }
     
     @Mutation(() => SendsResponse)
-    // @UseMiddleware(isAuth,isCan("sms-show" , "Sms"))
+    @UseMiddleware(isAuth,isCan("show-sms" , "Sms"))
     async getSends(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
         @Arg('input') input: SmsSearchInput,
     ) : Promise<SendsResponse>{
-        const { status , name , mobile, phone , packageId, templateId , callId , customerId , used , isSuccess } = input;
+        const { status , name , mobile, phone , packageId, templateId , callId , customerId , used , isSuccess ,endDate,beginDate,beginTime ,endTime} = input;
+        let bDate = await convertJalaaliToGregorianDate(beginDate + (beginTime ? " "+beginTime : " 00:00:00") as string);
+        let eDate = await convertJalaaliToGregorianDate(endDate + (endTime ? " "+endTime : " 23:59:59") as string);
         const currentPage = page || 1;
         const take = limit || 10;
         const skip = (currentPage - 1) * take;
@@ -145,6 +149,8 @@ export class SmsResolver {
         ${mobile ? `and cu.mobile LIKE '%${mobile}%' ` : ""}
         ${phone ? `and cu.phone LIKE '%${phone}%' ` : ""}
         ${name ? `and cu.name LIKE '%${name}%' ` : ""}
+        ${beginDate ? `and s.createdAt >= '${bDate}' ` : ""}
+        ${endDate ? `and s.createdAt <= '${eDate}' ` : ""}
         `;
         const t = await getConnection().query(`select count(*) as 'count' ${query}`);
         const sends = await getConnection().query(`select s.* ${query} order by id desc limit ${skip},${take}`);
@@ -154,7 +160,7 @@ export class SmsResolver {
         return {status : true , docs : {sends , total , page : currentPage , pages}}
     }
     @Query(() => SendResponse)
-    // @UseMiddleware(isAuth,isCan("sms-show" , "Sms"))
+    @UseMiddleware(isAuth,isCan("show-sms" , "Sms"))
     async getSms(
         @Arg('id' , () => Int) id : number
     ) : Promise<SendResponse>{
@@ -166,10 +172,10 @@ export class SmsResolver {
     }
 
     @Mutation(() => SendResponse)
-    // @UseMiddleware(isAuth,isCan("sms-create" , "Sms"))
+    @UseMiddleware(isAuth,isCan("create-sms" , "Sms"))
     async createSms(
         @Arg('input') input: SmsInput,
-        @Ctx() { payload} : MyContext
+        @Ctx() {payload} : MyContext
     ) : Promise<SendResponse>{
         let errors = await smsValidator(input,null);
         if(errors?.length) return { status : false , errors};
@@ -203,17 +209,16 @@ export class SmsResolver {
                 let isSuccess = response?.IsSuccessful as boolean;
                 let code = response?.VerificationCodeId as number;
                 let message = response?.Message as string;
-                const sms = {callId, templateId, token , isSuccess, code , surveyId ,  message };
-                await Sms.create({...sms}).save();
+                const data = {callId, templateId, token , isSuccess, code , surveyId ,  message };
+                await Sms.create({...data}).save();
             }
         })
-        
+        await createLog(payload?.userId as number , 9 , "create" , {...input} , input.templateId as number);
         return { status: true };
-       
     }
 
     @Mutation(() => SendResponse)
-    // @UseMiddleware(isAuth,isCan("sms-delete" , "Sms"))
+    @UseMiddleware(isAuth,isCan("status-sms" , "Sms"))
     async activeOrDeactiveSms(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -222,14 +227,8 @@ export class SmsResolver {
         const errors = await smsValidator(null,id);
         if(errors?.length) return { status : false , errors};
         await Sms.update({id},{ status });
+        const sms = await Sms.findOne({id});
+        await createLog(payload?.userId as number , 9 , "activeOrDeactive" , sms , id);
         return {status : true};
     }
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 9 ,
-//     operation : `create : ${sms}`,
-//     rowId : sms?.id 
-// } as any
-// await Log.create({...data}).save();

@@ -1,13 +1,13 @@
 import { Permission } from '../entities/Permission';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import { FieldError } from './response';
 import { PermissionInput, PermissionSearchInput } from './Input';
 import { permissionValidator } from '../validators/permissionRoleValidator';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
+import { createLog } from '../constants/functions';
 @ObjectType()
 export class PaginatedPermissions {
     @Field()
@@ -58,7 +58,7 @@ export class PermissionResolver {
         return roles;
     }
     @Mutation(() => PermissionsResponse)
-    // @UseMiddleware(isAuth,isCan("permission-show" , "Permission"))
+    @UseMiddleware(isAuth,isCan("show-permission" , "Permission"))
     async getPermissions(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -82,7 +82,7 @@ export class PermissionResolver {
         return { status : true , docs : { permissions , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-show" , "Permission"))
+    @UseMiddleware(isAuth,isCan("show-permission" , "Permission"))
     async getPermission(
         @Arg('id' , () => Int) id : number
     ) : Promise<PermissionResponse>{
@@ -93,7 +93,7 @@ export class PermissionResolver {
     }
 
     @Mutation(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-create" , "Permission"))
+    @UseMiddleware(isAuth,isCan("create-permission" , "Permission"))
     async createPermission(
         @Arg('input') input: PermissionInput,
         @Ctx() {payload} : MyContext
@@ -101,12 +101,12 @@ export class PermissionResolver {
         const errors = await permissionValidator(input,null);
         if(errors?.length) return {status : false , errors}
         const permission = await Permission.create({...input}).save();
-
+        await createLog(payload?.userId as number , 12 , "create" , permission , permission.id);
         return {status :true};
     }
 
     @Mutation(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-update" , "Permission"))
+    @UseMiddleware(isAuth,isCan("update-permission" , "Permission"))
     async updatePermission(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: PermissionInput,
@@ -114,13 +114,14 @@ export class PermissionResolver {
     ) : Promise<PermissionResponse>{
         const errors = await permissionValidator(input,id);
         if(errors?.length) return {status : false , errors}
-        const permission = await Permission.update({id},{...input});
-
+         await Permission.update({id},{...input});
+        const permission = await Permission.findOne({id});
+        await createLog(payload?.userId as number , 12 , "edit" , permission , id);
         return {status :true};
     }
 
     @Mutation(() => PermissionResponse)
-    // @UseMiddleware(isAuth,isCan("permission-delete" , "Permission"))
+    @UseMiddleware(isAuth,isCan("status-permission" , "Permission"))
     async activeOrDeactivePermission(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -128,20 +129,9 @@ export class PermissionResolver {
     ) : Promise<PermissionResponse>{
         const errors = await permissionValidator(null,id);
         if(errors?.length) return {status : false , errors}
-        const permission = await Permission.update({id},{ status});
-
+        await Permission.update({id},{ status});
+        const permission = await Permission.findOne({id});
+        await createLog(payload?.userId as number , 12 , "activeOrDeactive" , permission , id);
         return { status : true };;
     }
 }
-
-
-
-
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 12 ,
-//     operation : `activeOrDeactive : ${permission}`,
-//     rowId : id
-// } as any
-// await Log.create({...data}).save();

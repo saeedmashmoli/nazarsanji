@@ -1,13 +1,14 @@
 import { Survey } from '../entities/Survey';
 import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver, UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { SurveyInput, SurveySearchInput } from './Input';
 import { surveyValidator } from '../validators/surveyValidator';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
+import { createLog } from '../constants/functions';
+
 
 
 @ObjectType()
@@ -45,7 +46,7 @@ export class SurveysResponse {
 export class SurveyResolver {
     
     @Mutation(() => SurveysResponse)
-    // @UseMiddleware(isAuth,isCan("survey-show" , "Survey"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getSurveys(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -72,7 +73,7 @@ export class SurveyResolver {
         return {status : true , docs : {surveys , total , page : currentPage , pages}}
     }
     @Query(() => SurveyResponse)
-    // @UseMiddleware(isAuth,isCan("survey-show" , "Survey"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getSurvey(
         @Arg('id' , () => Int) id : number
     ) : Promise<SurveyResponse>{
@@ -83,7 +84,7 @@ export class SurveyResolver {
     }
 
     @Mutation(() => SurveyResponse)
-    // @UseMiddleware(isAuth,isCan("survey-create" , "Survey"))
+    @UseMiddleware(isAuth,isCan("create-survey" , "Survey"))
     async createSurvey(
         @Arg('input') input: SurveyInput,
         @Ctx() {payload} : MyContext
@@ -91,13 +92,13 @@ export class SurveyResolver {
         const errors = await surveyValidator(input);
         if(errors?.length) return { status : false , errors};
         const survey = await Survey.create({...input}).save();
-
+        await createLog(payload?.userId as number , 1 , "create" , survey , survey.id);
 
         return { status: true };
     }
 
     @Mutation(() => SurveyResponse)
-    // @UseMiddleware(isAuth,isCan("survey-update" , "Survey"))
+    @UseMiddleware(isAuth,isCan("update-survey" , "Survey"))
     async updateSurvey(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: SurveyInput,
@@ -106,30 +107,23 @@ export class SurveyResolver {
         let errors = await surveyValidator(input , id);
         if(errors?.length) return { status : false , errors};
         const survey = await Survey.update({id} , {...input});
- 
+        await createLog(payload?.userId as number , 1 , "edit" , survey , id);
    
         return { status: true };
     }
 
     @Mutation(() => SurveyResponse)
-    // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
+    @UseMiddleware(isAuth,isCan("status-survey" , "Survey"))
     async activeOrDeactiveSurvey(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
-        // @Ctx() {payload} : MyContext
+        @Ctx() {payload} : MyContext
     ) : Promise<SurveyResponse>{
         const errors = await surveyValidator(null, id);
         if(errors?.length) return { status : false , errors};
         await Survey.update({id},{ status });
-
+        const survey = await Survey.findOne({id})
+        await createLog(payload?.userId as number , 1 , "activeOrDeactive" , survey , id);
         return {status : true};
     }
 }
-
-        // const data = {
-        //     userId : payload?.userId ,
-        //     modelId : 1 ,
-        //     operation : `create : ${survey}`,
-        //     rowId : survey.id 
-        // } as any
-        // await Log.create({...data}).save();

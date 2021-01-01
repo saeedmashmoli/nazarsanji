@@ -1,18 +1,17 @@
 import { Condition } from '../entities/Condition';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root , UseMiddleware } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { ConditionInput, ConditionSearchInput } from './Input';
 import { conditionValidator } from '../validators/conditionValidator';
 import { getConnection, In, Not } from 'typeorm';
 import { MyContext } from '../types';
-// import { Log } from '../entities/Log';
 import { Question } from '../entities/Question';
 import { Answer } from '../entities/Answer';
 import { Criteria } from '../entities/Criteria';
 import { Survey } from '../entities/Survey';
-
+import { createLog } from '../constants/functions';
 
 @ObjectType()
 export class PaginatedConditions {
@@ -99,7 +98,7 @@ export class ConditionResolver {
     }
 
     @Mutation(() => ConditionsResponse)
-    // @UseMiddleware(isAuth,isCan("Condition-show" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-condition" , "Condition"))
     async getConditions(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -123,7 +122,7 @@ export class ConditionResolver {
         return {status : true , docs : {conditions , total , page : currentPage , pages}}
     }
     @Mutation(() => ConditionResponse)
-    // @UseMiddleware(isAuth,isCan("Condition-show" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-condition" , "Condition"))
     async getCondition(
         @Arg('id' , () => Int) id : number
     ) : Promise<ConditionResponse>{
@@ -134,52 +133,46 @@ export class ConditionResolver {
     }
 
     @Mutation(() => ConditionResponse)
+    @UseMiddleware(isAuth,isCan("create-condition" , "Condition"))
     async createCondition(
         @Arg('input') input: ConditionInput,
         @Ctx() {payload} : MyContext
     ) : Promise<ConditionResponse>{
         const errors = await conditionValidator(input,null);
         if(errors?.length) return { status : false , errors};
-        await Condition.create({...input}).save();
+        const condition = await Condition.create({...input}).save();
 
-
+        await createLog(payload?.userId as number , 13 , "create" , condition , condition.id);
         return { status: true };
     }
 
     @Mutation(() => ConditionResponse)
-    // @UseMiddleware(isAuth,isCan("Condition-update" , "Condition"))
+    @UseMiddleware(isAuth,isCan("update-condition" , "Condition"))
     async updateCondition(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: ConditionInput,
-        // @Ctx() {payload} : MyContext
+        @Ctx() {payload} : MyContext
     ) : Promise<ConditionResponse>{
         let errors = await conditionValidator(input , id);
         if(errors?.length) return { status : false , errors};
         await Condition.update({id} , {...input});
- 
-   
+        const condition = await Condition.findOne({id});
+        await createLog(payload?.userId as number , 13 , "edit" , condition , id);
         return { status: true };
     }
 
     @Mutation(() => ConditionResponse)
-    // @UseMiddleware(isAuth,isCan("Condition-delete" , "Condition"))
+    @UseMiddleware(isAuth,isCan("status-condition" , "Condition"))
     async activeOrDeactiveCondition(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
-        // @Ctx() {payload} : MyContext
+        @Ctx() {payload} : MyContext
     ) : Promise<ConditionResponse>{
         const errors = await conditionValidator(null, id);
         if(errors?.length) return { status : false , errors};
         await Condition.update({id},{ status });
-
+        const condition = await Condition.findOne({id});
+        await createLog(payload?.userId as number , 13 , "activeOrDeactive" , condition , id);
         return {status : true};
     }
 }
-
-        // const data = {
-        //     userId : payload?.userId ,
-        //     modelId : 1 ,
-        //     operation : `create : ${Condition}`,
-        //     rowId : Condition.id 
-        // } as any
-        // await Log.create({...data}).save();

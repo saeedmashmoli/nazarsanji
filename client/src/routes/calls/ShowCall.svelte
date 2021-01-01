@@ -1,19 +1,33 @@
 <script>
    import { push, replace , querystring  } from 'svelte-spa-router';
-   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn } from '../../utilis/functions';
+   import {  
+      notLoading, 
+      changeTabs, 
+      actveOrDeactiveFn, 
+      updateArrayFn,        
+      flatpickrOptions,
+      flatpickrTimeOptions
+   } from '../../utilis/functions';
    import {  activeOrDeaciveCallFn, getCallsFn} from '../../Api/callApi';
    import { userPermissions , loading } from '../../stores';
    import qs from 'qs';
-   import { onMount , createEventDispatcher } from 'svelte';
+   import { onMount  } from 'svelte';
    import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
    import NoData from '../../components/NoData.svelte';
    import Input from '../../components/Input.svelte';
+   import Flatpickr from 'svelte-flatpickr';
+   import 'flatpickr/dist/flatpickr.css';
+   import 'flatpickr/dist/themes/light.css';
    export let calls = [];
    export let currentPage = 1;
    export let limit = 10;
    export let last_page;
    export let total;
+   export let beginDate;
+   export let endDate;
+   export let beginTime;
+   export let endTime;
    export let name;
    export let mobile;
    export let phone;
@@ -40,11 +54,30 @@
       exactIssue = data.exactIssue;
       issue = data.issue;
       month = data.month;
+      beginTime = data.beginTime;
+      endTime = data.endTime;
+      endDate = data.endDate;
+      beginDate = data.beginDate;
       setCalls()
-      notLoading()
+
    })
    const setCalls = async () => {
-      const input = {status : true, name , mobile , phone , callCode , year , month , issue , minorIssue , exactIssue}
+      const input = {
+         status, 
+         name, 
+         mobile, 
+         phone, 
+         callCode, 
+         year, 
+         month, 
+         issue, 
+         minorIssue, 
+         exactIssue,          
+         beginDate,
+         endDate,
+         beginTime,
+         endTime
+      }
       const data = await getCallsFn(input , currentPage , limit);
       if(data.status){
          const res  = data.docs
@@ -52,15 +85,19 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }
    }
    async function changePage(page){
+      const data = `show?page=${page ? page : 1}${beginDate ? "&beginDate="+beginDate : ""}${beginTime ? "&beginTime="+beginTime : ""}${endDate ? "&endDate="+endDate : ""}${endTime ? "&endTime="+endTime : ""}${name ? "&name="+name : ""}${mobile ? "&mobile="+mobile : ""}${phone ? "&phone="+phone : ""}${callCode ? "&callCode="+callCode : ""}${month ? "&month="+month : ""}${year ? "&year="+year : ""}${issue ? "&issue="+issue : ""}${minorIssue ? "&minorIssue="+minorIssue : ""}${exactIssue ? "&exactIssue="+exactIssue : ""}${status ? "&status="+status : ""}`;
+      replace("/calls/show-call/" + data) ;
+      setCalls();
       currentPage = page | 1;
-      const data = `show?page=${page ? page : 1}&name=${name ? name : ""}&mobile=${mobile ? mobile : ""}&phone=${phone ? phone : ""}&callCode=${callCode ? callCode : ""}&month=${month ? month : ""}&year=${year ? year : ""}&issue=${issue ? issue : ""}&minorIssue=${minorIssue ? minorIssue : ""}&exactIssue=${exactIssue ? exactIssue : ""}&status=${status ? status : ""}`;
-       replace("/calls/show-call/" + data) ;
-      if(page) {currentPage = page}else{isLoading = true};
+      if(!page){
+         isLoading = true
+      };
       setCalls();
       setTimeout(() => {
          isLoading = false
@@ -88,6 +125,15 @@
       .buttons{
          direction: rtl;
       }
+      .search-main-div{
+         width: 100% !important;
+      }
+      .flatpickr{
+         width: 100% !important;
+      }
+   }
+   .flatpickr{
+      width: 49% ;
    }
    .tabs {
     display: flex;
@@ -104,6 +150,11 @@
 
    .tab-content {
       padding: 1em;
+   }
+   .search-main-div{
+      display: inline-block !important;
+      width: 48%;
+      vertical-align: top;
    }
 </style>
 <svelte:head>
@@ -210,27 +261,59 @@
                {/if}
             </div>
             <div value=1>
-               <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                  <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
-                  <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
-                  <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
-                  <Input label="موضوع اصلی" type="text" placeholder="موضوع اصلی مشاوره؟" bind:title={issue} icon="fa-tasks" />
-                  <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
-                  <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
-                  <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
-                  <Input label="ماه" type="text" placeholder="ماه مکالمه؟" bind:title={month} icon="fa-calendar" />
-                  <Input label="سال" type="text" placeholder="سال مکالمه؟" bind:title={year} icon="fa-calendar" />
-                  <div class="field" style="direction: ltr;">
-                     <div class="d-inlineblock status" >
-                        <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
-                        <label for="status"></label>
+               <div style="margin: auto;" class="back-eee box column p-3 is-12-desktop is-12-tablet is-12-mobile">
+                  <div class="search-main-div">
+                     <div style="display:block" class="field">
+                        <Flatpickr options="{ flatpickrOptions }" element="#beginDate">
+                              <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="beginDate">
+                                 <label for class="label">از تاریخ</label>
+                                 <input autocomplete="off" class="input" bind:value={beginDate} type="text" placeholder="از تاریخ..." data-input>
+                              </div>
+                        </Flatpickr>
+                        <Flatpickr options="{ flatpickrTimeOptions }" element="#beginTime">
+                              <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="beginTime">
+                                 <label for class="label">از ساعت</label>
+                                 <input autocomplete="off" class="input" type="text" bind:value={beginTime}  placeholder="از ساعت..." data-input>
+                              </div>
+                        </Flatpickr>
                      </div>
-                     <div class="d-inlineblock" style="position: relative; top: 5px">
-                        <label for class="label">وضعیت</label> 
+                     <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
+                     <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
+                     <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
+                     <Input label="موضوع اصلی" type="text" placeholder="موضوع اصلی مشاوره؟" bind:title={issue} icon="fa-tasks" />
+                     <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
+                  </div>
+                  <div class="search-main-div">
+                     <div style="display:block" class="field">
+                        <Flatpickr options="{ flatpickrOptions }" element="#endDate">
+                              <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="endDate">
+                                 <label for class="label">تا تاریخ</label>
+                                 <input autocomplete="off" class="input" bind:value={endDate} type="text" placeholder="تا تاریخ..." data-input>
+                              </div>
+                        </Flatpickr>
+                        <Flatpickr options="{ flatpickrTimeOptions }" element="#endTime">
+                              <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="endTime">
+                                 <label for class="label">تا ساعت</label>
+                                 <input autocomplete="off" class="input" type="text" bind:value={endTime}  placeholder="تا ساعت..." data-input>
+                              </div>
+                        </Flatpickr>
+                     </div>
+                     <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
+                     <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
+                     <Input label="ماه" type="text" placeholder="ماه مکالمه؟" bind:title={month} icon="fa-calendar" />
+                     <Input label="سال" type="text" placeholder="سال مکالمه؟" bind:title={year} icon="fa-calendar" />
+                     <div class="field" style="display: block">
+                        <div style="display : block">
+                           <label for class="label">وضعیت</label> 
+                        </div>
+                        <div style="display : block" class="status">
+                           <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
+                           <label for="status"></label>
+                        </div>
                      </div>
                   </div>
-                  <div style="display : block;text-align : left;">
-                     <button class:is-loading={isLoading} on:click={() => changePage(1)} class="button is-link">جستجو</button>
+                  <div style="display : block;text-align : left;margin-top:3%">
+                     <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
                   </div>
                </div>
             </div>

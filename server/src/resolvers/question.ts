@@ -1,7 +1,7 @@
 import { Question } from '../entities/Question';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root , UseMiddleware  } from 'type-graphql';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { QuestionInput, QuestionSearchInput } from './Input';
 import { FieldError } from './response';
 import { questionValidator } from '../validators/questionValidator';
@@ -11,6 +11,7 @@ import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
 import { Condition } from '../entities/Condition';
 import { Answer } from '../entities/Answer';
+import { createLog } from '../constants/functions';
 
 @ObjectType()
 export class PaginatedQuestions {
@@ -93,7 +94,7 @@ export class QuestionResolver {
     }
 
     @Query(() => QuestionResponse)
-    // @UseMiddleware(isAuth,isCan("survey-show" , "Survey"))
+    @UseMiddleware(isAuth,isCan("show-question" , "Question"))
     async getQuestion(
         @Arg('id' , () => Int) id : number
     ) : Promise<QuestionResponse>{
@@ -104,7 +105,7 @@ export class QuestionResolver {
     }
 
     @Mutation(() => QuestionsResponse)
-    // @UseMiddleware(isAuth,isCan("question-show" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-question" , "Question"))
     async getQuestions(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -133,7 +134,7 @@ export class QuestionResolver {
     }
 
     @Mutation(() => QuestionResponse)
-    // @UseMiddleware(isAuth,isCan("question-create" , "Question"))
+    @UseMiddleware(isAuth,isCan("create-question" , "Question"))
     async createQuestion(
         @Arg('input') input: QuestionInput,
         @Ctx() {payload} : MyContext
@@ -141,12 +142,12 @@ export class QuestionResolver {
         const errors = await questionValidator(input);
         if(errors?.length) return { status : false , errors};
         const question = await Question.create({...input}).save();
-
+        await createLog(payload?.userId as number , 2 , "create" , question , question.id);
         return {status : true };
     }
 
     @Mutation(() => QuestionResponse)
-    // @UseMiddleware(isAuth,isCan("question-update" , "Question"))
+    @UseMiddleware(isAuth,isCan("update-question" , "Question"))
     async updateQuestion(
         @Arg('id' ,() => Int) id: number,
         @Arg('input') input: QuestionInput,
@@ -154,13 +155,14 @@ export class QuestionResolver {
     ) : Promise<QuestionResponse>{
         let errors = await questionValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        const question = await Question.update({id},{...input});
-
+        await Question.update({id},{...input});
+        const question = await Question.findOne({id});
+        await createLog(payload?.userId as number , 2 , "edit" , question , id);
         return {status : true};
     }
 
     @Mutation(() => QuestionResponse)
-    // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
+    @UseMiddleware(isAuth,isCan("status-question" , "Question"))
     async activeOrDeactiveQuestion(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -168,17 +170,9 @@ export class QuestionResolver {
     ) : Promise<QuestionResponse>{
         const errors = await questionValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        const question = await Question.update({id},{ status });
-
+        await Question.update({id},{ status });
+        const question = await Question.findOne({id});
+        await createLog(payload?.userId as number , 2 , "activeOrDeactive" , question , id);
         return {status : true};
     }
 }
-
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 2 ,
-//     operation : `edit : ${question}`,
-//     rowId : id
-// } as any
-// await Log.create({...data}).save();

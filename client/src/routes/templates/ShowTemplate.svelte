@@ -31,7 +31,7 @@
       link = data.link;
       status = Boolean(data.status);
       setTemplates()
-      notLoading()
+
    });
    const setTemplates = async () => {
       const input = {
@@ -49,6 +49,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }

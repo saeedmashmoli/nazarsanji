@@ -26,6 +26,10 @@ export const getUsersAndModelsForShowLogsQuery = gql `
 
 export const getLogsMutation = gql `
     mutation GetLogs(
+        $beginDate : String,
+        $endDate : String,
+        $beginTime : String,
+        $endTime : String,
         $rowId : Int,
         $modelId : Int,
         $userId : Int, 
@@ -38,7 +42,11 @@ export const getLogsMutation = gql `
                 operation : $operation,
                 userId : $userId, 
                 modelId : $modelId,
-                rowId : $rowId
+                rowId : $rowId,
+                beginDate : $beginDate,
+                endDate : $endDate,
+                beginTime : $beginTime,
+                endTime : $endTime
             },
             page : $page,
             limit : $limit

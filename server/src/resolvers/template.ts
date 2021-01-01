@@ -1,15 +1,15 @@
 import { Template } from '../entities/Template';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { TemplateInput, TemplateSearchInput } from './Input';
 import { templateValidator } from '../validators/templateValidator';
 import { getConnection } from 'typeorm';
 import { Parameter } from '../entities/Parameter';
 import { ParameterTemplate } from '../entities/ParameterTemplate';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
+import { createLog } from '../constants/functions';
 
 
 
@@ -71,7 +71,7 @@ export class TemplateResolver {
     }
 
     @Mutation(() => TemplatesResponse)
-    // @UseMiddleware(isAuth,isCan("template-show" , "Template"))
+    @UseMiddleware(isAuth,isCan("show-template" , "Template"))
     async getTemplates(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -97,7 +97,7 @@ export class TemplateResolver {
         return { status : true , docs : { templates , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => TemplateResponse)
-    // @UseMiddleware(isAuth,isCan("template-show" , "Template"))
+    @UseMiddleware(isAuth,isCan("show-template" , "Template"))
     async getTemplate(
         @Arg('id' , () => Int) id : number
     ) : Promise<TemplateResponse>{
@@ -108,7 +108,7 @@ export class TemplateResolver {
     }
 
     @Mutation(() => TemplateResponse)
-    // @UseMiddleware(isAuth,isCan("template-create" , "Template"))
+    @UseMiddleware(isAuth,isCan("create-template" , "Template"))
     async createTemplate(
         @Arg('input') input: TemplateInput,
         @Ctx() {payload} : MyContext
@@ -123,13 +123,13 @@ export class TemplateResolver {
                 this.addParameterToTemplate(template.id,p)
             })
         }
-        
+        await createLog(payload?.userId as number , 7 , "create" , template , template.id);
         
         return { status: true };
     }
 
     @Mutation(() => TemplateResponse)
-    // @UseMiddleware(isAuth,isCan("template-update" , "Template"))
+    @UseMiddleware(isAuth,isCan("update-template" , "Template"))
     async updateTemplate(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: TemplateInput,
@@ -152,11 +152,12 @@ export class TemplateResolver {
         await parameters?.forEach(param => {
             this.addParameterToTemplate(id,param)
         })
+        await createLog(payload?.userId as number , 7 , "edit" , template , id);
         return { status: true };
     }
 
     @Mutation(() => TemplateResponse)
-    // @UseMiddleware(isAuth,isCan("template-delete" , "Template"))
+    @UseMiddleware(isAuth,isCan("status-template" , "Template"))
     async activeOrDeactiveTemplate(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -165,15 +166,7 @@ export class TemplateResolver {
         const errors = await templateValidator(null, id);
         if(errors?.length) return { status : false , errors};
         const template = await Template.update({id},{ status });
-
+        await createLog(payload?.userId as number , 7 , "activeOrDeactive" , template , id);
         return {status : true};
     }
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 7 ,
-//     operation : `activeOrDeactive : ${template}`,
-//     rowId : id 
-// } as any
-// await Log.create({...data}).save();

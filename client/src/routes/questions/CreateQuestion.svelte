@@ -28,7 +28,7 @@
     })
         
     const createQuestion = async () => {
-        const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId , turn ,surveyId});
+        const data = await createOrUpdateQuestionFn({title ,status ,shouldBe ,typeId , turn ,surveyId , isUsedOk});
         if(data.status == true){
             push('/questions/show-question/')
         }else{

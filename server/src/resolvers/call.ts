@@ -1,15 +1,16 @@
 import { Call } from '../entities/Call';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root ,UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { CallInput, CallSearchInput } from './Input';
 import { callValidator} from '../validators/callValidator';
 import { Customer } from '../entities/Customer';
 import { getConnection } from 'typeorm';
 import { CallPackage } from '../entities/CallPackage';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
+import { convertJalaaliToGregorianDate, createLog } from '../constants/functions';
+import { Package } from '../entities/Package';
 
 
 @ObjectType()
@@ -58,36 +59,46 @@ export class CallResolver {
       @Root() call : Call,
     ){return Customer.findOne(call.customerId)}
 
-    @FieldResolver(() => [Int])
+    @FieldResolver(() => [Package])
     async packages( 
       @Root() call : Call,
     ){
-        let packages = [] as number[]
-        const callPackages = await CallPackage.find({where : {callId : call.id}})
-        await callPackages.forEach( p => {
-            packages.push(p.packageId)
-        })
+        const packages = await getConnection().query(`
+            select p.* from package as p 
+            left join call_package as cp on cp.packageId = p.id 
+            where cp.callId = ${call.id}
+        `)
         return packages;
     }
-    
+    @Query(() => [Package])
+    async getOptionsForCreateAndUpdateCall() : Promise<Package[]> {
+        return await Package.find({where : {status : true}});
+    }
     @Mutation(() => CallsResponse)
-    // @UseMiddleware(isAuth,isCan("call-show" , "Call"))
+    @UseMiddleware(isAuth,isCan("show-call" , "Call"))
     async getCalls(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
         @Arg('input') input: CallSearchInput,
     ) : Promise<CallsResponse>{
-        const { status , issue , minorIssue , exactIssue , name , mobile , phone , callCode , year , month } = input;
+        const { status , issue , minorIssue , exactIssue , name , mobile , phone , callCode , year , month ,endDate,beginDate,beginTime ,endTime} = input;
+        console.log(beginDate)
+        
+        let bDate = await convertJalaaliToGregorianDate(beginDate + (beginTime ? " "+beginTime : " 00:00:00") as string);
+        let eDate = await convertJalaaliToGregorianDate(endDate + (endTime ? " "+endTime : " 23:59:59") as string);
+
         const currentPage = page || 1;
         const take = limit || 10;
         const skip = (currentPage - 1) * take;
         const tableName = "`call`";
         const query = `from ${tableName} as s 
         ${name || mobile || phone ? `left join customer as c on s.customerId = c.id` : ""}
-        where s.status = ${status} 
+        where s.status = ${status ? status : "s.status"} 
         ${issue ? ` and s.issue LIKE '%${issue}%' `: ""}
         ${minorIssue ? `and s.minorIssue LIKE '%${minorIssue}%' ` : ""}
         ${exactIssue ? `and s.exactIssue LIKE '%${exactIssue}%' ` : ""}
+        ${beginDate ? `and s.createdAt >= '${bDate}' ` : ""}
+        ${endDate ? `and s.createdAt <= '${eDate}' ` : ""}
         ${callCode ? `and s.callCode LIKE '%${callCode}%' ` : ""}
         ${year ? `and s.exactIssue LIKE '%${year}%' ` : ""}
         ${month ? `and s.exactIssue LIKE '%${month}%' ` : ""}
@@ -104,22 +115,21 @@ export class CallResolver {
         return {status : true , docs : {calls , total , page : currentPage , pages}}
     }
     @Query(() => CallResponse)
-    // @UseMiddleware(isAuth,isCan("call-show" , "Call"))
+    @UseMiddleware(isAuth,isCan("show-call" , "Call"))
     async getCall(
         @Arg('id' , () => Int) id : number
     ) : Promise<CallResponse>{
         let errors = await callValidator(null,id);
         if(errors?.length) return { status : false , errors};
         const call = await Call.findOne({id});
-
         return { status : true , call }
     }
 
     @Mutation(() => CallResponse)
-    // @UseMiddleware(isAuth,isCan("call-create" , "Call"))
+    @UseMiddleware(isAuth,isCan("create-call" , "Call"))
     async createCall(
         @Arg('input') input: CallInput,
-        @Arg('packageIds' , () => Int , {nullable : true}) packageIds : number[],
+        @Arg('packageIds' , () => [Int] , {nullable : true}) packageIds : number[],
         @Ctx() {payload} : MyContext
     ) : Promise<CallResponse>{
         let errors = await callValidator(input,null);
@@ -130,22 +140,21 @@ export class CallResolver {
                 this.addCallToPackage(p , call.id)
             })
         }
-
+        await createLog(payload?.userId as number , 5 , "create" , call , call.id);
         return { status: true };
     }
 
     @Mutation(() => CallResponse)
-    // @UseMiddleware(isAuth,isCan("call-update" , "Call"))
+    @UseMiddleware(isAuth,isCan("update-call" , "Call"))
     async updateCall(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: CallInput,
-        @Arg('packageIds' , () => Int , {nullable : true}) packageIds : number[],
+        @Arg('packageIds' , () => [Int] , {nullable : true}) packageIds : number[],
         @Ctx() {payload} : MyContext
     ) : Promise<CallResponse>{
         let errors = await callValidator(input,id);
         if(errors?.length) return { status : false , errors};
-        const call = await Call.update({id} , {...input});
-
+        await Call.update({id} , {...input});
         const olePackages = await CallPackage.find({callId : id});
         if(olePackages){
             await olePackages.forEach( p => {
@@ -158,11 +167,13 @@ export class CallResolver {
         await packageIds?.forEach(p => {
             this.addCallToPackage( p ,id)
         })
+        const call = await Call.findOne({id})
+        await createLog(payload?.userId as number , 5 , "edit" , call , id);
         return { status: true };
     }
 
     @Mutation(() => CallResponse)
-    // @UseMiddleware(isAuth,isCan("call-delete" , "Call"))
+    @UseMiddleware(isAuth,isCan("status-call" , "Call"))
     async activeOrDeactiveCall(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -170,16 +181,9 @@ export class CallResolver {
     ) : Promise<CallResponse>{
         const errors = await callValidator(null,id);
         if(errors?.length) return { status : false , errors};
-        const call = await Call.update({id},{ status });
-
+        await Call.update({id},{ status });
+        const call = await Call.findOne({id})
+        await createLog(payload?.userId as number , 5 , "activeOrDeactive" , call , id);
         return {status : true};
     }
 }
-
-        // const data = {
-        //     userId : payload?.userId ,
-        //     modelId : 5 ,
-        //     operation : `activeOrDeactive : ${call}`,
-        //     rowId : id
-        // } as any
-        // await Log.create({...data}).save();

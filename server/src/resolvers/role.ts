@@ -1,15 +1,15 @@
 import { Role } from '../entities/Role';
 import { Permission } from '../entities/Permission';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import { FieldError } from './response';
 import { RoleInput, RoleSearchInput } from './Input';
 import { roleValidator } from '../validators/permissionRoleValidator';
 import { PermissionRole } from '../entities/PermissionRole';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
+import {createLog} from '../constants/functions'
 
 @ObjectType()
 export class PaginatedRoles {
@@ -71,7 +71,7 @@ export class RoleResolver {
 
     
     @Mutation(() => RolesResponse)
-    // @UseMiddleware(isAuth,isCan("role-show" , "Role"))
+    @UseMiddleware(isAuth,isCan("show-role" , "Role"))
     async getRoles(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -94,10 +94,9 @@ export class RoleResolver {
         return { status : true , docs : { roles , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => RoleResponse)
-    // @UseMiddleware(isAuth,isCan("role-show" , "Role"))
+    @UseMiddleware(isAuth,isCan("show-role" , "Role"))
     async getRole(
-        @Arg('id' , () => Int) id : number,
-        @Ctx() {payload} : MyContext
+        @Arg('id' , () => Int) id : number
     ) : Promise<RoleResponse>{
         const errors = await roleValidator(null , id);
         if(errors?.length) return {status : false , errors}
@@ -108,7 +107,7 @@ export class RoleResolver {
 
 
     @Mutation(() => RoleResponse)
-    // @UseMiddleware(isAuth,isCan("role-create" , "Role"))
+    @UseMiddleware(isAuth,isCan("create-role" , "Role"))
     async createRole(
         @Arg('input') input: RoleInput,
         @Ctx() {payload} : MyContext
@@ -123,11 +122,12 @@ export class RoleResolver {
         await input.permissions?.forEach(p => {
             this.addPermitToRole(role.id,parseInt(p))
         })
+        await createLog(payload?.userId as number , 11 , "create" , role , role.id);
         return {status : true};
     }
 
     @Mutation(() => RoleResponse)
-    // @UseMiddleware(isAuth,isCan("role-update" , "Role"))
+    @UseMiddleware(isAuth,isCan("update-role" , "Role"))
     async updateRole(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: RoleInput,
@@ -138,8 +138,9 @@ export class RoleResolver {
         const errors = await roleValidator(input,id);
         if(errors?.length) return {status : false , errors}
         //update role
-        const role = await Role.update({id},{title,label,status});
-
+        await Role.update({id},{title,label,status});
+        const role = await Role.findOne({id})
+        await createLog(payload?.userId as number , 11 , "edit" , role , id);
 
         //unsync permissions from role
         const oldPermissions = await PermissionRole.find({roleId : id});
@@ -158,7 +159,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => RoleResponse)
-    // @UseMiddleware(isAuth,isCan("role-delete" , "Role"))
+    @UseMiddleware(isAuth,isCan("status-role" , "Role"))
     async activeOrDeactiveRole(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -166,16 +167,9 @@ export class RoleResolver {
     ) : Promise<RoleResponse>{
         const errors = await roleValidator(null,id);
         if(errors?.length) return {status : false , errors}
-        const role = await Role.update({id},{status});
-
+        await Role.update({id},{status});
+        const role = await Role.findOne({id})
+        await createLog(payload?.userId as number , 11 , "activeOrDeactive" , role , id);
         return { status : true };;
     } 
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 11 ,
-//     operation : `activeOrDeactive : ${role}`,
-//     rowId : id
-// } as any
-// await Log.create({...data}).save();

@@ -41,7 +41,7 @@ export class User extends BaseEntity {
     roleId!: number;
 
     @Field(() => Role)
-    @ManyToOne(() => Role)
+    @ManyToOne(() => Role, role => role.users)
     role: Role;
     
     @OneToMany(() => Log, log => log.user)

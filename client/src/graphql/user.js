@@ -123,12 +123,16 @@ export const updateUserMutation = gql `
             }, 
             id : $id
         ) {
+            user {
+                ...UserFragment
+            }
             status
             errors {
                 ...ErrorFragment
             }
         }
     }
+    ${UserFragment.user}
     ${ErrorFragments.error}
 `
 

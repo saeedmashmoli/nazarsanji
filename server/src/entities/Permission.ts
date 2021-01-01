@@ -1,7 +1,6 @@
 import { Field, ObjectType  } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToMany, getConnection } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity, OneToMany } from "typeorm";
 import { PermissionRole } from "./PermissionRole";
-import { Role } from "./Role";
 
 
 @ObjectType()

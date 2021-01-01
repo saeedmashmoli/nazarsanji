@@ -29,7 +29,7 @@
       label = data.tempNumber;
       status = Boolean(data.status);
       setRoles()
-      notLoading()
+
    })
    const setRoles = async () => {
       const input = {
@@ -46,6 +46,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }

@@ -1,7 +1,8 @@
 <script>
    import { push, replace , querystring  } from 'svelte-spa-router';
-   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn} from '../../utilis/functions';
-   import { activeOrDeaciveSurveyFn , getSurveysFn} from '../../Api/surveyApi';
+   import Modal from 'svelte-simple-modal';
+   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn } from '../../utilis/functions';
+   import { activeOrDeaciveCommentFn , getCommentsFn} from '../../Api/commentApi';
    import { userPermissions , loading } from '../../stores';
    import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
@@ -9,39 +10,52 @@
    import Input from '../../components/Input.svelte';
    import { onMount } from 'svelte';
    import qs from 'qs';
+   import Content from './Content.svelte';
    export let currentPage = 1;
    export let limit = 10;
    export let last_page;
    export let total;
-   export let title;
+   export let questionId;
+   export let smsId;
+   export let callId;
+   export let customerId;
+   export let answerId;
+   export let typeId;
    export let status;
-   export let questionIds;
-   export let surveyIds;
-   export let smsIds;
-   export let surveys = [];
+   export let text;
+   export let comments = [];
    export let isLoading = false;
    $: number = (currentPage - 1) * limit;
    onMount( async () => {
       $loading = true;
       const data = qs.parse($querystring)
       currentPage = Number(data.page)
-      title = data.title;
-      smsIds = Number(data.smsIds);
-      surveyIds = Number(data.surveyIds);
-      questionIds = Number(data.questionIds);
+      text = data.title;
+      customerId = Number(data.customerId);
+      smsId = Number(data.smsId);
+      questionId = Number(data.questionId);
+      callId = Number(data.callId);
+      answerId = Number(data.answerId);
+      typeId = Number(data.typeId);
       status = Boolean(data.status);
-      setSurveys()
-
+      setComments()
    })
-   const setSurveys = async () => {
+   const setComments = async () => {
       const input = {
          status, 
-         title
+         text,
+         customerId,
+         smsId,
+         customerId,
+         questionId,
+         callId,
+         answerId,
+         typeId
       }
-      const data = await getSurveysFn(input ,currentPage , limit);
+      const data = await getCommentsFn(input ,currentPage , limit);
       if(data.status){
          const res  = data.docs
-         surveys = res.surveys
+         comments = res.comments
          currentPage = res.page
          last_page = res.pages
          total = res.total
@@ -51,27 +65,25 @@
       }
    }
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}${smsIds ? "&smsIds="+smsIds : ""}${questionIds ? "&questionIds="+questionIds : ""}${surveyIds ? "&surveyIds="+surveyIds : ""}${status ? "&status="+status : ""}${title ? "&title="+title : ""}`;
-      push("/surveys/show-survey/" + data) ;
+      const data = `show?page=${page ? page : 1}${smsId ? "&smsId="+smsId : ""}${typeId ? "&typeId="+typeId : ""}${callId ? "&callId="+callId : ""}${answerId ? "&answerId="+answerId : ""}${customerId ? "&customerId="+customerId : ""}${questionId ? "&questionId="+questionId : ""}${status ? "&status="+status : ""}${text ? "&text="+text : ""}`;
+      push("/comments/show-comment/" + data) ;
       if(page) {currentPage = page}else{isLoading = true};
-      setSurveys();
+      setComments();
       setTimeout(() => {
          isLoading = false
          changeTabs(0)
       },500)
    };
-   const editPage = async (surveyId) => {
-      push('/surveys/update-survey/' + surveyId)
-   }
-   const activeOrDeactiveHandler = async(surveyId) => {
-      let survey = await surveys.filter(s => s.id === surveyId)[0]
-      survey.status = !survey.status
-      const data = await activeOrDeaciveSurveyFn(surveyId , survey.status);
+   const activeOrDeactiveHandler = async(commentId) => {
+      let comment = await comments.filter(s => s.id === commentId)[0]
+      comment.status = !comment.status
+      const data = await activeOrDeaciveCommentFn(commentId , comment.status);
       if (data.status === true) {
-         surveys = await updateArrayFn(surveys , survey)
-         actveOrDeactiveFn(data.status,survey.status,"نظرسنجی");
+         comments = await updateArrayFn(comments , comment)
+         actveOrDeactiveFn(data.status,comment.status,"کامنت");
       }
    }
+
 </script>
 <style>
    .buttons{
@@ -100,9 +112,10 @@
    }
 </style>
 <svelte:head>
-	<title>نظرسنجی ها</title>
+	<title>کامنت ها</title>
 </svelte:head>
 <Toast />
+
 <div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile main-container">
    {#if $loading}
       <progress class="progress is-small is-primary" max="100">15%</progress>
@@ -110,15 +123,12 @@
       <div class="p-2">
          <div class="columns is-variable is-desktop">
             <div class="column">
-               <h1 class="title">مدیریت نظرسنجی ها</h1>
+               <h1 class="title">مدیریت کامنت ها</h1>
             </div>
             <div class="column navbar-end">
                <div class="buttons">
-                  {#if $userPermissions.includes("show-question")}
-                     <a href="#/questions/show-question/" class="button is-info is-rounded">بخش سوالات</a>
-                  {/if}
-                  {#if $userPermissions.includes("create-survey")}
-                     <a href="#/surveys/create-survey" class="button is-link is-rounded">افزودن نظرسنجی</a>
+                  {#if $userPermissions.includes("show-sms")}
+                     <a href="#/sms/show-sms/" class="button is-info is-rounded">بخش پیامک ها</a>
                   {/if}
                </div>
             </div>
@@ -133,41 +143,45 @@
          </div>
          <div class="tab-content">
             <div value=0>
-               {#if surveys.length}
+               {#if comments.length}
                   <div class="box back-eee">
                      <div class="table-container">
                         <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
                            <thead>
                               <tr>
                                  <th style="width: 5%;">ردیف</th>
-                                 <th style="width: 5%;" data-key="id">شناسه</th>
-                                 <th style="width: 30%;" data-key="title">عنوان</th>
+                                 <th style="width: 5%;">شناسه</th>
+                                 <th style="width: 20%;">شرح نظرسنجی</th>
+                                 <th style="width: 20%;">شرح سوال</th>
+                                 <th style="width: 20%;">گزینه انتخابی</th>
+                                 <th style="width: 20%;">متن کامنت</th>
                                  <th style="width: 5%;">وضعیت</th>
-                                 <th style="width: 5%;">ویرایش</th>
+                                 <th style="width: 5%;">مشاهده</th>
                               </tr>
                            </thead>
                            <tbody>
-                              {#each surveys as survey , index}
+                              {#each comments as comment , index}
                                  <tr>
                                     <td style="width: 5%;">{index + number + 1}</td>
-                                    <td style="width: 5%;">{survey.id}</td>
-                                    <td style="width: 30%;">{survey.title}</td>
+                                    <td style="width: 5%;">{comment.id}</td>
+                                    <td style="width: 20%;">{comment.sms.survey.title.slice(0,30)}{comment.sms.survey.title.length > 30 ? "..." : ""}</td>
+                                    <td style="width: 20%;">{comment.question.title.slice(0,30)}{comment.question.title.length > 30 ? "..." : ""}</td>
+                                    <td style="width: 20%;">{comment.answer.title.slice(0,30)}{comment.answer.title.length > 30 ? "..." : ""}</td>
+                                    <td style="width: 20%;">{comment?.text ? `${comment?.text.length > 30  ? `${comment?.text.slice(0,30)}...` : `${comment?.text}`}` : ""}</td>
                                     <td style="width: 5%;">
-                                       {#if $userPermissions.includes("status-survey")}
-                                          <button on:click={activeOrDeactiveHandler(survey.id)} 
-                                             class:is-success={survey.status} 
-                                             class:is-danger={!survey.status} 
-                                             class="button is-small ${ survey.status ? 'is-success' : 'is-danger'}" >
-                                                <i class:fa-eye={survey.status} class:fa-eye-slash={!survey.status} class="fa"></i>
+                                       {#if $userPermissions.includes("status-comment")}
+                                          <button on:click={activeOrDeactiveHandler(comment.id)} 
+                                             class:is-success={comment.status} 
+                                             class:is-danger={!comment.status} 
+                                             class="button is-small ${ comment.status ? 'is-success' : 'is-danger'}" >
+                                                <i class:fa-eye={comment.status} class:fa-eye-slash={!comment.status} class="fa"></i>
                                           </button>
                                        {/if}
                                     </td>
                                     <td style="width: 5%;">
-                                       {#if $userPermissions.includes("update-survey")}
-                                          <button on:click={editPage(survey.id)} class="button is-small has-background-info-dark has-text-warning-light">
-                                             <i class="fa fa-edit"></i>
-                                          </button>
-                                       {/if}
+                                       <Modal>
+                                          <Content {comment} />
+                                        </Modal>
                                     </td>
                                  </tr>
                               {/each}
@@ -189,7 +203,8 @@
             </div> 
             <div value=1>
                <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                  <Input label="عنوان" type="text" placeholder="عنوان" bind:title={title} icon="fa-heading" />
+                  <Input label="شرح" type="text" placeholder="شرح کامنت" bind:title={text} icon="fa-heading" />
+                  <Input label="شناسه تماس" type="number" placeholder="شناسه تماس؟" bind:title={questionId} icon="fa-phone" />
                   <div style="display: block;" class="field">
                      <div class="d-inlineblock"> 
                         <div class="d-inlineblock status" >

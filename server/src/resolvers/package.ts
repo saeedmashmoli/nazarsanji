@@ -1,20 +1,18 @@
 import { Package } from '../entities/Package';
-import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver  } from 'type-graphql';
+import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver , UseMiddleware } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { PackageInput, PackageSearchInput } from './Input';
 import { packageValidator } from '../validators/packageValidator';
-import { Connection, getConnection } from 'typeorm';
+import {  getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
-
 import {GraphQLUpload } from "graphql-upload";
 import { jsonDataFromExcel, storeUpload } from '../utilis/storeFile';
 import { MyContext, Upload } from '../types';
 import { Customer } from '../entities/Customer';
-import { checkObjectField } from '../constants/functions';
+import { checkObjectField, createLog } from '../constants/functions';
 import { CallPackage } from '../entities/CallPackage';
-import { Log } from '../entities/Log';
  
 @ObjectType()
 export class PaginatedPackages {
@@ -46,12 +44,8 @@ export class PackagesResponse {
     @Field(() => PaginatedPackages , { nullable : true })
     docs?: PaginatedPackages;
 }
-const checkCustomer = async (mobile : any) => {
 
-    let customer = await Customer.findOne({where:{mobile}});
-    return await customer
-}
-const createRecordCall = async (file : Upload , packageId : number , userId : number) => {
+const createRecordCall = async (file : Upload , packageId : number ) => {
     let path = __dirname + "../../../static/files/excels/";
     const dir = await storeUpload(file,path);
     setTimeout(async() => {
@@ -78,7 +72,7 @@ const createRecordCall = async (file : Upload , packageId : number , userId : nu
 export class PackageResolver {
         
     @Mutation(() => PackagesResponse)
-    // @UseMiddleware(isAuth,isCan("Package-show" , "Package"))
+    @UseMiddleware(isAuth,isCan("show-package" , "Package"))
     async getPackages(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -103,7 +97,7 @@ export class PackageResolver {
         return {status : true , docs : {packages : p , total , page : currentPage , pages}}
     }
     @Query(() => PackageResponse)
-    // @UseMiddleware(isAuth,isCan("Package-show" , "Package"))
+    @UseMiddleware(isAuth,isCan("show-package" , "Package"))
     async getPackage(
         @Arg('id' , () => Int) id : number
     ) : Promise<PackageResponse>{
@@ -114,7 +108,7 @@ export class PackageResolver {
     }
 
     @Mutation(() => PackageResponse)
-    // @UseMiddleware(isAuth,isCan("Package-create" , "Package"))
+    @UseMiddleware(isAuth,isCan("create-package" , "Package"))
     async createPackage(
         @Arg('input') input: PackageInput,
         @Arg('file' , () => GraphQLUpload ,{nullable : true}) file: Upload,
@@ -125,14 +119,15 @@ export class PackageResolver {
         const p = await Package.create({...input}).save();
         if(file){
             if(file){
-                createRecordCall(file,p.id , payload?.userId as any);
+                createRecordCall(file,p.id );
             }
         }
+        await createLog(payload?.userId as number , 4 , "create" , p , p.id);
         return { status: true };
     }
 
     @Mutation(() => PackageResponse)
-    // @UseMiddleware(isAuth,isCan("Package-update" , "Package"))
+    @UseMiddleware(isAuth,isCan("update-package" , "Package"))
     async updatePackage(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: PackageInput,
@@ -141,16 +136,17 @@ export class PackageResolver {
     ) : Promise<PackageResponse>{
         let errors = await packageValidator(input,id,file);
         if(errors?.length) return { status : false , errors};
-        const p = await Package.update({id} , {...input});
-
+        await Package.update({id} , {...input});
+        const p = await Package.findOne({id});
+        await createLog(payload?.userId as number , 4 , "edit" , p , id);
         if(file){
-            createRecordCall(file,id,payload?.userId as any);
+            createRecordCall(file,id);
         }
         return { status: true};
     }
 
     @Mutation(() => PackageResponse)
-    // @UseMiddleware(isAuth,isCan("Package-delete" , "Package"))
+    @UseMiddleware(isAuth,isCan("status-package" , "Package"))
     async activeOrDeactivePackage(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -158,32 +154,10 @@ export class PackageResolver {
     ) : Promise<PackageResponse>{
         let errors = await packageValidator(null,id,null);
         if(errors?.length) return { status : false , errors};
-        const p = await Package.update({id},{ status });
-
+        await Package.update({id},{ status });
+        const p = await Package.findOne({id});
+        await createLog(payload?.userId as number , 4 , "activeOrDeactive" , p , id);
         return {status : true};
     }
 }
 
-// const data = {
-//     userId : userId ,
-//     modelId : 6 ,
-//     operation : `create : ${customer}`,
-//     rowId : customer.id
-// } as any
-// await Log.create({...data}).save();
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 4 ,
-//     operation : `edit : ${p}`,
-//     rowId : id
-// } as any
-// await Log.create({...data}).save();
-
-// const data = {
-//     userId : userId ,
-//     modelId : 5 ,
-//     operation : `create : ${call}`,
-//     rowId : call.id
-// } as any
-// await Log.create({...data}).save();

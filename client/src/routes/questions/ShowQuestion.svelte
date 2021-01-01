@@ -33,7 +33,7 @@
       shouldBe = Boolean(data.status);
       status = Boolean(data.status);
       setQuestions();
-      notLoading();
+
    })
    const setQuestions = async () => {
       const input = {
@@ -51,6 +51,7 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading();
       }else{
          replace('/server-error')
       }

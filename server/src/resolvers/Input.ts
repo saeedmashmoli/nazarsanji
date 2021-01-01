@@ -123,6 +123,14 @@ export class TemplateSearchInput {
 @InputType()
 export class CallSearchInput {
     @Field({nullable : true})
+    beginDate?: string;
+    @Field({nullable : true})
+    beginTime?: string;
+    @Field({nullable : true})
+    endDate?: string;
+    @Field({nullable : true})
+    endTime?: string;
+    @Field({nullable : true})
     name?: string;
     @Field({nullable : true})
     mobile?: string;
@@ -214,6 +222,14 @@ export class SmsInput {
 @InputType()
 export class SmsSearchInput {
     @Field({nullable : true})
+    beginDate?: string;
+    @Field({nullable : true})
+    beginTime?: string;
+    @Field({nullable : true})
+    endDate?: string;
+    @Field({nullable : true})
+    endTime?: string;
+    @Field({nullable : true})
     name?: string;
     @Field({nullable : true})
     mobile?: string;
@@ -268,6 +284,7 @@ export class AnswerSearchInput {
 
 @InputType()
 export class CallInput {
+
     @Field({nullable : true})
     issue?: string;
     @Field({nullable : true})
@@ -276,6 +293,8 @@ export class CallInput {
     exactIssue?: string;
     @Field(() => Int , {nullable : true})
     callTime?: number;
+    @Field(() => [Int] , {nullable : true})
+    packageIds?: number[];
     @Field({nullable : true})
     callCode?: string;
     @Field(() => Int , {nullable : true})
@@ -374,6 +393,14 @@ export class LogSearchInput {
     rowId?: number;
     @Field({nullable : true})
     operation?: string;
+    @Field({nullable : true})
+    beginDate?: string;
+    @Field({nullable : true})
+    beginTime?: string;
+    @Field({nullable : true})
+    endDate?: string;
+    @Field({nullable : true})
+    endTime?: string;
 }
 
 @InputType()
@@ -393,7 +420,7 @@ export class CommentSearchInput {
     @Field({nullable : true})
     status?: boolean;
     @Field({nullable : true})
-    text?: boolean;
+    text?: string;
 }
 @InputType()
 export class CommentInput {

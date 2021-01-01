@@ -1,16 +1,23 @@
 <script>
    import { push, replace , querystring } from 'svelte-spa-router';
-   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn} from '../../utilis/functions';
+   import {  
+      notLoading, 
+      changeTabs, 
+      actveOrDeactiveFn, 
+      updateArrayFn, 
+      getJalaliDate,
+      flatpickrOptions,
+      flatpickrTimeOptions
+   } from '../../utilis/functions';
    import {  activeOrDeaciveSmsFn, getSendsFn} from '../../Api/smsApi';
    import { userPermissions , loading } from '../../stores';
    import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
    import NoData from '../../components/NoData.svelte';
    import Input from '../../components/Input.svelte';
-   import moment from 'moment-jalaali';
-   import fa from "moment/src/locale/fa";
-   moment.locale("fa", fa);
-   moment.loadPersian();
+   import Flatpickr from 'svelte-flatpickr';
+   import 'flatpickr/dist/flatpickr.css';
+   import 'flatpickr/dist/themes/light.css';
    import { onMount } from 'svelte';
    import qs from 'qs';
    export let sends = [];
@@ -18,6 +25,10 @@
    export let limit = 10;
    export let last_page;
    export let total;
+   export let beginDate;
+   export let endDate;
+   export let beginTime;
+   export let endTime;
    export let name;
    export let mobile;
    export let phone;
@@ -43,12 +54,31 @@
       callId = parseInt(data.callId);
       isSuccess = Boolean(data.isSuccess);
       used = Boolean(data.used);
-      status = Boolean(data.status)
+      status = Boolean(data.status);
+      beginTime = data.beginTime;
+      endTime = data.endTime;
+      endDate = data.endDate;
+      beginDate = data.beginDate;
       setSends()
-      notLoading()
+
    });
    const setSends = async () => {
-      const input = {status, name , mobile , phone , packageId , templateId , callId, customerId , isSuccess , used }
+      const input = {
+         status, 
+         name, 
+         mobile, 
+         phone, 
+         packageId, 
+         templateId, 
+         callId, 
+         customerId, 
+         isSuccess, 
+         used,
+         beginDate,
+         endDate,
+         beginTime,
+         endTime 
+      }
       const data = await getSendsFn(input ,currentPage , limit);
       if(data.status){
          const res  = data.docs
@@ -56,13 +86,14 @@
          currentPage = res.page
          last_page = res.pages
          total = res.total
+         notLoading()
       }else{
          replace('/server-error')
       }
    }
 
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}${name ? "&name="+name : ""}${mobile ? "&mobile="+mobile :""}${phone ? "&phone="+phone : ""}${packageId ? "&packageId="+packageId : ""}${templateId ? "&templateId="+templateId : ""}${callId ? "&callId="+callId : ""}${customerId ? "&customerId="+customerId : ""}${used ? "&used="+used : ""}${isSuccess ? "&isSuccess="+isSuccess : ""}`;       push("/sms/show-sms/"+data) ;
+      const data = `show?page=${page ? page : 1}${beginDate ? "&beginDate="+beginDate : ""}${beginTime ? "&beginTime="+beginTime : ""}${endDate ? "&endDate="+endDate : ""}${endTime ? "&endTime="+endTime : ""}${name ? "&name="+name : ""}${mobile ? "&mobile="+mobile :""}${phone ? "&phone="+phone : ""}${packageId ? "&packageId="+packageId : ""}${templateId ? "&templateId="+templateId : ""}${callId ? "&callId="+callId : ""}${customerId ? "&customerId="+customerId : ""}${used ? "&used="+used : ""}${isSuccess ? "&isSuccess="+isSuccess : ""}`;       push("/sms/show-sms/"+data) ;
       if(page) {currentPage = page}else{isLoading = true};
       setSends();
       setTimeout(() => {
@@ -88,12 +119,17 @@
       .buttons{
          direction: rtl;
       }
+      .flatpickr{
+         width: 100% !important;
+      }
    }
    .tabs {
     display: flex;
     flex-direction: column;
    }
-
+   .flatpickr{
+      width: 49% ;
+   }
 
    .tab-content div {
       display: none;
@@ -165,7 +201,7 @@
                                     <td style="width: 15%;">{send.call.customer?.name}</td>
                                     <td style="width: 10%;">{send.call.customer?.mobile}</td>
                                     <td style="width: 15%;">{send.template.title}</td>
-                                    <td style="width: 10%;">{moment(parseInt(send.createdAt)).format('jYYYY/jM/jD HH:mm:ss')}</td>
+                                    <td style="width: 10%;">{getJalaliDate(send.createdAt)}</td>
                                     <td style="width: 5%;">
                                        <!-- svelte-ignore a11y-missing-attribute -->
                                        <button 
@@ -212,6 +248,34 @@
             </div>
             <div value=1>
                <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                  <div style="display:block" class="field">
+                     <Flatpickr options="{ flatpickrOptions }" element="#beginDate">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="beginDate">
+                              <label for class="label">از تاریخ</label>
+                              <input autocomplete="off" class="input" bind:value={beginDate} type="text" placeholder="از تاریخ..." data-input>
+                           </div>
+                     </Flatpickr>
+                     <Flatpickr options="{ flatpickrTimeOptions }" element="#beginTime">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="beginTime">
+                              <label for class="label">از ساعت</label>
+                              <input autocomplete="off" class="input" type="text" bind:value={beginTime}  placeholder="از ساعت..." data-input>
+                           </div>
+                     </Flatpickr>
+                  </div>
+                  <div style="display:block" class="field">
+                     <Flatpickr options="{ flatpickrOptions }" element="#endDate">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="endDate">
+                              <label for class="label">تا تاریخ</label>
+                              <input autocomplete="off" class="input" bind:value={endDate} type="text" placeholder="تا تاریخ..." data-input>
+                           </div>
+                     </Flatpickr>
+                     <Flatpickr options="{ flatpickrTimeOptions }" element="#endTime">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="endTime">
+                              <label for class="label">تا ساعت</label>
+                              <input autocomplete="off" class="input" type="text" bind:value={endTime}  placeholder="تا ساعت..." data-input>
+                           </div>
+                     </Flatpickr>
+                  </div>
                   <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
                   <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
                   <Input label="تلفن " type="text" placeholder="تلفن مشتری؟" bind:title={phone} icon="fa-phone" />

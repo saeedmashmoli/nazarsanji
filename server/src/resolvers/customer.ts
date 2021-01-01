@@ -1,14 +1,14 @@
 import { Customer } from '../entities/Customer';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root ,UseMiddleware } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { CustomerInput, CustomerSearchInput } from './Input';
 import { customerValidator } from '../validators/customerValidator';
 import { getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
 import { MyContext } from '../types';
-import { Log } from '../entities/Log';
+import { createLog } from '../constants/functions';
 
 @ObjectType()
 export class CustomerResponse {
@@ -50,7 +50,7 @@ export class CustomerResolver {
     ){return Call.find({where : {customerId :customer.id}})}
     
     @Mutation(() => CustomersResponse)
-    // @UseMiddleware(isAuth,isCan("customer-show" , "customer"))
+    @UseMiddleware(isAuth,isCan("show-customer" , "Customer"))
     async getCustomers(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -72,7 +72,7 @@ export class CustomerResolver {
         return {status : true , docs : {customers , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => CustomerResponse)
-    // @UseMiddleware(isAuth,isCan("customer-show" , "customer"))
+    @UseMiddleware(isAuth,isCan("show-customer" , "Customer"))
     async getCustomer(
         @Arg('id' , () => Int) id : number
     ) : Promise<CustomerResponse>{
@@ -84,7 +84,7 @@ export class CustomerResolver {
     }
 
     @Mutation(() => CustomerResponse)
-    // @UseMiddleware(isAuth,isCan("Customer-create" , "Customer"))
+    @UseMiddleware(isAuth,isCan("create-customer" , "Customer"))
     async createCustomer(
         @Arg('input') input: CustomerInput,
         @Ctx() {payload} : MyContext
@@ -92,12 +92,12 @@ export class CustomerResolver {
         const errors = await customerValidator(input,null);
         if(errors?.length) return { status : false , errors};
         const customer = await Customer.create({...input}).save();
-
+        await createLog(payload?.userId as number , 6 , "create" , customer , customer.id);
         return { status: true };
     }
 
     @Mutation(() => CustomerResponse)
-    // @UseMiddleware(isAuth,isCan("Customer-update" , "Customer"))
+    @UseMiddleware(isAuth,isCan("update-customer" , "Customer"))
     async updateCustomer(
         @Arg('id' , () => Int ) id: number,
         @Arg('input') input: CustomerInput,
@@ -105,13 +105,14 @@ export class CustomerResolver {
     ) : Promise<CustomerResponse>{
         const errors = await customerValidator(input,id);
         if(errors?.length) return { status : false , errors};
-        const customer = await Customer.update({id} , {...input});
-
+        await Customer.update({id} , {...input});
+        const customer =  await Customer.findOne({id})
+        await createLog(payload?.userId as number , 6 , "edit" , customer , id);
         return { status: true };
     }
 
     @Mutation(() => CustomerResponse)
-    // @UseMiddleware(isAuth,isCan("Customer-delete" , "Customer"))
+    @UseMiddleware(isAuth,isCan("status-customer" , "Customer"))
     async activeOrDeactiveCustomer(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -119,16 +120,9 @@ export class CustomerResolver {
     ) : Promise<CustomerResponse>{
         const errors = await customerValidator(null,id);
         if(errors?.length) return { status : false , errors};
-        const customer = await Customer.update({id},{status});
-
+        await Customer.update({id},{status});
+        const customer =  await Customer.findOne({id})
+        await createLog(payload?.userId as number , 6 , "activeOrDeactive" , customer , id);
         return {status : true};
     }
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 6 ,
-//     operation : `create : ${customer}`,
-//     rowId : customer.id
-// } as any
-// await Log.create({...data}).save();

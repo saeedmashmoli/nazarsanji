@@ -1,16 +1,16 @@
 import { Comment } from '../entities/Comment';
 import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { CommentInput, CommentSearchInput } from './Input';
 import { checkSmsToken, commentValidator } from '../validators/commentValidator';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
-// import { Log } from '../entities/Log';
 import { Question } from '../entities/Question';
 import { Sms } from '../entities/Sms';
 import { Answer } from '../entities/Answer';
+import { createLog } from '../constants/functions';
 
 
 @ObjectType()
@@ -97,7 +97,7 @@ export class CommentResolver {
     }
     
     @Mutation(() => CommentsResponse)
-    // @UseMiddleware(isAuth,isCan("Comment-show" , "Comment"))
+    @UseMiddleware(isAuth,isCan("show-comment" , "Comment"))
     async getComments(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -129,7 +129,7 @@ export class CommentResolver {
         return {status : true , docs : {comments , total , page : currentPage , pages}}
     }
     @Query(() => CommentResponse)
-    // @UseMiddleware(isAuth,isCan("Comment-show" , "Comment"))
+    @UseMiddleware(isAuth,isCan("show-comment" , "Comment"))
     async getComment(
         @Arg('id' , () => Int) id : number
     ) : Promise<CommentResponse>{
@@ -141,8 +141,7 @@ export class CommentResolver {
 
     @Mutation(() => CommentResponse)
     async createComment(
-        @Arg('input') input: CommentInput,
-        // @Ctx() {payload} : MyContext
+        @Arg('input') input: CommentInput
     ) : Promise<CommentResponse>{
         const errors = await commentValidator(input,null);
         if(errors?.length) return { status : false , errors};
@@ -155,47 +154,37 @@ export class CommentResolver {
         }else{
             await Comment.create({text , questionId , smsId }).save();
         }
-        // const question = await Question.findOne({id : questionId});
-        // if(question && question.isUsedOk){
-        //     await Sms.update({id :smsId} , {used : true})
-        // }
+        const question = await Question.findOne({id : questionId});
+        if(question && question.isUsedOk){
+            await Sms.update({id :smsId} , {used : true})
+        }
         return await { status: true};
     }
 
     @Mutation(() => CommentResponse)
-    // @UseMiddleware(isAuth,isCan("Comment-update" , "Comment"))
     async updateComment(
         @Arg('id' , () => Int) id: number,
-        @Arg('input') input: CommentInput,
-        // @Ctx() {payload} : MyContext
+        @Arg('input') input: CommentInput
     ) : Promise<CommentResponse>{
         let errors = await commentValidator(input , id);
         if(errors?.length) return { status : false , errors};
         await Comment.update({id} , {...input});
  
-   
         return { status: true };
     }
 
     @Mutation(() => CommentResponse)
-    // @UseMiddleware(isAuth,isCan("Comment-delete" , "Comment"))
+    @UseMiddleware(isAuth,isCan("status-comment" , "Comment"))
     async activeOrDeactiveComment(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
-        // @Ctx() {payload} : MyContext
+        @Ctx() {payload} : MyContext
     ) : Promise<CommentResponse>{
         const errors = await commentValidator(null, id);
         if(errors?.length) return { status : false , errors};
         await Comment.update({id},{ status });
-
+        const comment = await Comment.findOne({id});
+        await createLog(payload?.userId as number , 14 , "activeOrDeactive" , comment , id);
         return {status : true};
     }
 }
-
-        // const data = {
-        //     userId : payload?.userId ,
-        //     modelId : 1 ,
-        //     operation : `create : ${Comment}`,
-        //     rowId : Comment.id 
-        // } as any
-        // await Log.create({...data}).save();

@@ -4,14 +4,22 @@ import {
     updateCallMutation,
     activeOrDeactiveCallMutation,
     getCallsMutation,
-    getCallQuery
+    getCallQuery,
+    getOptionsForCreateAndUpdateCallQuery
 } from '../graphql/call';
-export const createOrUpdateCallFn = async(input, id = null) => {
+export const getOptionsForCreateAndUpdateCallFn = async() => {
+    const response = await client.query({
+        query: getOptionsForCreateAndUpdateCallQuery
+    })
+    return response.data.getOptionsForCreateAndUpdateCall
+}
+export const createOrUpdateCallFn = async(input, packageIds = [], id = null) => {
     if (id) {
         const response = await client.mutate({
             mutation: updateCallMutation,
             variables: {
                 ...input,
+                packageIds,
                 id
             }
         })
@@ -20,7 +28,8 @@ export const createOrUpdateCallFn = async(input, id = null) => {
         const response = await client.mutate({
             mutation: createCallMutation,
             variables: {
-                ...input
+                ...input,
+                packageIds
             }
         })
         return response.data.createCall;
@@ -49,6 +58,7 @@ export const getCallsFn = async(input, page, limit) => {
     return response.data.getCalls
 }
 export const getCallFn = async(id) => {
+
     const response = await client.query({
         query: getCallQuery,
         variables: {

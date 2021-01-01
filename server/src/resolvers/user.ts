@@ -5,13 +5,14 @@ import {MyContext} from '../types';
 import {ChangePasswordInput, UserRegisterInput, UserSearchInput} from './Input';
 import { createUserValidator  , changePasswordValidator} from '../validators/userValidator';
 import { createAccessToken , createRefreshToken } from '../constants/auth';
-import { isAuth } from '../middlewares/isAuthMiddleware';
 import { getConnection } from 'typeorm';
 import { Token } from '../entities/Token';
 import sms from '../constants/sms';
 import { FieldError } from './response';
 import { Role } from '../entities/Role';
-import { Log } from '../entities/Log';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
+import {createLog} from '../constants/functions'
 
 
 @ObjectType()
@@ -63,6 +64,7 @@ export class UserResolver {
         return true;
     }
     @Query(() => [Role])
+    @UseMiddleware(isAuth)
     async getRolesForCreateUser() : Promise<Role[]> {
         return await Role.find({where : {status : true}});
     }
@@ -74,6 +76,7 @@ export class UserResolver {
         return user;
     }
     @Mutation(() => UsersResponse)
+    @UseMiddleware(isAuth,isCan("show-user" , "User"))
     async getUsers(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -98,6 +101,7 @@ export class UserResolver {
         return {status : true , docs : {users , total , page : currentPage , pages}}
     }
     @Mutation(() => UserResponse)
+    @UseMiddleware(isAuth,isCan("status-user" , "User"))
     async activeOrDeactiveUser(
         @Arg('id' , () => Int) id: number,
         @Arg('active' ) active: boolean,
@@ -106,10 +110,11 @@ export class UserResolver {
         const errors = await createUserValidator(null, null, id)
         if(errors?.length) return { errors , status: false }
         const user = await User.update({id} , {active});
-
+        await createLog(payload?.userId as number , 10 , "activeOrDeactive" , user , id);
         return { status : true }
     }
     @Query(() => UserResponse)
+    @UseMiddleware(isAuth,isCan("show-user" , "User"))
     async getUser(
         @Arg('id' , () => Int) id : number
     ) : Promise<UserResponse>{
@@ -161,6 +166,7 @@ export class UserResolver {
     }
 
     @Mutation( () => UserResponse)
+    @UseMiddleware(isAuth,isCan("create-user" , "User"))
     async createUser(
         @Arg('options') options: UserRegisterInput,
         @Arg('password' , {nullable : true}) password: string,
@@ -170,11 +176,11 @@ export class UserResolver {
         if(errors?.length) return { errors , status: false }
         password = await bcrypt.hash(password, 10);
         const user = await User.create({...options,password}).save();
-
-
+        await createLog(payload?.userId as number , 10 , "create" , user , user.id);
         return {status: true};
     }
     @Mutation( () => UserResponse)
+    @UseMiddleware(isAuth,isCan("update-user" , "User"))
     async updateUser(
         @Arg('options') options: UserRegisterInput,
         @Arg('id', () => Int) id : number,
@@ -183,21 +189,21 @@ export class UserResolver {
     ) : Promise<UserResponse>{ 
         const errors = await createUserValidator(options , password , id)
         if(errors?.length) return { errors , status: false }
-        let user;
         if(password) {
             password = await bcrypt.hash(password, 10);
-            user = await User.update({id} , {...options , password});
+            await User.update({id} , {...options , password});
         }else{
-           user = await User.update({id} , {...options});
+           await User.update({id} , {...options});
         }
-
-        return {status: true};
+        const user = await User.findOne({id});
+        await createLog(payload?.userId as number , 10 , "edit" , user , id);
+        return {status: true ,user};
     }
     @Mutation( () => UserResponse)
     async login(
         @Arg('username') username:string,
         @Arg('password') password: string,
-        @Ctx() { res , payload } : MyContext
+        @Ctx() { res } : MyContext
     ) : Promise<UserResponse>{ 
         const user = await User.findOne({ where : {mobile : username }});
         let errors = [];
@@ -235,11 +241,3 @@ export class UserResolver {
         return true;
     }
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 10 ,
-//     operation : `edit : ${user}`,
-//     rowId : id 
-// } as any
-// await Log.create({...data}).save();

@@ -171,7 +171,15 @@ export const CustomerFragments = {
         }
     `
 };
-
+export const PackageFragments = {
+    package: gql `
+        fragment PackageFragment on Package {
+            id
+            title
+            status
+        }
+    `
+};
 export const CallFragments = {
     call: gql `
         fragment CallFragment on Call {
@@ -194,21 +202,16 @@ export const CallFragments = {
             customer {
                 ...CustomerFragment
             }
-            packages
+            packages {
+                ...PackageFragment
+            }
         }
+        ${PackageFragments.package}
         ${CustomerFragments.customer}
     `
 };
 
-export const PackageFragments = {
-    package: gql `
-        fragment PackageFragment on Package {
-            id
-            title
-            status
-        }
-    `
-};
+
 export const ParameterFragments = {
     parameter: gql `
         fragment ParameterFragment on Parameter {
@@ -242,6 +245,10 @@ export const SmsFragments = {
             used
             message
             status
+            createdAt
+            survey {
+                ...SurveyFragment
+            }
             template {
                 ...TemplateFragment
             }
@@ -249,6 +256,7 @@ export const SmsFragments = {
                 ...CallFragment
             }
         }
+        ${SurveyFragments.survey}
         ${TemplateFragments.template}
         ${CallFragments.call}
     `
@@ -259,14 +267,19 @@ export const LogFragments = {
         fragment LogFragment on Log {
             id
             operation
+            data
             rowId
+            modelId
             model {
+                id
                 label
                 title
             }
+            userId
             user {
                 ...UserFragment
             }
+            createdAt
         }
         ${UserFragment.user}
     `
@@ -279,14 +292,10 @@ export const CommentFragments = {
         fragment CommentFragment on Comment {
             id
             smsId
-            sms {
-                ...SmsFragment
-            }
             questionId
             question {
                 ...QuestionFragment
             }
-            
             answerId
             answer {
                 ...AnswerFragment
@@ -295,7 +304,6 @@ export const CommentFragments = {
             status
             createdAt
         }
-        ${SmsFragments.sms}
         ${AnswerFragments.answer}
         ${QuestionFragments.question}
     `

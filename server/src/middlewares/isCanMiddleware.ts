@@ -1,22 +1,30 @@
-import { User } from "../entities/User";
+
 import { MyContext } from "../types";
 import { MiddlewareFn } from "type-graphql";
+import { getConnection } from "typeorm";
+import { Permission } from "../entities/Permission";
 
 
 export function isCan(title: string , model: string): MiddlewareFn<MyContext> {
   return async ({context}, next) => {
-    // const user = await User.findOne({where : { id : context.payload?.userId } , relations: ["role" , 'role.permissions']});
-    // let result = false;
-    // await user?.role.permissions.map(permit => {
-    //   if(permit.model == model && permit.title == title){
-    //     result = true;
-    //   }
-    // })
-    // if(result){
-    //   return next();
-    // }
+    const permissions = await getConnection().query(`
+    select p.* from permission as p
+    left join permission_role as pr on p.id = pr.permissionId
+    left join user as u on pr.roleId = u.roleId
+    where u.id = ${context.payload?.userId}
+    `);
+    let result = false;
+    await permissions.forEach((permit: Permission) => {
+      if(permit.model === model && permit.title === title){
+        result = true
+      }
+    })
+    if(await result){
       return next();
-      throw new Error('عدم دسترسی') 
+    }else{
+        throw new Error('عدم دسترسی') 
+    }
+
   }  
 };
   

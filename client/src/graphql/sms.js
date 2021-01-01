@@ -61,6 +61,10 @@ export const activeOrDeactiveSmsMutation = gql `
 `
 export const getSendsMutation = gql `
     mutation GetSends(
+        $beginDate : String,
+        $endDate : String,
+        $beginTime : String,
+        $endTime : String,
         $name : String, 
         $phone : String, 
         $mobile : String,
@@ -85,7 +89,11 @@ export const getSendsMutation = gql `
                 templateId : $templateId,
                 callId : $callId,
                 isSuccess : $isSuccess,
-                used : $used
+                used : $used,
+                beginDate : $beginDate,
+                endDate : $endDate,
+                beginTime : $beginTime,
+                endTime : $endTime
             }, 
             page : $page, 
             limit : $limit

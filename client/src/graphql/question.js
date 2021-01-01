@@ -22,7 +22,8 @@ export const createQuestionMutation = gql `
         $title : String!,
         $turn : Int,  
         $status : Boolean!, 
-        $shouldBe : Boolean!, 
+        $shouldBe : Boolean!,
+        $isUsedOk : Boolean!, 
         $typeId : Int, 
         $surveyId : Int
     ){
@@ -33,7 +34,8 @@ export const createQuestionMutation = gql `
                 status : $status, 
                 shouldBe : $shouldBe, 
                 typeId : $typeId, 
-                surveyId : $surveyId
+                surveyId : $surveyId,
+                isUsedOk : $isUsedOk
             }
         ){
             status
@@ -51,6 +53,7 @@ export const updateQuestionMutation = gql `
         $status : Boolean!, 
         $id : Int!, 
         $shouldBe : Boolean!, 
+        $isUsedOk : Boolean!, 
         $typeId : Int, 
         $surveyId : Int
     ){
@@ -61,7 +64,8 @@ export const updateQuestionMutation = gql `
                 status : $status, 
                 shouldBe : $shouldBe, 
                 typeId : $typeId, 
-                surveyId : $surveyId
+                surveyId : $surveyId,
+                isUsedOk : $isUsedOk
             }, 
             id : $id
         ){

@@ -1,13 +1,14 @@
 import { Parameter } from '../entities/Parameter';
-import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver  } from 'type-graphql';
+import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver ,UseMiddleware } from 'type-graphql';
 import {  FieldError } from './response';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { ParameterInput, ParameterSearchInput } from './Input';
 import { parameterValidator } from '../validators/parameterValidator';
 import { getConnection } from 'typeorm';
-import { MyContext } from 'src/types';
-import { Log } from '../entities/Log';
+import { MyContext } from '../types';
+import { createLog } from '../constants/functions';
+
 
 
 @ObjectType()
@@ -44,7 +45,7 @@ export class ParametersResponse {
 export class ParameterResolver {
     
     @Mutation(() => ParametersResponse)
-    // @UseMiddleware(isAuth,isCan("parameter-show" , "Parameter"))
+    @UseMiddleware(isAuth,isCan("show-parameter" , "Parameter"))
     async getParameters(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -64,7 +65,7 @@ export class ParameterResolver {
         return { status : true , docs : { parameters , total :t[0].count , page : currentPage , pages }}
     }
     @Query(() => ParameterResponse)
-    // @UseMiddleware(isAuth,isCan("parameter-show" , "Parameter"))
+    @UseMiddleware(isAuth,isCan("show-parameter" , "Parameter"))
     async getParameter(
         @Arg('id' , () => Int) id : number
     ) : Promise<ParameterResponse>{
@@ -75,20 +76,20 @@ export class ParameterResolver {
     }
 
     @Mutation(() => ParameterResponse)
-    // @UseMiddleware(isAuth,isCan("parameter-create" , "Parameter"))
+    @UseMiddleware(isAuth,isCan("create-parameter" , "Parameter"))
     async createParameter(
         @Arg('input') input: ParameterInput,
         @Ctx() { payload } : MyContext
     ) : Promise<ParameterResponse>{
         const errors = await parameterValidator(input);
         if(errors?.length) return { status : false , errors};
-       const parameter =  await Parameter.create({...input}).save();
-
+        const parameter =  await Parameter.create({...input}).save();
+        await createLog(payload?.userId as number , 8 , "create" , parameter , parameter.id);
         return { status: true };
     }
 
     @Mutation(() => ParameterResponse)
-    // @UseMiddleware(isAuth,isCan("parameter-update" , "Parameter"))
+    @UseMiddleware(isAuth,isCan("update-parameter" , "Parameter"))
     async updateParameter(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: ParameterInput,
@@ -96,13 +97,14 @@ export class ParameterResolver {
     ) : Promise<ParameterResponse>{
         let errors = await parameterValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        const parameter = await Parameter.update({id} , {...input});
-
+        await Parameter.update({id} , {...input});
+        const parameter = await Parameter.findOne({id});
+        await createLog(payload?.userId as number , 8 , "edit" , parameter , id);
         return { status: true };
     }
 
     @Mutation(() => ParameterResponse)
-    // @UseMiddleware(isAuth,isCan("parameter-delete" , "Parameter"))
+    @UseMiddleware(isAuth,isCan("status-parameter" , "Parameter"))
     async activeOrDeactiveParameter(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -110,16 +112,9 @@ export class ParameterResolver {
     ) : Promise<ParameterResponse>{
         const errors = await parameterValidator(null, id);
         if(errors?.length) return { status : false , errors};
-        const parameter = await Parameter.update({id},{ status });
-
+        await Parameter.update({id},{ status });
+        const parameter = await Parameter.findOne({id});
+        await createLog(payload?.userId as number , 8 , "activeOrDeactive" , parameter , id);
         return {status : true};
     }
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 8 ,
-//     operation : `create : ${parameter}`,
-//     rowId : parameter.id
-// } as any
-// await Log.create({...data}).save();

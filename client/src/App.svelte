@@ -48,6 +48,7 @@
 	import ShowCondition from './routes/conditions/ShowCondition.svelte';
 	import CreateCondition from './routes/conditions/CreateCondition.svelte';
 	import UpdateCondition from './routes/conditions/UpdateCondition.svelte';
+	import ShowComment from './routes/comments/ShowComment.svelte';
 	import ShowSms from './routes/sms/ShowSms.svelte';
 	import CreateSms from './routes/sms/CreateSms.svelte';
 	import ShowLog from './routes/logs/ShowLog.svelte';
@@ -58,6 +59,7 @@
 	import ServerError from './routes/errors/ServerError.svelte';
 	import Nav from './components/Nav.svelte';
    	import SideBar from './components/SideBar.svelte';
+
 
 
 
@@ -141,9 +143,9 @@
 		"/surveys/show-survey/*" : wrap({ asyncComponent : () => ShowSurvey , userData : { permit : "show-survey" , isAuth : true } }),
 		"/surveys/create-survey" : wrap({ asyncComponent : () => CreateSurvey , userData : { permit : "create-survey" , isAuth : true } }),
 		"/surveys/update-survey/:id" : wrap({ asyncComponent : () => UpdateSurvey , userData : { permit : "update-survey" , isAuth : true } }),
-		"/logs/show-log" : wrap({ asyncComponent : () => ShowLog , userData : { permit : "show-log" , isAuth : true } }),
+		"/logs/show-log/*" : wrap({ asyncComponent : () => ShowLog , userData : { permit : "show-log" , isAuth : true } }),
 		"/reports/show-report" : wrap({ asyncComponent : () => ShowReport , userData : { permit : "show-report" , isAuth : true } }),
-
+		"/comments/show-comment/*" : wrap({ asyncComponent : () => ShowComment , userData : { permit : "show-comment" , isAuth : true }  }),
 		"/" : wrap({ asyncComponent : () => Login , userData : { deleteNav : true } }),
 		"/comment/:id" : wrap({ asyncComponent : () => Comment , userData : { deleteNav : true } }),
 		"/home/:token" : wrap({ asyncComponent : () => Home , userData : { deleteNav : true } }) ,

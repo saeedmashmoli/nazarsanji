@@ -1,14 +1,14 @@
 import { Answer } from '../entities/Answer';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root  } from 'type-graphql';
-// import { isAuth } from '../middlewares/isAuthMiddleware';
-// import {isCan} from '../middlewares/isCanMiddleware';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root , UseMiddleware } from 'type-graphql';
+import { isAuth } from '../middlewares/isAuthMiddleware';
+import {isCan} from '../middlewares/isCanMiddleware';
 import { AnswerInput , AnswerSearchInput } from './Input';
 import { FieldError } from './response';
 import { answerValidator } from '../validators/answerValidator';
 import { Question } from '../entities/Question';
 import { getConnection ,Not ,In } from 'typeorm';
-import { Log } from '../entities/Log';
 import { MyContext } from '../types';
+import { createLog } from '../constants/functions';
 
 @ObjectType()
 export class PaginatedAnswers {
@@ -57,7 +57,7 @@ export class AnswerResolver {
 
 
     @Mutation(() => AnswersResponse)
-    // @UseMiddleware(isAuth,isCan("question-show" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-answer" , "Answer"))
     async getAnswers(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -84,7 +84,7 @@ export class AnswerResolver {
         return {status : true , docs : { answers , total , page : currentPage , pages }}
     }
     @Query(() => AnswerResponse)
-    // @UseMiddleware(isAuth,isCan("survey-show" , "Survey"))
+    @UseMiddleware(isAuth,isCan("show-answer" , "Answer"))
     async getAnswer(
         @Arg('id' , () => Int) id : number
     ) : Promise<AnswerResponse>{
@@ -95,7 +95,7 @@ export class AnswerResolver {
     }
 
     @Mutation(() => AnswerResponse)
-    // @UseMiddleware(isAuth,isCan("answer-create" , "Answer"))
+    @UseMiddleware(isAuth,isCan("create-answer" , "Answer"))
     async createAnswer(
         @Arg('input') input: AnswerInput,
         @Ctx() {payload} : MyContext
@@ -103,11 +103,12 @@ export class AnswerResolver {
         const errors = await answerValidator(input , null);
         if(errors?.length) return { status : false , errors};
         const answer = await Answer.create({...input}).save();
+        await createLog(payload?.userId as number , 3 , "create" , answer , answer.id);
         return {status : true};
     }
 
     @Mutation(() => AnswerResponse)
-    // @UseMiddleware(isAuth,isCan("answer-update" , "Answer"))
+    @UseMiddleware(isAuth,isCan("update-answer" , "Answer"))
     async updateAnswer(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: AnswerInput,
@@ -115,12 +116,14 @@ export class AnswerResolver {
     ) : Promise<AnswerResponse>{
         const errors = await answerValidator(input , id);
         if(errors?.length) return { status : false , errors};
-        const answer = await Answer.update({id},{...input});
+        await Answer.update({id},{...input});
+        const answer = await Answer.findOne({id});
+        await createLog(payload?.userId as number , 3 , "edit" , answer , id);
         return {status : true };
     }
 
     @Mutation(() => AnswerResponse)
-    // @UseMiddleware(isAuth,isCan("survey-delete" , "Survey"))
+    @UseMiddleware(isAuth,isCan("status-answer" , "Answer"))
     async activeOrDeactiveAnswer(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,
@@ -128,15 +131,9 @@ export class AnswerResolver {
     ) : Promise<AnswerResponse>{
         const errors = await answerValidator(null , id);
         if(errors?.length) return { status : false , errors};
-        const answer = await Answer.update({id},{ status });
+        await Answer.update({id},{ status });
+        const answer = await Answer.findOne({id});
+        await createLog(payload?.userId as number , 3 , "activeOrDeactive" , answer , id);
         return {status : true};
     }
 }
-
-// const data = {
-//     userId : payload?.userId ,
-//     modelId : 3 ,
-//     operation : `activeOrDeactive : ${answer}`,
-//     rowId : id
-// } as any 
-// await Log.create({...data}).save();

@@ -4,7 +4,7 @@ import { ParameterFragments, ErrorFragments } from './fragments'
 export const createParameterMutation = gql `
     mutation CreateParameter(
         $title : String, 
-        $status : Boolean,
+        $status : Boolean!,
         $label : String! 
     ){
         createParameter(
@@ -25,7 +25,7 @@ export const createParameterMutation = gql `
 export const updateParameterMutation = gql `
     mutation UpdateParameter(
         $title : String, 
-        $status : Boolean,
+        $status : Boolean!,
         $label : String, 
         $id : Int!
     ){

@@ -7,8 +7,7 @@
         getSelectionLabel
     } from '../../utilis/functions';
     import Select from 'svelte-select';
-    import {getPackagesFn} from '../../Api/packageApi';
-    import { createOrUpdateCallFn} from '../../Api/callApi';
+    import { createOrUpdateCallFn , getOptionsForCreateAndUpdateCallFn} from '../../Api/callApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { push } from 'svelte-spa-router';
@@ -29,26 +28,29 @@
     export let customerId;
     export let packageId;
     export let status = true;
+    export let selectPackages = [];
     export let packages = [];
     export let errorMessages = [];
-    export let isLoading = false;        
+    export let isLoading = false;
+    $: packageIds = () => {
+        let array = [];
+        packages.forEach(pack => {
+            array.push(pack.id);
+        })
+        return array;
+    };        
     onMount( async() => {
         $loading = true;
-        const p = await getPackagesFn(true);
-        if( p.status){
-            packages = p.packages;
-        }else{
-            replace('/server-error')
-        }
+        selectPackages = await getOptionsForCreateAndUpdateCallFn();
         notLoading()
     })     
     const createCall = async () => {
-        // isLoading = true;
+        isLoading = true;
         const data = await createOrUpdateCallFn({ 
             issue , minorIssue , exactIssue , price , packageId, 
             customerId , month , year , status , callCode , callPrice , callTime ,
             operatorCallTime , operatorDelayTime , moshaverCallTime , moshaverDelayTime
-         });
+         },packageIds());
         if(data.status == true){
             push('/calls/show-call/')
         }else{
@@ -72,8 +74,8 @@
     const changeCustomerId = (input) => {
         customerId = parseInt(input.detail.id)
     }
-    const changePackageId =  (input) => {
-        packageId = parseInt(input.detail.id)
+    const changePackages =  (input) => {
+        packages = input.detail;
     }
 </script>
 <svelte:head>
@@ -111,14 +113,14 @@
                         <div class="field">
                             <label for="package" class="label">انتخاب بسته</label>
                             <Select 
-                                items={packages} 
+                                isMulti
+                                items={selectPackages} 
                                 {getSelectionLabel} 
                                 {optionIdentifier} 
                                 {getOptionLabel} 
-                                on:select={changePackageId} 
+                                on:select={changePackages} 
                                 placeholder="جستجوی بسته..." 
                             />
-                            <p class="help is-danger">{checkErrors("packageId").message}</p>
                         </div>
                         <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
                         <Input label="تعرفه سر خط" type="number" placeholder="تعرفه سر خط؟" bind:title={callPrice} icon="fa-money-check" />
