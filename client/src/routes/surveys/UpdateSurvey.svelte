@@ -35,7 +35,7 @@
     export let isLoading = false;      
     export let editLoading = false; 
     export let addQuestionLoading = false;
-    export let conditions;       
+    export let changeQuestion = false;       
     onMount( async () => {
         $loading = true;
         const result = await getSurveyFn(id,false);
@@ -91,6 +91,7 @@
         questions = [...questions, qu];
     }
     const showQuestionForm = () => {
+        changeQuestion = false;
         question = {status : true , answers : [] , conditions : []}
         addQuestionLoading = true;
         showEditQuestionFormFlag = false;
@@ -100,6 +101,7 @@
         }, 500)
     }
     const showEditQuestionForm = (e) => {
+        changeQuestion = true;
         showNewQuestionFormFlag = false;
         showEditQuestionFormFlag = true;
         question = e.detail.question;
@@ -133,7 +135,12 @@
         <div class="p-2">
             <div class="columns is-variable is-desktop">
                 <div class="column">
-                    <h3 class="title text-center is-size-4">ویرایش نظرسنجی</h3>
+                    <h3 class="title is-size-4">ویرایش نظرسنجی</h3>
+                </div>
+                <div class="column navbar-end">
+                    <div class="buttons">
+                        <a href="#/surveys/show-survey/" class="button is-rounded is-danger">بازگشت</a> 
+                    </div>
                 </div>
             </div>
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
@@ -192,6 +199,7 @@
                             bind:questions={questions}
                             bind:types={types}
                             bind:criterias={criterias}
+                            bind:changeQuestion={changeQuestion}
                             on:submit={ (e) => onShowTable(e)} 
                         /> 
                     </div>

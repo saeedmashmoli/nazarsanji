@@ -72,7 +72,7 @@
                         {#if !questionId}
                             <option value="">انتخاب کنید</option>
                         {/if}
-                        {#each questions.filter(q => q.typeId === 1 || q.typeId === 2) as question}
+                        {#each questions.filter(q => (q.typeId === 1 || q.typeId === 2) && q.id !== consQuestionId) as question}
                             <option value={question.id} selected={questionId === question.id}>{question.title}</option>
                         {/each}
                     </select>

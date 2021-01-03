@@ -4,7 +4,7 @@
     import Input from '../../components/Input.svelte';
     import Condition from './Condition.svelte';
     import Answer from './Answer.svelte';
-    import { onMount , createEventDispatcher , tick} from 'svelte';
+    import { afterUpdate , createEventDispatcher } from 'svelte';
     import ConditionTable from "./ConditionTable.svelte";
     import AnswerTable from "./AnswerTable.svelte";
     const dispatch = createEventDispatcher();
@@ -45,12 +45,15 @@
     export let editLoading = false; 
     export let addAnswerLoading = false;
     export let addConditionLoading = false;
-    onMount(async() => {
-        showEditAnswerFormFlag = false;
-        showCreateAnswerFormFlag = false;
-        showCreateConditionFormFlag = false;
-        showEditConditionFormFlag = false;
-    });
+    export let changeQuestion = false;
+    afterUpdate(() => {
+        if(changeQuestion){
+            showEditAnswerFormFlag = false;
+            showCreateAnswerFormFlag = false;
+            showCreateConditionFormFlag = false;
+            showEditConditionFormFlag = false;
+        }
+    })
 
     const createOrEditQuestion = async () => {
         editLoading = true;
@@ -105,6 +108,7 @@
         conditions = [...conditions, cond];
     }
     const showAnswerForm = () => {
+        changeQuestion = false;
         answer = {status : true}
         addAnswerLoading = true;
         showEditAnswerFormFlag = false;
@@ -114,11 +118,13 @@
         }, 500)
     }
     const showEditAnswerForm = async (e) => {
+        changeQuestion = false;
         answer = e.detail.answer;
         showCreateAnswerFormFlag = false;
         showEditAnswerFormFlag = true
     }
     const showConditionForm = () => {
+        changeQuestion = false;
         condition = {status : true}
         addConditionLoading = true;
         showEditConditionFormFlag = false;
@@ -128,6 +134,7 @@
         }, 500)
     }
     const showEditConditionForm = (e) => {
+        changeQuestion = false;
         condition = e.detail.condition;
         showCreateConditionFormFlag = false;
         showEditConditionFormFlag = true
@@ -199,9 +206,9 @@
             <button 
                 class:is-loading={addAnswerLoading} 
                 on:click={() => showAnswerForm()} 
-                class={`button ${showCreateAnswerFormFlag ? "is-danger" : "is-success"} is-rounded`}
+                class={`button ${(showCreateAnswerFormFlag) ? "is-danger" : "is-success"} is-rounded`}
                 >
-                {showCreateAnswerFormFlag ? "بستن فرم گزینه" : "افزودن گزینه"}
+                {(showCreateAnswerFormFlag) ? "بستن فرم گزینه" : "افزودن گزینه"}
             </button>
            
         </div>
@@ -211,7 +218,7 @@
             <AnswerTable bind:answers={answers} on:editAnswer={ (e) => { showEditAnswerForm(e) }} /> 
         </div>
     {/if}
-    {#if id && [1,2,4].includes(typeId) && (showCreateAnswerFormFlag || showEditAnswerFormFlag)}
+    {#if id && [1,2,4].includes(typeId) && (showCreateAnswerFormFlag || showEditAnswerFormFlag) }
         <div transition:slide|local={{duration : 500}}>
             <Answer 
                 questionId={id}
@@ -231,9 +238,9 @@
             <button 
                 class:is-loading={addConditionLoading} 
                 on:click={() => showConditionForm()} 
-                class={`button ${showCreateConditionFormFlag ? "is-danger" : "is-success"} is-rounded`}
+                class={`button ${(showCreateConditionFormFlag ) ? "is-danger" : "is-success"} is-rounded`}
             >
-                {showCreateConditionFormFlag ? "بستن فرم شرط" : "افزودن شرط"}
+                {(showCreateConditionFormFlag) ? "بستن فرم شرط" : "افزودن شرط"}
             </button>
         </div>
     {/if}
@@ -242,7 +249,7 @@
             <ConditionTable bind:conditions={conditions} on:editCondition={ (e) => showEditConditionForm(e)} /> 
         </div>
     {/if}
-    {#if showCreateConditionFormFlag || showEditConditionFormFlag }
+    {#if (showCreateConditionFormFlag || showEditConditionFormFlag) && !changeQuestion }
         <div transition:slide|local={{duration : 500}}>
             <Condition 
                 consQuestionId={id} 

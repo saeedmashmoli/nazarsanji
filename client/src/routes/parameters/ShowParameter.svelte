@@ -108,7 +108,7 @@
             <div class="column navbar-end">
                <div class="buttons">
                   {#if $userPermissions.includes("show-data")}
-                     <a href="#/tempaltes/show-tempalte" class="button is-info is-rounded">بخش قالب ها</a>
+                     <a href="#/tempaltes/show-tempalte/" class="button is-info is-rounded">بخش قالب ها</a>
                   {/if}
                   {#if $userPermissions.includes("create-parameter")}
                      <a href="#/parameters/create-parameter" class="button is-link is-rounded">افزودن پارامتر</a>

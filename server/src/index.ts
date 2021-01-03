@@ -53,6 +53,7 @@ import { ParameterResolver } from './resolvers/parameter';
 import { LogResolver } from './resolvers/log';
 import { CommentResolver } from './resolvers/comment';
 import { ConditionResolver } from './resolvers/condition';
+import { DashboardResolver } from './resolvers/dashboard';
 
 // jobs
 import { deleteTokensJobs } from './jobs/deleteExpireTokens';
@@ -138,7 +139,8 @@ const main = async () => {
                 SmsResolver,
                 LogResolver,
                 CommentResolver,
-                ConditionResolver
+                ConditionResolver,
+                DashboardResolver
             ],
             validate: false,
         }), 

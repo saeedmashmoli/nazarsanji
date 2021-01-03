@@ -172,8 +172,8 @@
             </div>
             <div class="column navbar-end">
                <div class="buttons">
-                  {#if $userPermissions.includes("show-call")}
-                     <a href="#/call/show-call" class="button is-info is-rounded">بخش بسته های تماس</a>
+                  {#if $userPermissions.includes("show-package")}
+                     <a href="#/packages/show-package/" class="button is-info is-rounded">بخش بسته های تماس</a>
                   {/if}
                   {#if $userPermissions.includes("create-call")}
                      <a href="#/calls/create-call" class="button is-link is-rounded">افزودن تماس</a>

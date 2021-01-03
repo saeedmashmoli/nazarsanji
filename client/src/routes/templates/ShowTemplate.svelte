@@ -119,7 +119,7 @@
             <div class="column navbar-end">
                <div class="buttons">
                   {#if $userPermissions.includes("show-parameter")}
-                     <a href="#/parameters/show-parameter" class="button is-info is-rounded">بخش پارامتر قالب</a>
+                     <a href="#/parameters/show-parameter/" class="button is-info is-rounded">بخش پارامتر قالب</a>
                   {/if}
                   {#if $userPermissions.includes("create-template")}
                      <a href="#/templates/create-template" class="button is-link is-rounded">افزودن قالب</a>

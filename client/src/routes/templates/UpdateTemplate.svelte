@@ -102,25 +102,22 @@
                         <p class="help is-danger">{checkErrors("tempNumber").message}</p>
                         <Input label="لینک " type="text" placeholder="لینک ارجاع به صفحه" bind:title={link} icon="fa-tags" />
                         <p class="help is-danger">{checkErrors("phone").message}</p>
-                        <div class="field" style="direction: ltr;display:block">
-                            <div style="float: right">
-                                <div class="status" >
-                                    <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
-                                    <label for="status"></label>
-                                </div>
-                                <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label for="status" class="label">وضعیت</label> 
-                                </div>
+                        <div class="field">
+                            <div class="d-inlineblock status" >
+                                <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
+                                <label for="status"></label>
                             </div>
-                            
-                            <div style="float: right"> 
-                                <div class="status" >
+                            <div class="d-inlineblock" style="position: relative; top: 5px">
+                                <label for class="label">وضعیت</label> 
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="d-inlineblock status" >
                                 <input id="isDynamicLink" type="checkbox" class="switch is-rounded is-info" bind:checked={isDynamicLink}>
                                 <label for="isDynamicLink"></label>
-                                </div>
-                                <div class="d-inlineblock" style="position: relative; top: 5px">
-                                    <label for class="label">ارسال توکن</label> 
-                                </div>
+                            </div>
+                            <div class="d-inlineblock" style="position: relative; top: 5px">
+                                <label for class="label">ارسال توکن</label> 
                             </div>
                         </div>
                     </div>
