@@ -1,34 +1,74 @@
 <script>
+    import { fly, slide } from 'svelte/transition';
     import { notLoading } from '../../utilis/functions';
-    import { createOrUpdateSurveyFn , getSurveyFn} from '../../Api/surveyApi';
+    import { createOrUpdateSurveyFn , getSurveyFn } from '../../Api/surveyApi';
+    import { getTypesForCreateOrUpdateQuestionFn } from '../../Api/questionApi';
     import {loading} from '../../stores';
     import { onMount } from 'svelte';
     import { replace , location } from 'svelte-spa-router';
     import Input from '../../components/Input.svelte';
+    import Toast from '../../components/Toast.svelte';
+    import Question from './Question.svelte';
+    import QuestionTable from './QuestionTable.svelte';
     export let id = parseInt($location.split('/').slice(-1)[0]);
     export let title = "";
+    export let criterias = [];
+    export let question = {
+        id : undefined,
+        title : undefined,
+        turn : undefined,
+        typeId : undefined,
+        shouldBe : undefined,
+        isUsedOk : undefined,
+        surveyId : undefined,
+        status : undefined,
+        answers : [],
+        conditions : []
+    };
     export let status = true;
-    export let errorMessages = [];        
+    export let questions = [];
+    export let types = [];
+    export let surveyId;
+    export let showNewQuestionFormFlag = false;
+    export let showEditQuestionFormFlag = false;
+    export let errorMessages = [];
+    export let isLoading = false;      
+    export let editLoading = false; 
+    export let addQuestionLoading = false;
+    export let conditions;       
     onMount( async () => {
         $loading = true;
-        const result = await getSurveyFn(id,false)
+        const result = await getSurveyFn(id,false);
+        const d = await getTypesForCreateOrUpdateQuestionFn();
+        if(d.status){
+            types = d.types;
+            criterias = d.criterias
+        }
         if(!Number.isInteger(id)){
             replace('/not-found')
         } else if(result.status){
+            
             const data = result.survey;
             status = data.status;
             title = data.title;
+            questions = data.questions;
+            surveyId = id;
         }else{
             replace('/not-found')
         }
         notLoading()
     })     
-    const updateSurvey = async () => {
-        const data = await createOrUpdateSurveyFn({title , status} ,id);
+    const editSurvey = async () => {
+        editLoading = true
+        const data = await createOrUpdateSurveyFn({title , status } , surveyId);
         if(data.status == true){
-            replace('/surveys/show-survey/')
+            setTimeout(() => {
+                editLoading = false;
+                window.pushToast(`نظرسنجی موردنظر با موفقیت ویرایش شد`, "green")
+            }, 500)
         }else{
-            errorMessages = data.errors
+            errorMessages = data.errors;
+            isLoading = false;
         }
     }
     $: checkErrors = (field) => {
@@ -41,11 +81,51 @@
         })
         return i;
     }
+    const onShowTable = async (e) => {
+        const {newCreate} = e.detail;
+        const qu = e.detail.question;
+        if(!newCreate){
+            showNewQuestionFormFlag = false;
+            questions = questions.filter(q => q.id !== qu.id);
+        }
+        questions = [...questions, qu];
+    }
+    const showQuestionForm = () => {
+        question = {status : true , answers : [] , conditions : []}
+        addQuestionLoading = true;
+        showEditQuestionFormFlag = false;
+        showNewQuestionFormFlag = !showNewQuestionFormFlag;
+        setTimeout(() => {
+            addQuestionLoading = false;
+        }, 500)
+    }
+    const showEditQuestionForm = (e) => {
+        showNewQuestionFormFlag = false;
+        showEditQuestionFormFlag = true;
+        question = e.detail.question;
+    }
 </script>
+<style>
+    .main-button {
+        margin-top: 3%;
+        text-align: center;
+    }
+    .buttons{
+      direction: ltr;
+    }
+    @media only screen and (max-width: 767px) {
+        .buttons{
+            direction: rtl;
+        }
+    }
+    .margin-auto {
+        margin: auto;
+    }
+</style>
 <svelte:head>
 	<title>ویرایش نظرسنجی</title>
 </svelte:head>
-
+<Toast />
 <div class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile main-container">
     {#if $loading}
         <progress class="progress is-small is-primary" max="100">15%</progress>
@@ -71,10 +151,51 @@
                             </div>
                         </div>
                     </div>
-                    <div class="field is-grouped submit-parent" >
-                            <button on:click={updateSurvey} class="button is-link">اعمال تغییرات</button>
+                    <div class="main-button">
+                        <div class="field is-grouped submit-parent">
+                            <button 
+                                class:is-loading={editLoading} 
+                                on:click={editSurvey} 
+                                class="button is-info margin-auto is-rounded"
+                                >
+                                ویرایش
+                            </button>
+                            <button 
+                                on:click={showQuestionForm} 
+                                class:is-loading={addQuestionLoading} 
+                                class={`button ${showNewQuestionFormFlag ? "is-danger" : "is-success"} margin-auto is-rounded`}
+                            >
+                                {showNewQuestionFormFlag ? "بستن فرم سوال" : "افزودن سوال"}
+                            </button>
+                        </div>
                     </div>
+                    
                 </div>
+                {#if questions.length > 0 }
+                    <div transition:slide|local={{duration : 500}}>
+                        <QuestionTable bind:questions={questions} on:editQuestion={ (e) => showEditQuestionForm(e)} /> 
+                    </div>
+                {/if}
+                {#if showNewQuestionFormFlag || showEditQuestionFormFlag }
+                    <div transition:slide|local={{duration : 500}}>
+                        <Question 
+                            {surveyId} 
+                            bind:id ={question.id}
+                            bind:title={question.title}
+                            bind:turn={question.turn}
+                            bind:typeId={question.typeId}
+                            bind:shouldBe={question.shouldBe}
+                            bind:isUsedOk={question.isUsedOk}
+                            bind:status={question.status}
+                            bind:answers={question.answers}
+                            bind:conditions={question.conditions}
+                            bind:questions={questions}
+                            bind:types={types}
+                            bind:criterias={criterias}
+                            on:submit={ (e) => onShowTable(e)} 
+                        /> 
+                    </div>
+                {/if}
             </div>
         </div>
     {/if}

@@ -5,13 +5,13 @@ import {
     activeOrDeactiveQuestionMutation,
     getQuestionsMutation,
     getQuestionQuery,
-    getSurveysAndTypesForCreateQuestion
+    getTypesForCreateQuestion
 } from '../graphql/question';
-export const getSurveysAndTypesForCreateOrUpdateQuestionFn = async() => {
+export const getTypesForCreateOrUpdateQuestionFn = async() => {
     const response = await client.query({
-        query: getSurveysAndTypesForCreateQuestion
+        query: getTypesForCreateQuestion
     })
-    return response.data.getSurveysAndTypesForCreateQuestion
+    return response.data.getTypesForCreateQuestion
 }
 export const createOrUpdateQuestionFn = async(input, id = null) => {
     if (id) {

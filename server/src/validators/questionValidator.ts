@@ -13,13 +13,13 @@ export const questionValidator = async (input: QuestionInput | null = null , id 
         }
     }
     if(input){
-        if(input.title.length === 0 ){
+        if(input.title?.trim() === "" || input.title === undefined){
             errors.push({
                 field: 'title',
                 message : 'فیلد عنوان الزامی است'
             });
         }
-        if(input.turn === null ){
+        if(input.turn === undefined ){
             errors.push({
                 field: 'turn',
                 message : 'فیلد نوبت نمایش الزامی است'

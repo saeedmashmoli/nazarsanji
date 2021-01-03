@@ -10,4 +10,6 @@ export let questions = writable([]);
 export let comments = writable([]);
 export let conditions = writable([]);
 export let question = writable(null);
-export let smsId = writable(null)
+export let smsId = writable(null);
+export let answers = writable([]);
+export let selectAnswers = writable([]);

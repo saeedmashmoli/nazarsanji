@@ -29,6 +29,6 @@
         پاسخ: {comment.answerId ? comment.answer.title : ""}
     </p>
     <p class="comment-text">
-        توضیحات: {comment.text ? comment.text : ""}
+        متن کامنت: {comment.text ? comment.text : ""}
     </p>
 </div>

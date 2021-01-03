@@ -98,7 +98,7 @@ export class ConditionResolver {
     }
 
     @Mutation(() => ConditionsResponse)
-    @UseMiddleware(isAuth,isCan("show-condition" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getConditions(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -122,7 +122,7 @@ export class ConditionResolver {
         return {status : true , docs : {conditions , total , page : currentPage , pages}}
     }
     @Mutation(() => ConditionResponse)
-    @UseMiddleware(isAuth,isCan("show-condition" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getCondition(
         @Arg('id' , () => Int) id : number
     ) : Promise<ConditionResponse>{
@@ -133,7 +133,7 @@ export class ConditionResolver {
     }
 
     @Mutation(() => ConditionResponse)
-    @UseMiddleware(isAuth,isCan("create-condition" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async createCondition(
         @Arg('input') input: ConditionInput,
         @Ctx() {payload} : MyContext
@@ -143,11 +143,11 @@ export class ConditionResolver {
         const condition = await Condition.create({...input}).save();
 
         await createLog(payload?.userId as number , 13 , "create" , condition , condition.id);
-        return { status: true };
+        return { status: true , condition};
     }
 
     @Mutation(() => ConditionResponse)
-    @UseMiddleware(isAuth,isCan("update-condition" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async updateCondition(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: ConditionInput,
@@ -158,11 +158,11 @@ export class ConditionResolver {
         await Condition.update({id} , {...input});
         const condition = await Condition.findOne({id});
         await createLog(payload?.userId as number , 13 , "edit" , condition , id);
-        return { status: true };
+        return { status: true ,condition};
     }
 
     @Mutation(() => ConditionResponse)
-    @UseMiddleware(isAuth,isCan("status-condition" , "Condition"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async activeOrDeactiveCondition(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,

@@ -57,7 +57,7 @@ export class AnswerResolver {
 
 
     @Mutation(() => AnswersResponse)
-    @UseMiddleware(isAuth,isCan("show-answer" , "Answer"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getAnswers(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -84,7 +84,7 @@ export class AnswerResolver {
         return {status : true , docs : { answers , total , page : currentPage , pages }}
     }
     @Query(() => AnswerResponse)
-    @UseMiddleware(isAuth,isCan("show-answer" , "Answer"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getAnswer(
         @Arg('id' , () => Int) id : number
     ) : Promise<AnswerResponse>{
@@ -95,7 +95,7 @@ export class AnswerResolver {
     }
 
     @Mutation(() => AnswerResponse)
-    @UseMiddleware(isAuth,isCan("create-answer" , "Answer"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async createAnswer(
         @Arg('input') input: AnswerInput,
         @Ctx() {payload} : MyContext
@@ -104,11 +104,11 @@ export class AnswerResolver {
         if(errors?.length) return { status : false , errors};
         const answer = await Answer.create({...input}).save();
         await createLog(payload?.userId as number , 3 , "create" , answer , answer.id);
-        return {status : true};
+        return {status : true , answer};
     }
 
     @Mutation(() => AnswerResponse)
-    @UseMiddleware(isAuth,isCan("update-answer" , "Answer"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async updateAnswer(
         @Arg('id' , () => Int) id: number,
         @Arg('input') input: AnswerInput,
@@ -119,11 +119,11 @@ export class AnswerResolver {
         await Answer.update({id},{...input});
         const answer = await Answer.findOne({id});
         await createLog(payload?.userId as number , 3 , "edit" , answer , id);
-        return {status : true };
+        return {status : true , answer };
     }
 
     @Mutation(() => AnswerResponse)
-    @UseMiddleware(isAuth,isCan("status-answer" , "Answer"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async activeOrDeactiveAnswer(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,

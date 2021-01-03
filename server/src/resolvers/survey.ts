@@ -1,5 +1,5 @@
 import { Survey } from '../entities/Survey';
-import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver, UseMiddleware  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
 import { isAuth } from '../middlewares/isAuthMiddleware';
 import {isCan} from '../middlewares/isCanMiddleware';
@@ -8,6 +8,7 @@ import { surveyValidator } from '../validators/surveyValidator';
 import { getConnection } from 'typeorm';
 import { MyContext } from '../types';
 import { createLog } from '../constants/functions';
+import { Question } from '../entities/Question';
 
 
 
@@ -42,8 +43,12 @@ export class SurveysResponse {
     docs?: PaginatedSurveys;
 }
 
-@Resolver()
+@Resolver(Survey)
 export class SurveyResolver {
+    @FieldResolver(() => [Question])
+    async questions( 
+      @Root() survey : Survey,
+    ){return await Question.find({where : {surveyId : survey.id}})}
     
     @Mutation(() => SurveysResponse)
     @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
@@ -72,7 +77,7 @@ export class SurveyResolver {
 
         return {status : true , docs : {surveys , total , page : currentPage , pages}}
     }
-    @Query(() => SurveyResponse)
+    @Mutation(() => SurveyResponse)
     @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getSurvey(
         @Arg('id' , () => Int) id : number
@@ -94,7 +99,7 @@ export class SurveyResolver {
         const survey = await Survey.create({...input}).save();
         await createLog(payload?.userId as number , 1 , "create" , survey , survey.id);
 
-        return { status: true };
+        return { status: true , survey };
     }
 
     @Mutation(() => SurveyResponse)

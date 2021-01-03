@@ -55,12 +55,16 @@ export const createConditionMutation = gql `
                 status : $status
             }
         ){
+            condition {
+                ...ConditionFragment
+            }
             status
             errors{
                 ...ErrorFragment
             }
         } 
     }
+    ${ConditionFragments.condition}
     ${ErrorFragments.error}
 `
 export const updateConditionMutation = gql `
@@ -82,12 +86,16 @@ export const updateConditionMutation = gql `
             },
             id : $id
         ){
+            condition {
+                ...ConditionFragment
+            }
             status
             errors{
                 ...ErrorFragment
             }
         } 
     }
+    ${ConditionFragments.condition}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveConditionMutation = gql `

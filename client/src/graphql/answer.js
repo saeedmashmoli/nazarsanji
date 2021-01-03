@@ -30,12 +30,16 @@ export const createAnswerMutation = gql `
                 flag : $flag
             }
         ){
+            answer {
+                ...AnswerFragment
+            }
             status
             errors {
                 ...ErrorFragment
             }
         }
     }
+    ${AnswerFragments.answer}
     ${ErrorFragments.error}
 `
 export const updateAnswerMutation = gql `
@@ -60,12 +64,16 @@ export const updateAnswerMutation = gql `
             }, 
             id : $id
         ){
+            answer {
+                ...AnswerFragment
+            }
             status
             errors {
                 ...ErrorFragment
             }
         }
     }
+    ${AnswerFragments.answer}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveAnswerMutation = gql `

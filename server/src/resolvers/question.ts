@@ -12,6 +12,7 @@ import { MyContext } from '../types';
 import { Condition } from '../entities/Condition';
 import { Answer } from '../entities/Answer';
 import { createLog } from '../constants/functions';
+import { Criteria } from '../entities/Criteria';
 
 @ObjectType()
 export class PaginatedQuestions {
@@ -58,10 +59,10 @@ export class SurveysAndTypesResponse {
     errors?: FieldError[];
     @Field(() => Boolean)
     status!: Boolean;
-    @Field(() => [Survey] , { nullable : true })
-    surveys?: Survey[];
     @Field(() => [Type] , { nullable : true })
     types?: Type[];
+    @Field(() => [Criteria] , { nullable : true })
+    criterias?: Criteria[];
 }
 
 @Resolver(Question)
@@ -87,14 +88,14 @@ export class QuestionResolver {
     ){return await Condition.find({where : {consQuestionId : question.id , status : true}})}
 
     @Query(() => SurveysAndTypesResponse)
-    async getSurveysAndTypesForCreateQuestion() : Promise<SurveysAndTypesResponse> {
+    async getTypesForCreateQuestion() : Promise<SurveysAndTypesResponse> {
         const types = await Type.find({where : {status : true}})
-        const surveys = await Survey.find({where : {status : true}});
-        return { status : true , types , surveys };
+        const criterias = await Criteria.find({where : {status : true}})
+        return { status : true , types , criterias};
     }
 
     @Query(() => QuestionResponse)
-    @UseMiddleware(isAuth,isCan("show-question" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getQuestion(
         @Arg('id' , () => Int) id : number
     ) : Promise<QuestionResponse>{
@@ -105,7 +106,7 @@ export class QuestionResolver {
     }
 
     @Mutation(() => QuestionsResponse)
-    @UseMiddleware(isAuth,isCan("show-question" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async getQuestions(
         @Arg('limit', () => Int, {nullable : true}) limit: number,
         @Arg('page', () => Int,{nullable : true}) page: number,
@@ -134,7 +135,7 @@ export class QuestionResolver {
     }
 
     @Mutation(() => QuestionResponse)
-    @UseMiddleware(isAuth,isCan("create-question" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async createQuestion(
         @Arg('input') input: QuestionInput,
         @Ctx() {payload} : MyContext
@@ -143,11 +144,11 @@ export class QuestionResolver {
         if(errors?.length) return { status : false , errors};
         const question = await Question.create({...input}).save();
         await createLog(payload?.userId as number , 2 , "create" , question , question.id);
-        return {status : true };
+        return {status : true , question};
     }
 
     @Mutation(() => QuestionResponse)
-    @UseMiddleware(isAuth,isCan("update-question" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async updateQuestion(
         @Arg('id' ,() => Int) id: number,
         @Arg('input') input: QuestionInput,
@@ -158,11 +159,11 @@ export class QuestionResolver {
         await Question.update({id},{...input});
         const question = await Question.findOne({id});
         await createLog(payload?.userId as number , 2 , "edit" , question , id);
-        return {status : true};
+        return {status : true , question};
     }
 
     @Mutation(() => QuestionResponse)
-    @UseMiddleware(isAuth,isCan("status-question" , "Question"))
+    @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))
     async activeOrDeactiveQuestion(
         @Arg('id' , () => Int) id: number,
         @Arg('status') status: boolean,

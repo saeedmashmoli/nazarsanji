@@ -48,7 +48,6 @@
         const c = await getCallFn(id)
         const p = await getOptionsForCreateAndUpdateCallFn();
         selectPackages = p;
-        // console.log(c)
         if(c.status){
             const call =  c.call
             issue = call.issue;

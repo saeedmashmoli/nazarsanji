@@ -111,36 +111,6 @@
                             </a>
                         </li>
                     {/if} 
-                    {#if $userPermissions.includes("show-question")}
-                        <li>
-                            <!-- svelte-ignore a11y-missing-attribute -->
-                            <a 
-                            on:click={() => changeLink("/questions/show-question/")}
-                            class:is-active={checkRoute(["/questions/show-question/","/questions/create-question","/questions/update-question"])}
-                            > <i class="fas fa-question icon"></i>سوالات
-                            </a>
-                        </li>
-                    {/if} 
-                    {#if $userPermissions.includes("show-answer")}
-                        <li>
-                            <!-- svelte-ignore a11y-missing-attribute -->
-                            <a 
-                            on:click={() => changeLink("/answers/show-answer/")}
-                            class:is-active={checkRoute(["/answers/show-answer/","/answers/create-answer","/answers/update-answer"])}
-                            > <i class="fas fa-reply icon"></i>گزینه ها
-                            </a>
-                        </li>
-                    {/if} 
-                    {#if $userPermissions.includes("show-condition")}
-                        <li>
-                            <!-- svelte-ignore a11y-missing-attribute -->
-                            <a 
-                            on:click={() => changeLink("/conditions/show-condition/")}
-                            class:is-active={checkRoute(["/conditions/show-condition/","/conditions/create-condition","/conditions/update-condition"])}
-                            > <i class="fas fa-disease icon"></i>شروط نمایش سوالات
-                            </a>
-                        </li>
-                    {/if} 
                     {#if $userPermissions.includes("show-call")}
                         <li>
                             <!-- svelte-ignore a11y-missing-attribute -->

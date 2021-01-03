@@ -17,15 +17,15 @@
 	import ShowPermission from './routes/permissions/ShowPermission.svelte';
 	import CreatePermission from './routes/permissions/CreatePermission.svelte';
 	import UpdatePermission from './routes/permissions/UpdatePermission.svelte';
-	import ShowQuestion from './routes/questions/ShowQuestion.svelte';
-	import CreateQuestion from './routes/questions/CreateQuestion.svelte';
-	import UpdateQuestion from './routes/questions/UpdateQuestion.svelte';
+	// import ShowQuestion from './routes/questions/ShowQuestion.svelte';
+	// import CreateQuestion from './routes/questions/CreateQuestion.svelte';
+	// import UpdateQuestion from './routes/questions/UpdateQuestion.svelte';
 	import ShowSurvey from './routes/surveys/ShowSurvey.svelte';
 	import CreateSurvey from './routes/surveys/CreateSurvey.svelte';
 	import UpdateSurvey from './routes/surveys/UpdateSurvey.svelte';
-	import ShowAnswer from './routes/answers/ShowAnswer.svelte';
-	import CreateAnswer from './routes/answers/CreateAnswer.svelte';
-	import UpdateAnswer from './routes/answers/UpdateAnswer.svelte';
+	// import ShowAnswer from './routes/answers/ShowAnswer.svelte';
+	// import CreateAnswer from './routes/answers/CreateAnswer.svelte';
+	// import UpdateAnswer from './routes/answers/UpdateAnswer.svelte';
 	import ShowUser from './routes/users/ShowUser.svelte';
 	import CreateUser from './routes/users/CreateUser.svelte';
 	import UpdateUser from './routes/users/UpdateUser.svelte';
@@ -45,9 +45,9 @@
 	import ShowTemplate from './routes/templates/ShowTemplate.svelte';
 	import CreateTemplate from './routes/templates/CreateTemplate.svelte';
 	import UpdateTemplate from './routes/templates/UpdateTemplate.svelte';
-	import ShowCondition from './routes/conditions/ShowCondition.svelte';
-	import CreateCondition from './routes/conditions/CreateCondition.svelte';
-	import UpdateCondition from './routes/conditions/UpdateCondition.svelte';
+	// import ShowCondition from './routes/conditions/ShowCondition.svelte';
+	// import CreateCondition from './routes/conditions/CreateCondition.svelte';
+	// import UpdateCondition from './routes/conditions/UpdateCondition.svelte';
 	import ShowComment from './routes/comments/ShowComment.svelte';
 	import ShowSms from './routes/sms/ShowSms.svelte';
 	import CreateSms from './routes/sms/CreateSms.svelte';
@@ -59,12 +59,6 @@
 	import ServerError from './routes/errors/ServerError.svelte';
 	import Nav from './components/Nav.svelte';
    	import SideBar from './components/SideBar.svelte';
-
-
-
-
-
-
 	let loading = true;
 	let deleteNav = false;
 	onMount(async() => {
@@ -114,12 +108,6 @@
 		"/users/show-user/*" : wrap({ asyncComponent : () => ShowUser , userData : { permit : "show-user" , isAuth : true } }),
 		"/users/create-user" : wrap({ asyncComponent : () => CreateUser , userData : { permit : "create-user" , isAuth : true } }),
 		"/users/update-user/:id" : wrap({ asyncComponent : () => UpdateUser , userData : { permit : "update-user" , isAuth : true } }),
-		"/questions/show-question/*" : wrap({ asyncComponent : () => ShowQuestion , userData : { permit : "show-question" , isAuth : true } }),
-		"/questions/create-question" : wrap({ asyncComponent : () => CreateQuestion , userData : { permit : "create-question" , isAuth : true } }),
-		"/questions/update-question/:id" : wrap({ asyncComponent : () => UpdateQuestion ,  userData : { permit : "update-question" , isAuth : true } }),
-		"/conditions/show-condition/*" : wrap({ asyncComponent : () => ShowCondition , userData : { permit : "show-condition" , isAuth : true } }),
-		"/conditions/create-condition" : wrap({ asyncComponent : () => CreateCondition , userData : { permit : "create-condition" , isAuth : true } }),
-		"/conditions/update-condition/:id" : wrap({ asyncComponent : () => UpdateCondition ,  userData : { permit : "update-condition" , isAuth : true } }),
 		"/calls/show-call/*" : wrap({ asyncComponent : () => ShowCall , userData : { permit : "show-call" , isAuth : true }  }),
 		"/calls/create-call" : wrap({ asyncComponent : () => CreateCall , userData : { permit : "create-call" , isAuth : true } }),
 		"/calls/update-call/:id" : wrap({ asyncComponent : () => UpdateCall , userData : { permit : "update-call" , isAuth : true } }),
@@ -137,9 +125,6 @@
 		"/packages/show-package/*" : wrap({ asyncComponent : () => ShowPackage , userData : { permit : "show-package" , isAuth : true }  }),
 		"/packages/create-package" : wrap({ asyncComponent : () => CreatePackage , userData : { permit : "create-package" , isAuth : true } }),
 		"/packages/update-package/:id" : wrap({ asyncComponent : () => UpdatePackage , userData : { permit : "update-package" , isAuth : true } }),
-		"/answers/show-answer/*" : wrap({ asyncComponent : () => ShowAnswer , userData : { permit : "show-answer" , isAuth : true } }),
-		"/answers/create-answer" : wrap({ asyncComponent : () => CreateAnswer , userData : { permit : "create-answer" , isAuth : true } }),
-		"/answers/update-answer/:id" : wrap({ asyncComponent : () => UpdateAnswer , userData : { permit : "update-answer" , isAuth : true } }),
 		"/surveys/show-survey/*" : wrap({ asyncComponent : () => ShowSurvey , userData : { permit : "show-survey" , isAuth : true } }),
 		"/surveys/create-survey" : wrap({ asyncComponent : () => CreateSurvey , userData : { permit : "create-survey" , isAuth : true } }),
 		"/surveys/update-survey/:id" : wrap({ asyncComponent : () => UpdateSurvey , userData : { permit : "update-survey" , isAuth : true } }),

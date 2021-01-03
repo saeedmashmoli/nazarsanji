@@ -30,19 +30,19 @@ export class UserRegisterInput {
 
 @InputType()
 export class QuestionInput {
-    @Field()
-    title!: string;
+    @Field({nullable : true})
+    title?: string;
     @Field(() => Int , {nullable : true})
     turn?: number;
     @Field( () => Int , {nullable : true})
     typeId?: number;
     @Field( () => Int , {nullable : true})
     surveyId?: number;
-    @Field()
+    @Field({nullable : true})
     shouldBe?: boolean;
-    @Field()
+    @Field({nullable : true})
     isUsedOk?: boolean;
-    @Field()
+    @Field({nullable : true})
     status?: boolean;
 }
 @InputType()

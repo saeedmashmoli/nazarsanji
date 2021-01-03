@@ -21,10 +21,6 @@ export class initialData1607679363838 implements MigrationInterface {
             ('create-survey','ایجاد نظرسنجی', 'Survey'),
             ('update-survey','ویرایش نظرسنجی', 'Survey'),
             ('status-survey','تغییر وضعیت نظرسنجی', 'Survey'),
-            ('show-question','نمایش سوالات نظرسنجی ها', 'Question'),
-            ('create-question','ایجاد سوالات نظرسنجی', 'Question'),
-            ('update-question','ویرایش سوالات نظرسنجی', 'Question'),
-            ('status-question','تغییر وضعیت سوالات نظرسنجی', 'Question'),
             ('show-parameter','نمایش پارامتر ها', 'Parameter'),
             ('create-parameter','ایجاد پارامتر', 'Parameter'),
             ('update-parameter','ویرایش پارامتر', 'Parameter'),
@@ -37,14 +33,6 @@ export class initialData1607679363838 implements MigrationInterface {
             ('create-user','ایجاد کاربر', 'User'),
             ('update-user','ویرایش کاربر', 'User'),
             ('status-user','تغییر وضعیت کاربر', 'User'),
-            ('show-answer','نمایش گزینه ها', 'Answer'),
-            ('create-answer','ایجاد گزینه', 'Answer'),
-            ('update-answer','ویرایش گزینه', 'Answer'),
-            ('status-answer','تغییر وضعیت گزینه', 'Answer'),
-            ('show-condition','نمایش شروط نمایش سوالات', 'Condition'),
-            ('create-condition','ایجاد شروط نمایش سوالات', 'Condition'),
-            ('update-condition','ویرایش شرط نمایش سوالات', 'Condition'),
-            ('status-condition','تغییر وضعیت شروط نمایش سوالات', 'Condition'),
             ('show-call','نمایش تماس ها', 'Call'),
             ('create-call','ایجاد تماس', 'Call'),
             ('update-call','ویرایش تماس', 'Call'),
@@ -65,7 +53,7 @@ export class initialData1607679363838 implements MigrationInterface {
             ('show-report','گزارشات', 'Report'),
             ('show-log','نمایش تاریخچه', 'Log');`);
         await queryRunner.query(
-            "insert into permission_role (`roleId` ,`permissionId`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),(1,34),(1,35),(1,36),(1,37),(1,38),(1,39),(1,40),(1,41),(1,42),(1,43),(1,44),(1,45),(1,46),(1,47),(1,48),(1,49),(1,50),(1,51),(1,52),(1,53),(1,54),(1,55);"
+            "insert into permission_role (`roleId` ,`permissionId`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),(1,34),(1,35),(1,36),(1,37),(1,38),(1,39),(1,40),(1,41),(1,42),(1,43);"
         );
 
         await queryRunner.query(`

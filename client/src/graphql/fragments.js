@@ -57,15 +57,6 @@ export const UserFragment = {
         ${RoleFragments.role}
     `
 };
-export const SurveyFragments = {
-    survey: gql `
-        fragment SurveyFragment on Survey {
-            id
-            title
-            status
-        }
-  `
-};
 export const CriteriaFragments = {
     criteria: gql `
         fragment CriteriaFragment on Criteria {
@@ -103,9 +94,6 @@ export const ConditionFragments = {
             consQuestion{
                 title
                 id
-                survey {
-                    ...SurveyFragment
-                }
             }
             questionId
             question {
@@ -120,7 +108,6 @@ export const ConditionFragments = {
                 ...CriteriaFragment
             }
         }
-        ${SurveyFragments.survey}
         ${AnswerFragments.answer}
         ${CriteriaFragments.criteria}
     `
@@ -139,9 +126,6 @@ export const QuestionFragments = {
             shouldBe
             isUsedOk
             surveyId
-            survey {
-                ...SurveyFragment
-            }
             answers {
                 ...AnswerFragment
             }
@@ -152,9 +136,25 @@ export const QuestionFragments = {
         ${AnswerFragments.answer}
         ${ConditionFragments.condition}
         ${TypeFragments.type}
-        ${SurveyFragments.survey}
   `
 };
+export const SurveyFragments = {
+    survey: gql `
+        fragment SurveyFragment on Survey {
+            id
+            title
+            status
+            questions {
+                ...QuestionFragment
+            }
+        }
+        ${QuestionFragments.question}
+  `
+};
+
+
+
+
 
 
 
@@ -292,6 +292,9 @@ export const CommentFragments = {
         fragment CommentFragment on Comment {
             id
             smsId
+            sms {
+                ...SmsFragment
+            }
             questionId
             question {
                 ...QuestionFragment
@@ -304,6 +307,7 @@ export const CommentFragments = {
             status
             createdAt
         }
+        ${SmsFragments.sms}
         ${AnswerFragments.answer}
         ${QuestionFragments.question}
     `

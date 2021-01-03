@@ -4,12 +4,16 @@ import { SurveyFragments, ErrorFragments } from './fragments'
 export const createSurveyMutation = gql `
     mutation CreateSurvey($title : String! , $status : Boolean!){
         createSurvey(input : {title : $title , status : $status }){
+            survey {
+                ...SurveyFragment
+            }
             status
             errors{
                 ...ErrorFragment
             }
         }
     }
+    ${SurveyFragments.survey}
     ${ErrorFragments.error}
 `
 export const updateSurveyMutation = gql `
@@ -70,8 +74,8 @@ export const getSurveysMutation = gql `
     ${ErrorFragments.error}
     ${SurveyFragments.survey}
 `
-export const getSurveyQuery = gql `
-    query GetSurvey($id : Int!){
+export const getSurveyMutation = gql `
+    mutation GetSurvey($id : Int!){
         getSurvey(id : $id){
             status
             errors {

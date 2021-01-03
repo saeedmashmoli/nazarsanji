@@ -1,29 +1,28 @@
 import { gql } from '@apollo/client';
-import { QuestionFragments, ErrorFragments, TypeFragments, SurveyFragments } from './fragments'
+import { QuestionFragments, ErrorFragments, TypeFragments, CriteriaFragments } from './fragments'
 
-export const getSurveysAndTypesForCreateQuestion = gql `
-    query getSurveysAndTypesForCreateQuestion{
-        getSurveysAndTypesForCreateQuestion{
+export const getTypesForCreateQuestion = gql `
+    query getTypesForCreateQuestion{
+        getTypesForCreateQuestion{
             status
-            surveys{
-                ...SurveyFragment
-            }
             types {
                 ...TypeFragment
             }
-
+            criterias {
+                ...CriteriaFragment
+            }
         }
     }
+    ${CriteriaFragments.criteria}
     ${TypeFragments.type}
-    ${SurveyFragments.survey}
 `;
 export const createQuestionMutation = gql `
     mutation CreateQuestion(
-        $title : String!,
+        $title : String,
         $turn : Int,  
-        $status : Boolean!, 
-        $shouldBe : Boolean!,
-        $isUsedOk : Boolean!, 
+        $status : Boolean, 
+        $shouldBe : Boolean,
+        $isUsedOk : Boolean, 
         $typeId : Int, 
         $surveyId : Int
     ){
@@ -38,22 +37,26 @@ export const createQuestionMutation = gql `
                 isUsedOk : $isUsedOk
             }
         ){
+            question {
+                ...QuestionFragment
+            }
             status
             errors{
                 ...ErrorFragment
             }
         } 
     }
+    ${QuestionFragments.question}
     ${ErrorFragments.error}
 `
 export const updateQuestionMutation = gql `
     mutation UpdateQuestion(
-        $title : String!, 
+        $title : String, 
         $turn : Int,
-        $status : Boolean!, 
+        $status : Boolean, 
         $id : Int!, 
-        $shouldBe : Boolean!, 
-        $isUsedOk : Boolean!, 
+        $shouldBe : Boolean, 
+        $isUsedOk : Boolean, 
         $typeId : Int, 
         $surveyId : Int
     ){
@@ -69,12 +72,16 @@ export const updateQuestionMutation = gql `
             }, 
             id : $id
         ){
+            question {
+                ...QuestionFragment
+            }
             status
             errors{
                 ...ErrorFragment
             }
         } 
     }
+    ${QuestionFragments.question}
     ${ErrorFragments.error}
 `
 export const activeOrDeactiveQuestionMutation = gql `

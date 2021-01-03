@@ -42,7 +42,6 @@
          isDynamicLink
       }
       const data = await getTemplatesFn(input ,currentPage , limit);
-      console.log(data)
       if(data.status){
          const res  = data.docs
          templates = res.templates

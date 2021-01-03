@@ -82,8 +82,7 @@ export class CallResolver {
         @Arg('input') input: CallSearchInput,
     ) : Promise<CallsResponse>{
         const { status , issue , minorIssue , exactIssue , name , mobile , phone , callCode , year , month ,endDate,beginDate,beginTime ,endTime} = input;
-        console.log(beginDate)
-        
+
         let bDate = await convertJalaaliToGregorianDate(beginDate + (beginTime ? " "+beginTime : " 00:00:00") as string);
         let eDate = await convertJalaaliToGregorianDate(endDate + (endTime ? " "+endTime : " 23:59:59") as string);
 

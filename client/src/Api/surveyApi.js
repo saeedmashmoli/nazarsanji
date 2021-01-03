@@ -4,7 +4,7 @@ import {
     updateSurveyMutation,
     activeOrDeactiveSurveyMutation,
     getSurveysMutation,
-    getSurveyQuery
+    getSurveyMutation
 } from '../graphql/survey';
 export const createOrUpdateSurveyFn = async(input, id = null) => {
     if (id) {
@@ -49,8 +49,8 @@ export const getSurveysFn = async(input, page, limit) => {
     return response.data.getSurveys
 }
 export const getSurveyFn = async(id) => {
-    const response = await client.query({
-        query: getSurveyQuery,
+    const response = await client.mutate({
+        mutation: getSurveyMutation,
         variables: {
             id
         }
