@@ -200,14 +200,15 @@ export const CallFragments = {
             status
             customerId
             customer {
-                ...CustomerFragment
+                name
+                mobile
+                phone
             }
             packages {
-                ...PackageFragment
+                title
+                id
             }
         }
-        ${PackageFragments.package}
-        ${CustomerFragments.customer}
     `
 };
 

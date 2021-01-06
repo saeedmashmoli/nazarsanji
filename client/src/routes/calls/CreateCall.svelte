@@ -78,6 +78,22 @@
         packages = input.detail;
     }
 </script>
+<style>
+    @media only screen and (max-width: 767px) {
+        .main-div{
+            width: 100% !important;
+            margin-top: 4% !important;
+        }
+    }
+    .main-div{
+      display: inline-block !important;
+      width: 48%;
+      vertical-align: top;
+   }
+   .submit-parent {
+       margin-top: 3%;
+   }
+</style>
 <svelte:head>
 	<title>افزودن تماس</title>
 </svelte:head>
@@ -92,15 +108,14 @@
                     <h3 class="title text-center is-size-4">افزودن تماس</h3>
                 </div>
             </div>
-            <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                <div class="box">
-                    <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input label="موضوع اصلی" type="text" placeholder="موضوع اصلی مشاوره؟" bind:title={issue} icon="fa-tasks" />
-                        <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
-                        <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
+            <div style="margin: auto;" class="column is-12-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                <div class="box back-eee">
+                    <div class="main-div">
                         <div class="field">
                             <label for="customer" class="label">انتخاب مشتری</label>
-                            <Select noOptionsMessage="نام مشتری را وارد کنید" 
+                            <Select 
+                                style="height : 39px !important"
+                                noOptionsMessage="نام مشتری را وارد کنید" 
                                 loadOptions={loadSelectOptionsCustomers} 
                                 {getSelectionLabel} 
                                 {optionIdentifier} 
@@ -110,6 +125,17 @@
                             />
                             <p class="help is-danger">{checkErrors("customerId").message}</p>
                         </div>
+                        <Input label="موضوع اصلی" type="text" placeholder="موضوع اصلی مشاوره؟" bind:title={issue} icon="fa-tasks" />
+
+                        <Input label="موضوع دقیق" type="text" placeholder="موضوع دقیق مشاوره؟" bind:title={exactIssue} icon="fa-tasks" />
+                        <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
+                        <Input label="تعرفه سر خط" type="number" placeholder="تعرفه سر خط؟" bind:title={callPrice} icon="fa-money-check" />
+                        <Input label="زمان مکالمه" type="number" placeholder="زمان مکالمه؟" bind:title={callTime} icon="fa-clock" />
+                        <Input label="سال" type="text" placeholder="سال مکالمه؟" bind:title={year} icon="fa-calendar" />
+                        <Input label="مبلغ مکالمه" type="number" placeholder="مبلغ مکالمه؟" bind:title={price} icon="fa-money-check" />
+                    </div>
+                    <div class="main-div">
+                        
                         <div class="field">
                             <label for="package" class="label">انتخاب بسته</label>
                             <Select 
@@ -122,16 +148,12 @@
                                 placeholder="جستجوی بسته..." 
                             />
                         </div>
-                        <Input label="شماره سر خط" type="text" placeholder="شماره سر خط؟" bind:title={callCode} icon="fa-phone" />
-                        <Input label="تعرفه سر خط" type="number" placeholder="تعرفه سر خط؟" bind:title={callPrice} icon="fa-money-check" />
-                        <Input label="زمان مکالمه" type="number" placeholder="زمان مکالمه؟" bind:title={callTime} icon="fa-clock" />
-                        <Input label="مبلغ مکالمه" type="number" placeholder="مبلغ مکالمه؟" bind:title={price} icon="fa-money-check" />
-                        <Input label="ماه" type="text" placeholder="ماه مکالمه؟" bind:title={month} icon="fa-calendar" />
-                        <Input label="سال" type="text" placeholder="سال مکالمه؟" bind:title={year} icon="fa-calendar" />
+                        <Input label="موضوع جزئی" type="text" placeholder="موضوع جزئی مشاوره؟" bind:title={minorIssue} icon="fa-tasks" />
                         <Input label="زمان مکالمه با مشاور" type="number" placeholder="زمان مکالمه با مشاور؟" bind:title={moshaverCallTime} icon="fa-clock" />
                         <Input label="زمان انتظار مکالمه با مشاور" type="number" placeholder="زمان انتظار مکالمه با مشاور؟" bind:title={moshaverDelayTime} icon="fa-clock" />
                         <Input label="زمان مکالمه با اپراتور" type="number" placeholder="زمان مکالمه با اپراتور" bind:title={operatorCallTime} icon="fa-clock" />
                         <Input label="زمان انتظار مکالمه با اپراتور" type="number" placeholder="زمان انتظار مکالمه با اپراتور" bind:title={operatorDelayTime} icon="fa-clock" />
+                        <Input label="ماه" type="text" placeholder="ماه مکالمه؟" bind:title={month} icon="fa-calendar" />
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >
                                 <input id="status" type="checkbox" class="switch is-rounded is-info" bind:checked={status}>
@@ -142,8 +164,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="field is-grouped submit-parent" >
-                            <button on:click={createCall} class="button is-link" class:is-loading={isLoading}>ذخیره</button>
+
+                    <div class="field submit-parent" >
+                            <button on:click={createCall} class="button is-link is-rounded" class:is-loading={isLoading}>ذخیره</button>
                     </div>
                 </div>
             </div>

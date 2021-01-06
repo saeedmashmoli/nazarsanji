@@ -66,13 +66,14 @@ export const getSurveysMutation = gql `
                 page
                 pages
                 surveys {
-                    ...SurveyFragment
+                    id
+                    title
+                    status
                 }
             }
         }
     }
     ${ErrorFragments.error}
-    ${SurveyFragments.survey}
 `
 export const getSurveyMutation = gql `
     mutation GetSurvey($id : Int!){

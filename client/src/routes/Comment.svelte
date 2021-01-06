@@ -22,12 +22,10 @@
             $question = data.questions[0];
             $comments = data.comments;
             $smsId = data.smsId
-            loading = false
         }else{
             push('/not-found');
         }
-        
-
+        loading = false
     })
 
     const setConditions = async (num) => {
@@ -56,7 +54,6 @@
         }
     }
     const getQuestions = async (type) => {
-
         if(type === 'next'){
             await(setConditions(1))
             if($conditions.length) {
@@ -135,7 +132,7 @@
             <section class="section">
                 <QuestionBar />
                 {#if $question?.typeId === 5}
-                    <Welcome on:next={() => getQuestions("next")} on:previous={() => getQuestions("previous")} />
+                    <Welcome on:next={() => getQuestions("next")} />
                 {:else if $question?.typeId === 1}
                     <SingleSelect on:next={() => getQuestions("next")} on:previous={() => getQuestions("previous")} />
                 {:else if $question?.typeId === 2}
@@ -144,8 +141,8 @@
                     <Descryptive on:next={() => getQuestions("next")} on:previous={() => getQuestions("previous")} />
                 {:else if $question?.typeId === 4}
                     <LuckeyWheel on:next={() => getQuestions("next")} on:previous={() => getQuestions("previous")} />
-                {:else if $question?.typeId === 6}
-                    <Bye />
+                {:else if $question?.typeId === 6 }
+                    <Bye on:previous={() => getQuestions("previous")} />
                 {:else}
                     <p>قالبی برای این نوع سوال طراحی نشده است</p>
                 {/if}

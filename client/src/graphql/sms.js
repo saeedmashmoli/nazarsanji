@@ -107,13 +107,29 @@ export const getSendsMutation = gql `
                 page
                 pages
                 sends {
-                    ...SmsFragment
+                    id
+                    token
+                    isSuccess
+                    used
+                    message
+                    status
+                    createdAt
+                    callId
+                    call {
+                        customer {
+                            name
+                            mobile
+                        }
+                    }
+                    templateId
+                    template {
+                        title
+                    }
                 }
             }
         }
     }
     ${ErrorFragments.error}
-    ${SmsFragments.sms}
 `
 export const getSmsQuery = gql `
     query GetSms($id : Int!){

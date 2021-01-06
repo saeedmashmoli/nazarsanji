@@ -147,7 +147,7 @@ const main = async () => {
         context : ({ req , res }) => ({ req , res})
         
     })
-    apolloServer.applyMiddleware({ app , cors : false});
+    apolloServer.applyMiddleware({ app , cors : false , path: "/"});
     const httpServer = http.createServer(app);
     // apolloServer.installSubscriptionHandlers(httpServer);
     httpServer.listen(process.env.PORT,() => {

@@ -1,10 +1,12 @@
 <script>
     import {question} from '../../stores';
     import { createEventDispatcher } from 'svelte';
-    export let chackedSms = true;
+    import {checkSmsFn} from '../../Api/commentApi';
+    import {smsId} from '../../stores'
     const dispatch = createEventDispatcher();
 
-    const getNextQuestion = () => {
+    const getNextQuestion = async () => {
+        await checkSmsFn($smsId)
         dispatch('next');
     }
 </script>

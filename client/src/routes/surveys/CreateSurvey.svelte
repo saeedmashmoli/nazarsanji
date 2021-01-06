@@ -15,10 +15,10 @@
         title : undefined,
         turn : undefined,
         typeId : undefined,
-        shouldBe : undefined,
-        isUsedOk : undefined,
+        shouldBe : false,
+        isUsedOk : false,
         surveyId : undefined,
-        status : undefined,
+        status : true,
         answers : [],
         conditions : []
     };
@@ -146,7 +146,7 @@
             <div style="margin: auto;" class="column is-10-desktop is-offset-2-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                 <div class="box">
                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان دسترسی؟" type="text" bind:title={title} icon="fa-heading" />
+                        <Input errorClass={checkErrors("title").status} label="عنوان" placeholder="عنوان نظرسنجی؟" type="text" bind:title={title} icon="fa-heading" />
                         <p class="help is-danger">{checkErrors("title").message}</p>
                         <div class="field" style="direction: ltr;">
                             <div class="d-inlineblock status" >

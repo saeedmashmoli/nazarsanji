@@ -51,13 +51,20 @@ export const getUsersMutation = gql `
                 page
                 pages
                 users {
-                    ...UserFragment
+                    id
+                    name
+                    mobile
+                    email
+                    active
+                    role {
+                        title
+                        label
+                    }
                 }
             }
         }
     }
     ${ErrorFragments.error}
-    ${UserFragment.user}
 `
 export const getUserQuery = gql `
     query GetUser($id : Int!){

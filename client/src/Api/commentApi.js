@@ -4,7 +4,8 @@ import {
     createCommentMutation,
     getCommentsMutation,
     updateCommentMutation,
-    activeOrDeactiveCommentMutation
+    activeOrDeactiveCommentMutation,
+    checkSmsMutation
 
 } from '../graphql/comment';
 export const getOptionsFn = async(token) => {
@@ -15,6 +16,15 @@ export const getOptionsFn = async(token) => {
         }
     })
     return response.data.getOptionsForCreateComment
+}
+export const checkSmsFn = async(smsId) => {
+    const response = await client.mutate({
+        mutation: checkSmsMutation,
+        variables: {
+            smsId
+        }
+    })
+    return response.data
 }
 export const getCommentsFn = async(input, page, limit) => {
     const response = await client.mutate({

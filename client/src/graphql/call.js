@@ -21,7 +21,8 @@ export const createCallMutation = gql `
         $month : String,
         $year : String,
         $customerId : Int,
-        $packageIds : [Int!]
+        $packageIds : [Int!],
+        $status : Boolean!  
     ){
         createCall(
             input : {
@@ -42,7 +43,8 @@ export const createCallMutation = gql `
                 beginDate : $beginDate,
                 endDate : $endDate,
                 beginTime : $beginTime,
-                endTime : $endTime
+                endTime : $endTime,
+                status : $status
             },
             packageIds : $packageIds
         ){
@@ -72,7 +74,8 @@ export const updateCallMutation = gql `
         $month : String,
         $year : String,
         $customerId : Int,
-        $packageIds : [Int!]
+        $packageIds : [Int!],
+        $status : Boolean!
     ){
         updateCall(
             input : {
@@ -90,7 +93,7 @@ export const updateCallMutation = gql `
                 month : $month, 
                 year : $year,
                 customerId : $customerId,
-
+                status : $status
             }, 
             id : $id,
             packageIds : $packageIds

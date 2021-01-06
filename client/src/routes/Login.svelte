@@ -67,8 +67,8 @@
     margin: auto;
     align-items: center;
     display: flex;
-  flex-wrap: wrap;
-  align-content: center;
+    flex-wrap: wrap;
+    align-content: center;
   }
   .section {
     background: #eee;
@@ -84,6 +84,16 @@
     top: 0;
     left: 0;
   }
+  @media only screen and (max-width: 767px) {
+        .logo-style {
+          width :120px !important;
+          height: 120px !important;
+        }
+   }
+  .logo-style {
+    width :240px;
+    height: 240px;
+  }
 </style>
 <svelte:head>
 	<title>صفحه ورود</title>
@@ -92,7 +102,7 @@
   <div class="column is-4 form-login">
     <section class="section">
       <div class="has-text-centered">
-          <img width="240" height="240" alt src="images/logo.jpg">
+          <img class="logo-style" alt src="images/logo.jpg">
       </div>
       {#if errorMessages}
         {#each errorMessages as errorMessage}

@@ -117,86 +117,85 @@
                </div>
             </div>
          </div>
-         {#if customers.length}
-               <div class="tabs">
-                  <ul>
-                     <!-- svelte-ignore a11y-missing-attribute -->
-                     <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
-                     <!-- svelte-ignore a11y-missing-attribute -->
-                     <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
-                  </ul>
-               <div class="tab-content">
-                  <div value=0>
-                     <div class="box back-eee">
-                        <div class="table-container">
-                           <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
-                              <thead>
+         <div class="tabs">
+            <ul>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=0 on:click={(e) => changeTabs(e.path[0].parentElement.value)} class="is-active"><a>نتایج</a></li>
+               <!-- svelte-ignore a11y-missing-attribute -->
+               <li value=1 on:click={(e) => changeTabs(e.path[0].parentElement.value)}><a>جستجو</a></li>
+            </ul>
+         </div>
+         <div class="tab-content">
+            <div value=0>
+               {#if customers.length}
+                  <div class="box back-eee">
+                     <div class="table-container">
+                        <table class="table is-bordered is-striped is-hoverable is-fullwidth table-container">
+                           <thead>
+                              <tr>
+                                 <th style="width: 5%;">ردیف</th>
+                                 <th style="width: 10%;" data-key="id">شناسه</th>
+                                 <th style="width: 35%;" data-key="name">نام مشتری</th>
+                                 <th style="width: 15%;" data-key="mobile">موبایل</th>
+                                 <th style="width: 15%;" data-key="phone">تلفن</th>
+                                 <th style="width: 10%;">وضعیت</th>
+                                 <th style="width: 10%;">ویرایش</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {#each customers as customer , index}
                                  <tr>
-                                    <th style="width: 5%;">ردیف</th>
-                                    <th style="width: 10%;" data-key="id">شناسه</th>
-                                    <th style="width: 35%;" data-key="name">نام مشتری</th>
-                                    <th style="width: 15%;" data-key="mobile">موبایل</th>
-                                    <th style="width: 15%;" data-key="phone">تلفن</th>
-                                    <th style="width: 10%;">وضعیت</th>
-                                    <th style="width: 10%;">ویرایش</th>
+                                    <td style="width: 5%;">{index + number + 1}</td>
+                                    <td style="width: 10%;">{customer.id}</td>
+                                    <td style="width: 35%;">{customer.name ? customer.name : ""}</td>
+                                    <td style="width: 15%;">{customer.mobile ? customer.mobile : ""}</td>
+                                    <td style="width: 15%;">{customer.phone ? customer.phone : ""}</td>
+                                    <td style="width: 10%;">
+                                       {#if $userPermissions.includes("status-customer")}
+                                          <button on:click={activeOrdeactiveHandler(customer.id)} 
+                                             class:is-success={customer.status} 
+                                             class:is-danger={!customer.status} 
+                                             class="button is-small ${ customer.status ? 'is-success' : 'is-danger'}" >
+                                                <i class:fa-eye={customer.status} class:fa-eye-slash={!customer.status} class="fa"></i>
+                                          </button>
+                                       {/if}
+                                    </td>
+                                    <td style="width: 10%;">
+                                       {#if $userPermissions.includes("update-customer")}
+                                          <button on:click={editPage(customer.id)} class="button is-small has-background-info-dark has-text-warning-light">
+                                             <i class="fa fa-edit"></i>
+                                          </button>
+                                       {/if}
+                                    </td>
                                  </tr>
-                              </thead>
-                              <tbody>
-                                 {#each customers as customer , index}
-                                    <tr>
-                                       <td style="width: 5%;">{index + number + 1}</td>
-                                       <td style="width: 10%;">{customer.id}</td>
-                                       <td style="width: 35%;">{customer.name}</td>
-                                       <td style="width: 15%;">{customer.mobile}</td>
-                                       <td style="width: 15%;">{customer.phone}</td>
-                                       <td style="width: 10%;">
-                                          {#if $userPermissions.includes("status-customer")}
-                                             <button on:click={activeOrdeactiveHandler(customer.id)} 
-                                                class:is-success={customer.status} 
-                                                class:is-danger={!customer.status} 
-                                                class="button is-small ${ customer.status ? 'is-success' : 'is-danger'}" >
-                                                   <i class:fa-eye={customer.status} class:fa-eye-slash={!customer.status} class="fa"></i>
-                                             </button>
-                                          {/if}
-                                       </td>
-                                       <td style="width: 10%;">
-                                          {#if $userPermissions.includes("update-customer")}
-                                             <button on:click={editPage(customer.id)} class="button is-small has-background-info-dark has-text-warning-light">
-                                                <i class="fa fa-edit"></i>
-                                             </button>
-                                          {/if}
-                                       </td>
-                                    </tr>
-                                 {/each}
-                              </tbody>
-                           </table> 
-                        </div>
+                              {/each}
+                           </tbody>
+                        </table> 
                      </div>
-                     {#if last_page > 1}
-                        <Paginate
-                           {currentPage}
-                           {last_page}
-                           middleCount={2}
-                           on:changePage={(ev) => changePage(ev.detail)}
-                        ></Paginate>
-                     {/if}
                   </div>
-                  <div value=1>
-                     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                        <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
-                        <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
-                        <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
-                        <div style="display : block;text-align : left;">
-                           <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
-                        </div>
-                     </div>
+                  {#if last_page > 1}
+                     <Paginate
+                        {currentPage}
+                        {last_page}
+                        middleCount={2}
+                        on:changePage={(ev) => changePage(ev.detail)}
+                     ></Paginate>
+                  {/if}
+               {:else}
+                  <NoData />
+               {/if} 
+            </div>
+            <div value=1>
+               <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                  <Input label="نام " type="text" placeholder="نام مشتری؟" bind:title={name} icon="fa-user" />
+                  <Input label="موبایل " type="text" placeholder="موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
+                  <Input label="تلفن " type="text" placeholder="موبایل مشتری؟" bind:title={phone} icon="fa-phone" />
+                  <div style="display : block;text-align : left;">
+                     <button class:is-loading={isLoading} on:click={() => changePage(null)} class="button is-link">جستجو</button>
                   </div>
                </div>
             </div>
-         {:else}
-            <NoData />
-         {/if} 
-         
+         </div>
       </div>
    {/if}
 </div>

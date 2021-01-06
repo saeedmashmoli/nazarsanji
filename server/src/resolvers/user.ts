@@ -205,6 +205,7 @@ export class UserResolver {
         @Arg('password') password: string,
         @Ctx() { res } : MyContext
     ) : Promise<UserResponse>{ 
+        console.log(username , password)
         const user = await User.findOne({ where : {mobile : username }});
         let errors = [];
         if(!user) {

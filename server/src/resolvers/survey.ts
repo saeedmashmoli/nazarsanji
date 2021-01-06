@@ -1,5 +1,5 @@
 import { Survey } from '../entities/Survey';
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware  } from 'type-graphql';
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Resolver, Root, UseMiddleware  } from 'type-graphql';
 import {  FieldError } from './response';
 import { isAuth } from '../middlewares/isAuthMiddleware';
 import {isCan} from '../middlewares/isCanMiddleware';

@@ -315,6 +315,8 @@ export class CallInput {
     year?: string;
     @Field(() => Int , {nullable : true})
     customerId?: number;
+    @Field()
+    status?: boolean;
 }
 
 @InputType()

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { CommentFragments, ErrorFragments } from './fragments';
+import { ErrorFragments } from './fragments';
 export const getDashboardDataQuery = gql `
     query getDataForDashboard{
         getDataForDashboard{
@@ -10,10 +10,18 @@ export const getDashboardDataQuery = gql `
             commentsCount
             smsCount
             comments {
-                ...CommentFragment
+                id
+                text
+                sms {
+                    call {
+                        customer {
+                            name
+                            mobile
+                        }
+                    }
+                }
             }
         }
     }
     ${ErrorFragments.error}
-    ${CommentFragments.comment}
 `

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { CommentFragments, QuestionFragments, ErrorFragments } from './fragments';
+import { CommentFragments, ErrorFragments } from './fragments';
 
 export const getOptionsForCreateAndUpdateCommentQuery = gql `
     query  getOptionsForCreateComment($token : String!){
@@ -9,16 +9,39 @@ export const getOptionsForCreateAndUpdateCommentQuery = gql `
                 ...ErrorFragment
             }
             questions {
-                ...QuestionFragment
+                id
+                title
+                typeId
+                turn
+                shouldBe
+                isUsedOk
+                answers {
+                    id
+                    title
+                    image
+                    link
+                    percent
+                }
+                conditions {
+                    id
+                    criteriaId
+                    criteria {
+                        symbol
+                    }
+                    answerId
+                    consQuestionId
+                    questionId
+                }
             }
             comments {
-                ...CommentFragment
+                id
+                answerId
+                questionId
+                text
             }
             smsId
         }
     }
-    ${QuestionFragments.question}
-    ${CommentFragments.comment}
     ${ErrorFragments.error}
 `;
 export const createCommentMutation = gql `
@@ -43,11 +66,13 @@ export const createCommentMutation = gql `
                 ...ErrorFragment
             }
             comments {
-                ...CommentFragment
+                id
+                answerId
+                questionId
+                text
             }
         } 
     }
-    ${CommentFragments.comment}
     ${ErrorFragments.error}
 `
 export const updateCommentMutation = gql `
@@ -124,13 +149,35 @@ export const getCommentsMutation = gql `
                 page
                 pages
                 comments {
-                    ...CommentFragment
+                    id
+                    text
+                    status
+                    createdAt
+                    questionId
+                    question {
+                        title
+                    }
+                    answerId
+                    answer {
+                        title
+                    }
+                    smsId
+                    sms {
+                        survey {
+                            title
+                        }
+                        call {
+                            customer {
+                                name
+                                mobile
+                            }
+                        }
+                    }
                 }
             }
         }
     }
     ${ErrorFragments.error}
-    ${CommentFragments.comment}
 `
 export const getCommentQuery = gql `
     query GetComment($id : Int!){
@@ -146,4 +193,9 @@ export const getCommentQuery = gql `
     }
     ${ErrorFragments.error}
     ${CommentFragments.comment}
+`
+export const checkSmsMutation = gql `
+    mutation CheckSms($smsId : Int!){
+        checkSms(smsId : $smsId)
+    }
 `

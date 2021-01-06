@@ -25,10 +25,11 @@
           <thead>
              <tr>
                 <th style="width: 5%;">ردیف</th>
-                <th style="width: 35%;">عنوان</th>
+                <th style="width: 25%;">عنوان</th>
                 <th style="width: 15%;">نوع سوال</th>
                 <th style="width: 15%;">نوبت نمایش</th>
-                <th style="width: 15%;">تایید کامنت</th>
+                <th style="width: 10%;">تایید کامنت</th>
+                <th style="width: 15%;">الزام پاسخگویی</th>
                 <th style="width: 5%;">وضعیت</th>
                 <th style="width: 10%;">تنظیمات</th>
              </tr>
@@ -37,10 +38,10 @@
              {#each questions as question , index}
                 <tr>
                    <td style="width: 5%;">{index + 1}</td>
-                   <td style="width: 35%;">{question.title.slice(0,20)}{question.title.length > 20 ? "..." : ""}</td>
+                   <td style="width: 25%;">{question.title.slice(0,20)}{question.title.length > 20 ? "..." : ""}</td>
                    <td style="width: 15%;">{question.type.title}</td>
                    <td style="width: 15%;">{question.turn}</td>
-                   <td style="width: 15%;">
+                   <td style="width: 10%;">
                       <button 
                          class:is-success={question.isUsedOk} 
                          class:is-danger={!question.isUsedOk} 
@@ -48,6 +49,14 @@
                          <i  class={question.isUsedOk ? "fas" : "fa"} class:fa-times={!question.isUsedOk} class:fa-check={question.isUsedOk}></i>
                       </button>
                    </td>
+                   <td style="width: 10%;">
+                     <button 
+                        class:is-success={question.shouldBe} 
+                        class:is-danger={!question.shouldBe} 
+                        class="button disable-cursor is-small" >
+                        <i  class={question.shouldBe ? "fas" : "fa"} class:fa-times={!question.shouldBe} class:fa-check={question.shouldBe}></i>
+                     </button>
+                  </td>
                    <td style="width: 5%;">
                          <button on:click={activeOrdeactiveHandler(question.id)} 
                             class:is-success={question.status} 

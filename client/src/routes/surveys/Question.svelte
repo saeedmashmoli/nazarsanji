@@ -22,8 +22,8 @@
     export let answer = {
         id : undefined,
         title : undefined,
-        flag : undefined,
-        status : undefined,
+        flag : false,
+        status : true,
         link : undefined,
         image : undefined,
         percent : undefined
@@ -33,7 +33,7 @@
         questionId : undefined,
         answerId : undefined,
         criteriaId : undefined,
-        status : undefined
+        status : true
     };
     export let errorMessages = [];    
     export let answers = [];
@@ -149,7 +149,7 @@
     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
         <Input label="عنوان سوال" placeholder="عنوان سوال؟" type="textarea" bind:title={title} icon="fa-heading" />
         <p class="help is-danger">{checkErrors("title").message}</p>
-        <Input errorClass={checkErrors("turn").status} label="نوبت نمایش" placeholder="نوبت نمایش سوال؟" type="number" bind:title={turn} icon="fa-arrows" />
+        <Input errorClass={checkErrors("turn").status} label="نوبت نمایش" placeholder="نوبت نمایش سوال؟" type="number" bind:title={turn} icon="fa-sort" />
         <p class="help is-danger">{checkErrors("turn").message}</p>
         
         <div class="field">

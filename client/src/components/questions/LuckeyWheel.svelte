@@ -1,5 +1,5 @@
 <script>
-    import {question ,smsId} from '../../stores';
+    import {question ,smsId , showBackButton} from '../../stores';
     import {createCommentFn} from '../../Api/commentApi'
     import { createEventDispatcher } from 'svelte';
     export let selectedItem;
@@ -265,7 +265,7 @@
     </p>
 	<div class="buttons-div">
 		<button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
-        {#if !$question.isUsedOk}
+        {#if $showBackButton}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

@@ -5,6 +5,12 @@
    import { notLoading } from '../utilis/functions';
    import Input from '../components/Input.svelte';
    import Toast from '../components/Toast.svelte';
+   import DatePicker from "../components/datepicker/DatePicker.svelte";
+   import moment from 'moment-jalaali';
+   let currentDate;
+   const onDateChange = d => {
+      currentDate = d.detail;
+   };
    export let name;
    export let mobile;
    export let email;
@@ -15,6 +21,8 @@
    export let errorMessages = [];
    export let isLoading = false;       
    onMount(() => {
+      console.log(moment(new Date()).format('jD jM jD jYYYY'));
+      console.log(new Date())
       $loading = true;
       name = $user.name;
       mobile = $user.mobile;
@@ -74,6 +82,10 @@
                   <p class="help is-danger">{checkErrors("email").message}</p>
                   <Input errorClass={checkErrors("password").status} label="تغییر رمز عبور" placeholder="رمز عبور جدید؟" type="password" bind:title={password} icon="fa-key" />
                   <p class="help is-danger">{checkErrors("password").message}</p>
+                  <DatePicker
+                     on:datechange={onDateChange}
+                     selected={currentDate}
+                     />
                   <div class="field is-grouped submit-parent" >
                      <button on:click={updateUser} class="button is-link" class:is-loading={isLoading}>اعمال تغییرات</button>
                   </div>
@@ -83,3 +95,10 @@
       </div>
    {/if}
 </div>
+
+<!-- isAllowed={date => {
+   const millisecs = date.getTime();
+   if (millisecs + 25 * 3600 * 1000 < Date.now()) return false;
+   if (millisecs > Date.now() + 3600 * 24 * 45 * 1000) return false;
+   return true;
+}}  -->

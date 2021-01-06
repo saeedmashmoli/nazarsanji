@@ -88,9 +88,9 @@ export class CommentResolver {
         if(errors?.length) return { status : false , errors};
         const sms = await Sms.findOne({where : {token}});
         const questions = await getConnection().query(`
-        select q.* from question as q
-        where q.surveyId = ${sms?.surveyId}
-        order by q.turn
+            select q.* from question as q
+            where q.surveyId = ${sms?.surveyId}
+            order by q.turn
         `);
         const comments = await getConnection().query(`select s.* from comment as s where s.smsId = ${sms?.id}`);
         return {status : true , questions , comments , smsId : sms?.id}
@@ -159,6 +159,13 @@ export class CommentResolver {
             await Sms.update({id :smsId} , {used : true})
         }
         return await { status: true};
+    }
+    @Mutation(() => Boolean)
+    async checkSms(
+        @Arg('smsId', () => Int) smsId : number
+    ) : Promise<Boolean> {
+        await Sms.update({id :smsId} , {checkSms : true})
+        return true
     }
 
     @Mutation(() => CommentResponse)

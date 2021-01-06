@@ -18,10 +18,10 @@
         title : undefined,
         turn : undefined,
         typeId : undefined,
-        shouldBe : undefined,
-        isUsedOk : undefined,
+        shouldBe : false,
+        isUsedOk : false,
         surveyId : undefined,
-        status : undefined,
+        status : true,
         answers : [],
         conditions : []
     };

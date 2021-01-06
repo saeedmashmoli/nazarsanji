@@ -1,5 +1,5 @@
 <script>
-    import {question , smsId , comments} from '../../stores';
+    import {question , smsId , comments , showBackButton} from '../../stores';
     import {createCommentFn} from '../../Api/commentApi'
     import { createEventDispatcher } from 'svelte';
     export let comment = $comments.filter(c => c.questionId === $question.id)[0];
@@ -10,6 +10,9 @@
         if(text.trim() === "" && $question.shouldBe){
             window.pushToast(`پاسخگویی به این سوال الزامی است`, "red")
         }else{
+            if($question.isUsedOk){
+                $showBackButton = false;
+            }
             if(text.trim() !== ""){
                 const response = await createCommentFn({smsId : $smsId , questionId : $question.id, text});
                 if(response.status){
@@ -63,7 +66,7 @@
     <textarea placeholder="توضیحات خود را بنویسید..." class="input" bind:value={text}></textarea>
     <div class="buttons-div">
         <button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
-        {#if !$question.isUsedOk}
+        {#if $showBackButton}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

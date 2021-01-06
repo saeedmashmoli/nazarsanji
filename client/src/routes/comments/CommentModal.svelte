@@ -28,7 +28,9 @@
     <p class="comment-text">
         پاسخ: {comment.answerId ? comment.answer.title : ""}
     </p>
-    <p class="comment-text">
-        متن کامنت: {comment.text ? comment.text : ""}
-    </p>
+    {#if comment.text}
+        <p class="comment-text">
+            متن کامنت: {comment.text ? comment.text : ""}
+        </p>
+    {/if}
 </div>

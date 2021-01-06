@@ -1,10 +1,13 @@
 <script>
-    import {question , smsId , comments} from '../../stores';
+    import {question , smsId , comments , showBackButton} from '../../stores';
     import {createCommentFn} from '../../Api/commentApi'
     import { createEventDispatcher } from 'svelte';
     export let comment = $comments.filter(c => c.questionId === $question.id)[0];
     const dispatch = createEventDispatcher();
     const getNextQuestion = async (answerId) => {
+        if($question.isUsedOk){
+            $showBackButton = false;
+        }
         const response = await createCommentFn({smsId : $smsId , questionId : $question.id, answerIds :[answerId]});
         if(response.status){
             let co = {answerId , smsId : $smsId , questionId : $question.id};
@@ -69,7 +72,7 @@
         </button>
     {/each}
     <div class="buttons-div">
-        {#if !$question.isUsedOk}
+        {#if $showBackButton}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

@@ -1,5 +1,5 @@
 <script>
-    import {question} from '../../stores';
+    import {question , showBackButton} from '../../stores';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
@@ -45,7 +45,7 @@
         خدا نگهدار
     </button>
     <div class="buttons-div">
-        {#if !$question.isUsedOk}
+        {#if $showBackButton}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

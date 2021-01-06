@@ -1,5 +1,5 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 
 export class initialData1607679363838 implements MigrationInterface {
 

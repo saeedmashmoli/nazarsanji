@@ -174,9 +174,9 @@
                                  <tr>
                                     <td style="width: 5%;">{index + 1}</td>
                                     <td style="width: 5%;">{user.id}</td>
-                                    <td style="width: 25%;">{user.name}</td>
+                                    <td style="width: 25%;">{user.name ? user.name : ""}</td>
                                     <td style="width: 15%;">{user.mobile}</td>
-                                    <td style="width: 25%;">{user.email}</td>
+                                    <td style="width: 25%;">{user.email ? user.email : ""}</td>
                                     <td style="width: 10%;">{user.role.label}</td>
                                     <td style="width: 5%;">
                                        {#if $userPermissions.includes("status-user")}

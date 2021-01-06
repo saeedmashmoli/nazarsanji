@@ -1,5 +1,5 @@
 <script>
-    import {question , smsId , comments} from '../../stores';
+    import {question , smsId , comments , showBackButton} from '../../stores';
     import { createEventDispatcher } from 'svelte';
     import {createCommentFn} from '../../Api/commentApi';
     export let answerIds = [];
@@ -27,6 +27,9 @@
         if(answerIds.length === 0 && $question.shouldBe){
             window.pushToast(`پاسخگویی به این سوال الزامی است`, "red")
         }else{
+            if($question.isUsedOk){
+                $showBackButton = false;
+            }
             if(answerIds.length !== 0){
                 const response = await createCommentFn({smsId : $smsId , questionId : $question.id, answerIds});
                 if(response.status){
@@ -109,7 +112,7 @@
     {/each}
     <div class="buttons-div">
         <button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
-    {#if !$question.isUsedOk}
+    {#if $showBackButton}
         <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
     {/if}
     </div>
