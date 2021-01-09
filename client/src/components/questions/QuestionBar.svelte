@@ -1,6 +1,16 @@
 <script>
+    import { beforeUpdate } from 'svelte';
     import {question , questions} from '../../stores';
-    
+    export let selections = [];
+    beforeUpdate(async () => {
+        await $questions.forEach(async(q) => {
+            const obj = {turn : q.turn , typeId : q.typeId};
+            if(!selections.some(item => item.turn === obj.turn)){
+                await selections.push(obj)
+            }
+        })
+    })
+
 </script>
 <style>
     span { 
@@ -42,14 +52,14 @@
     }
 </style>
 <div class="main-span">
-    {#each $questions as q}
-        <div style={`width : ${(100 - $questions.length)/$questions.length}%`} class="list-span">
+    {#each selections as q}
+        <div style={`width : ${(100 - selections.length)/selections.length}%`} class="list-span">
             {#if q.typeId === 4}
                 <div class="gift-main">
                     <img class="gift" src="/images/gift.png" alt="gift"> 
                 </div>
             {/if}
-            <span class:active={q.id === $question.id}></span> 
+            <span class:active={q.turn === $question.turn}></span> 
         </div>
     {/each}
 </div>

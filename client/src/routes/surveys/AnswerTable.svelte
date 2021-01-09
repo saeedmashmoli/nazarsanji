@@ -38,7 +38,7 @@
                 <tr transition:slide|local={{duration : 500}}>
                    <td style="width: 5%;">{index + 1}</td>
                    <td style="width: 30%;">{answer.title}</td>
-                   <td style="width: 20%;">{answer.link}</td>
+                   <td style="width: 20%;">{answer.link ? answer.link : ""}</td>
                    <td style="width: 10%;">{#if answer.image}<img alt={answer.id} src={answer.image}>{/if}</td>
                    <td style="width: 15%;">
                         <button 

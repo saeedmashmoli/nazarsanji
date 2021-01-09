@@ -6,9 +6,9 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import { config as configDotenv } from 'dotenv';
-configDotenv();
 
-const production = !process.env.ROLLUP_WATCH;
+configDotenv();
+const production = process.env.ROLLUP_WATCH === "true" ? false : true;
 
 function serve() {
     let server;
@@ -33,9 +33,8 @@ function serve() {
 
 export default {
     input: 'src/main.js',
-
     output: {
-        sourcemap: true,
+        sourcemap: false,
         format: 'iife',
         name: 'app',
         file: 'public/build/bundle.js'
@@ -50,7 +49,6 @@ export default {
                 dev: !production
             },
         }),
-
         // we'll extract any component CSS out into
         // a separate file - better for performance
         css({ output: 'bundle.css' }),
@@ -71,6 +69,7 @@ export default {
 
         // Watch the `public` directory and refresh the
         // browser on changes when not in production
+        // !production && livereload({ watch: 'public', port: 35730 }),
         !production && livereload('public'),
 
         // If we're building for production (npm run build

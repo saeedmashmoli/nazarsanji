@@ -3,11 +3,11 @@ import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver , UseMiddle
 import {  FieldError } from './response';
 import { isAuth } from '../middlewares/isAuthMiddleware';
 import {isCan} from '../middlewares/isCanMiddleware';
-import { PackageInput, PackageSearchInput } from './Input';
+import {  PackageInput, PackageSearchInput } from './Input';
 import { packageValidator } from '../validators/packageValidator';
 import {  getConnection } from 'typeorm';
 import { Call } from '../entities/Call';
-import {GraphQLUpload } from "graphql-upload";
+import { GraphQLUpload } from "graphql-upload";
 import { jsonDataFromExcel, storeUpload } from '../utilis/storeFile';
 import { MyContext, Upload } from '../types';
 import { Customer } from '../entities/Customer';
@@ -52,19 +52,19 @@ const createRecordCall = async (file : Upload , packageId : number ) => {
         const data = await jsonDataFromExcel(dir)
         if(data?.length){
             data.forEach(async(call: any) => {
-                call =  await checkObjectField(call)
+                call =  await checkObjectField(call);
                 let { mobile , name , phone } = call;
                 if(typeof mobile === "number") {mobile = undefined }
-                let customer =  await Customer.findOne({where:{mobile}})
-                if(!customer){
+                let customer =  await Customer.findOne({where:{mobile}});
+                if(await !customer){
                     customer = await Customer.create({mobile, name, phone}).save();
                 }
-                const newCall =  await Call.create({...call,customerId:customer.id}).save();
+                let newCall =  await Call.save({...call,customerId : customer?.id});
 
                 await CallPackage.create({callId : newCall.id , packageId}).save()
             })
         }
-    },100) 
+    },2000) 
 }
 
 

@@ -30,7 +30,7 @@ export class Template extends BaseEntity {
     link?: string;
 
     @Field()
-    @Column()
+    @Column({ default : 0 })
     tempNumber!: number;
 
     @Field(() => Boolean)

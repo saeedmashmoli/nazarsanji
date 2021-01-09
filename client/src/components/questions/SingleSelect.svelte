@@ -1,7 +1,8 @@
 <script>
-    import {question , smsId , comments , showBackButton} from '../../stores';
-    import {createCommentFn} from '../../Api/commentApi'
+    import {question , smsId , comments , showBackButton, call } from '../../stores';
+    import {createCommentFn} from '../../Api/commentApi';
     import { createEventDispatcher } from 'svelte';
+    import Title from './Title.svelte';
     export let comment = $comments.filter(c => c.questionId === $question.id)[0];
     const dispatch = createEventDispatcher();
     const getNextQuestion = async (answerId) => {
@@ -21,6 +22,7 @@
     const getPreviousQuestion = () => {
         dispatch('previous');
     }
+    
 </script>
 <style>
     .question-button {
@@ -56,13 +58,18 @@
         color: greenyellow;
     }
 </style>
-<div class="question">
+<div  class="question">
     <p>
-        {$question.title} <b>{$question.shouldBe ? "*" : ""}</b>
+        <Title object={$question} />
+        <b>{$question.shouldBe ? "*" : ""}</b>
     </p>
     {#each $question.answers as answer}
         <button on:click={getNextQuestion(answer.id)} class="button question-button">
-            {answer.title}
+            {#if answer.title.includes("[callTime]")}
+                {answer.title.replace("[callTime]",$call.callTime * answer.percent / 100)}
+            {:else}
+                {answer.title}
+            {/if}
             {#if comment && answer.id === comment.answerId}
                 <i class="fas fa-check"></i>
             {/if}
@@ -72,7 +79,7 @@
         </button>
     {/each}
     <div class="buttons-div">
-        {#if $showBackButton}
+        {#if $showBackButton && $question.turn !== 1}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

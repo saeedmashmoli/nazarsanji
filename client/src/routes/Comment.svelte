@@ -8,7 +8,7 @@
     import {checkOperator} from '../utilis/functions';
     import {getOptionsFn} from '../Api/commentApi';
     import { push , location } from 'svelte-spa-router';
-    import {questions  , question,comments, smsId, conditions } from '../stores'
+    import {questions  , question,comments, smsId, conditions , call } from '../stores'
     import QuestionBar from '../components/questions/QuestionBar.svelte';
     import { onMount } from 'svelte';
     import Toast from '../components/Toast.svelte';
@@ -18,6 +18,7 @@
         loading = true;
         const data = await getOptionsFn(token);
         if(data.status){
+            $call = data.call;
             $questions = data.questions;
             $question = data.questions[0];
             $comments = data.comments;
@@ -27,13 +28,6 @@
         }
         loading = false
     })
-
-    const setConditions = async (num) => {
-        let array = await $questions.filter(q => q.turn === $question.turn + num);
-        if(array.length > 0 ){
-            $conditions = await array[0].conditions;
-        }
-    }
     const checkConditions = async () => {
         let jump = true;
         await $conditions.forEach(async(cond) => {
@@ -53,32 +47,41 @@
             return true;
         }
     }
+    const getQuestion = async (num) => {
+        let selections = await $questions.filter(q => q.turn === num );
+        let res = false;
+        for(let j = 0; j < selections.length ; j++) {
+            let array = await $questions.filter(q => q.id === selections[j].id);
+            if(array.length > 0 ){
+                $conditions = array[0].conditions;
+            }
+            if($conditions.length) {
+                const result = await checkConditions();
+                if(result){
+                    $question = $questions.filter(q => q.id === selections[j].id )[0];
+                    res = true;
+                    break;
+                }else{
+                    continue;
+                }
+            }else{
+                $question = $questions.filter(q => q.turn === num )[0];
+                res = true;
+                break;
+            }
+        }
+        return await res;
+    }
     const getQuestions = async (type) => {
         if(type === 'next'){
-            await(setConditions(1))
-            if($conditions.length) {
-                const result = await checkConditions();
-                if(!result){
-                    $question = $questions[$question.turn + 1];
-                    await(setConditions(1));
-                }else{
-                    $question = $questions[$question.turn];
-                }
-            }else{
-                $question = $questions[$question.turn];
+            for(let i = $question.turn + 1; i <= $questions[$questions.length - 1].turn ; i++){
+                const res = await getQuestion(i);
+                if(res){ break; } else { continue; }
             }
         }else{
-            await(setConditions(-1));
-            if($conditions.length) {
-                const result = await checkConditions();
-                if(!result){
-                    $question = $questions.filter( q => q.turn === $question.turn - 2)[0];
-                    await(setConditions(-1))
-                }else{
-                    $question = $questions.filter( q => q.turn === $question.turn - 1)[0];
-                }
-            }else{
-                $question = $questions.filter( q => q.turn === $question.turn - 1)[0];
+            for(let i = $question.turn - 1; i >= $questions[0].turn ; i--){
+                const res = await getQuestion(i);
+                if(res){ break; }else{continue;}
             }
         }
     }
@@ -146,7 +149,6 @@
                 {:else}
                     <p>قالبی برای این نوع سوال طراحی نشده است</p>
                 {/if}
-
             </section>
         </div>
     </div>

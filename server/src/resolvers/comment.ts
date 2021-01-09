@@ -11,6 +11,8 @@ import { Question } from '../entities/Question';
 import { Sms } from '../entities/Sms';
 import { Answer } from '../entities/Answer';
 import { createLog } from '../constants/functions';
+import { Call } from '../entities/Call';
+import { Parameter } from '../entities/Parameter';
 
 
 @ObjectType()
@@ -48,6 +50,10 @@ export class GetQuestionsAndCommentsResponse {
     questions?: Question[];
     @Field(() => [Comment] , { nullable : true })
     comments?: Comment[];
+    @Field(() => [Parameter] , { nullable : true })
+    parameters?: Parameter[];
+    @Field(() => Call , { nullable : true })
+    call?: Call;
     
 }
 @ObjectType()
@@ -92,8 +98,10 @@ export class CommentResolver {
             where q.surveyId = ${sms?.surveyId}
             order by q.turn
         `);
+        const parameters = await Parameter.find({where : {status : true}});
+        const call = await Call.findOne({id : sms?.callId});
         const comments = await getConnection().query(`select s.* from comment as s where s.smsId = ${sms?.id}`);
-        return {status : true , questions , comments , smsId : sms?.id}
+        return {status : true , questions , comments , call , parameters , smsId : sms?.id}
     }
     
     @Mutation(() => CommentsResponse)
@@ -154,10 +162,11 @@ export class CommentResolver {
         }else{
             await Comment.create({text , questionId , smsId }).save();
         }
-        const question = await Question.findOne({id : questionId});
-        if(question && question.isUsedOk){
-            await Sms.update({id :smsId} , {used : true})
-        }
+        // const question = 
+        await Question.findOne({id : questionId});
+        // if(question && question.isUsedOk){
+        //     await Sms.update({id :smsId} , {used : true})
+        // }
         return await { status: true};
     }
     @Mutation(() => Boolean)

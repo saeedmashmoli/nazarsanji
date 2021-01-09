@@ -11,7 +11,6 @@ import http from 'http';
 import path from 'path';
 import cron from 'node-cron';
 import { graphqlUploadExpress } from 'graphql-upload'
-import {pagination} from 'typeorm-pagination';
 
 // entities
 import { User } from './entities/User';
@@ -102,11 +101,10 @@ const main = async () => {
     app.use(bodyParser.urlencoded({ extended : true }));
     app.set("trust proxy", 1);
     app.use(cors({
-        origin: [process.env.CORS_ORIGIN],
+        origin: true,
         credentials : true,
     }));
     app.use(cookieParser());
-    app.use(pagination)
 
     // run jobs
     cron.schedule('7 12 * * *', async function() {

@@ -205,7 +205,6 @@ export class UserResolver {
         @Arg('password') password: string,
         @Ctx() { res } : MyContext
     ) : Promise<UserResponse>{ 
-        console.log(username , password)
         const user = await User.findOne({ where : {mobile : username }});
         let errors = [];
         if(!user) {
@@ -213,12 +212,18 @@ export class UserResolver {
                 field: 'username',
                 message : 'موبایل وارد شده در سامانه ثبت نام نکرده است'
             });
-        }else{
+        }else {
             const valid = await bcrypt.compare(password , user!.password);
             if(!valid){
                 errors.push({
                     field: 'password',
                     message : 'رمز عبور اشتباه است'
+                });
+            }
+            if(!user.active){
+                errors.push({
+                    field: 'active',
+                    message : 'حساب کاربری شما غیرفعال شده است'
                 });
             }
         }

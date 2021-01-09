@@ -39,6 +39,33 @@ export const getOptionsForCreateAndUpdateCommentQuery = gql `
                 questionId
                 text
             }
+            call{
+                id
+                issue
+                minorIssue
+                exactIssue
+                callTime
+                callCode
+                callPrice
+                price
+                operatorCallTime
+                operatorDelayTime
+                moshaverCallTime
+                moshaverDelayTime
+                month
+                year
+                status
+                customerId
+                customer {
+                    name
+                    mobile
+                    phone
+                }
+            }
+            parameters {
+                id
+                title
+            }
             smsId
         }
     }

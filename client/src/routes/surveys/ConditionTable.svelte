@@ -36,8 +36,8 @@
                 {#each conditions as condition , index}
                     <tr>
                         <td style="width: 5%;">{index + 1}</td>
-                        <td style="width: 30%;">{condition.question.title.slice(0,20)}{condition.question.title.length > 20 ? "..." : ""}</td>
-                        <td style="width: 25%;">{condition.answer.title.slice(0,20)}{condition.answer.title.length > 20 ? "..." : ""}</td>
+                        <td style="width: 30%;" title={condition.question.title}>{condition.question.title.slice(0,20)}{condition.question.title.length > 20 ? "..." : ""}</td>
+                        <td style="width: 25%;" title={condition.answer.title}>{condition.answer.title.slice(0,20)}{condition.answer.title.length > 20 ? "..." : ""}</td>
                         <td style="width: 15%;">{condition.criteria.title}</td>
                         <td style="width: 15%;">
                                 <button on:click={activeOrdeactiveHandler(condition.id)} 

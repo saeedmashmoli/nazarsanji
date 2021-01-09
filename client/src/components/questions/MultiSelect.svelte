@@ -1,7 +1,8 @@
 <script>
-    import {question , smsId , comments , showBackButton} from '../../stores';
+    import {question , smsId , comments , showBackButton , call} from '../../stores';
     import { createEventDispatcher } from 'svelte';
     import {createCommentFn} from '../../Api/commentApi';
+    import Title from './Title.svelte';
     export let answerIds = [];
     const selectComments = async () => {
         let comm = [];
@@ -89,7 +90,8 @@
 </style>
 <div class="question">
     <p>
-        {@html $question.title} <b>{$question.shouldBe ? "*" : ""}</b>
+        <Title object={$question} /> 
+        <b>{$question.shouldBe ? "*" : ""}</b>
     </p>
     {#each $question.answers as answer}
         <button 
@@ -97,7 +99,11 @@
             class={`button selected`}
         >
 
-            {answer.title} 
+            {#if answer.title.includes("[callTime]")}
+                {answer.title.replace("[callTime]",$call.callTime * answer.percent / 100)}
+            {:else}
+                {answer.title}
+            {/if}
             {#await selectComments()}
                 <i></i>
             {:then items} 
@@ -112,7 +118,7 @@
     {/each}
     <div class="buttons-div">
         <button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
-    {#if $showBackButton}
+    {#if $showBackButton && $question.turn !== 1}
         <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
     {/if}
     </div>

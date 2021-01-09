@@ -1,6 +1,7 @@
 <script>
     import {question , showBackButton} from '../../stores';
     import { createEventDispatcher } from 'svelte';
+    import Title from './Title.svelte';
     const dispatch = createEventDispatcher();
 
     const getCloseBrowser = () => {
@@ -39,13 +40,13 @@
 
 <div class="question">
     <p>
-        {@html $question.title} 
+        <Title object={$question} /> 
     </p>  
     <button on:click={getCloseBrowser} class="button is-primary selected">
-        خدا نگهدار
+        بستن
     </button>
     <div class="buttons-div">
-        {#if $showBackButton}
+        {#if $showBackButton && $question.turn !== 1}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

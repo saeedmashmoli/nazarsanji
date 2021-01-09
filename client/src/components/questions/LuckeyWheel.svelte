@@ -2,6 +2,7 @@
     import {question ,smsId , showBackButton} from '../../stores';
     import {createCommentFn} from '../../Api/commentApi'
     import { createEventDispatcher } from 'svelte';
+    import Title from './Title.svelte';
     export let selectedItem;
     export let items = $question.answers;
     $: document.documentElement.style.setProperty('--nb-item', items.length);
@@ -248,7 +249,8 @@
 
 <div class="question">
     <p>
-        {@html $question.title} <b>{$question.shouldBe ? "*" : ""}</b>
+        <Title object={$question} />  
+        <b>{$question.shouldBe ? "*" : ""}</b>
     </p>
     <div id="mainbox" class="wheel-container mainbox">
         <div id="box" class:spinning={selectedItem} class={`wheel`} onClick={this.selectItem}>
@@ -265,7 +267,7 @@
     </p>
 	<div class="buttons-div">
 		<button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
-        {#if $showBackButton}
+        {#if $showBackButton && $question.turn !== 1}
             <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>

@@ -87,7 +87,7 @@ export class SmsResolver {
         
         let response;
         if(template.tempNumber !== 0){
-            response = await sms.ultraFastSend(call.mobile,template.tempNumber,data) as any;
+            response = await sms.ultraFastSend(call.mobile,template?.tempNumber,data) as any;
         }else{
             let body = template.body;
             await data.forEach(async(obj) => {

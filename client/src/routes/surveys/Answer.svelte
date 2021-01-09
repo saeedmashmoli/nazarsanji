@@ -34,7 +34,7 @@
 </script>
 <div class="box">
     <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-        <Input label="شرح" type="text" placeholder="شرح؟" bind:title={title} icon="fa-heading" />
+        <Input label="شرح" type="textarea" placeholder="شرح؟" bind:title={title} icon="fa-heading" />
         <Input label="لینک" type="text" placeholder="لینک گزینه؟" bind:title={link} icon="fa-link" />
         <Input label="درصد" type="number" placeholder="درصد اختصاصی گزینه؟" bind:title={percent} icon="fa-percent" />
         <div class="field">

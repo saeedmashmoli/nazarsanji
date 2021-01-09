@@ -2,6 +2,7 @@
     import {question} from '../../stores';
     import { createEventDispatcher } from 'svelte';
     import {checkSmsFn} from '../../Api/commentApi';
+    import Title from './Title.svelte';
     import {smsId} from '../../stores'
     const dispatch = createEventDispatcher();
 
@@ -32,7 +33,7 @@
 
 <div class="question">
     <p>
-        {@html $question.title}
+        <Title object={$question} /> 
     </p>  
     <button on:click={getNextQuestion} class="button is-primary">
         شرکت در نظرسنجی

@@ -148,7 +148,7 @@
                                  <th style="width: 35%;" data-key="title">نام قالب</th>
                                  <th style="width: 15%;" data-key="tempNumber">کد سامانه پیامکی</th>
                                  <th style="width: 15%;" data-key="link">لینک</th>
-                                 <th style="width: 10%;" data-key="isDynamicLink">لینک داینامیک</th>
+                                 <th style="width: 10%;" data-key="isDynamicLink">ارسال لینک</th>
                                  <th style="width: 10%;">وضعیت</th>
                                  <th style="width: 10%;">ویرایش</th>
                               </tr>

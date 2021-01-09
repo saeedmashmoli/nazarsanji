@@ -38,7 +38,9 @@
              {#each questions as question , index}
                 <tr>
                    <td style="width: 5%;">{index + 1}</td>
-                   <td style="width: 25%;">{question.title.slice(0,20)}{question.title.length > 20 ? "..." : ""}</td>
+                   <td style="width: 25%;" title={question.title}>
+                     {question.title.slice(0,20)}{question.title.length > 20 ? "..." : ""}
+                  </td>
                    <td style="width: 15%;">{question.type.title}</td>
                    <td style="width: 15%;">{question.turn}</td>
                    <td style="width: 10%;">
