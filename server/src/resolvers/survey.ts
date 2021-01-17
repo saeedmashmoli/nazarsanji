@@ -48,7 +48,7 @@ export class SurveyResolver {
     @FieldResolver(() => [Question])
     async questions( 
       @Root() survey : Survey,
-    ){return await Question.find({where : {surveyId : survey.id}})}
+    ){return await Question.find({where : {surveyId : survey.id} })}
     
     @Mutation(() => SurveysResponse)
     @UseMiddleware(isAuth,isCan("show-survey" , "Survey"))

@@ -33,7 +33,6 @@ export class DashboardResolver {
             where q.typeId = 3
             order by c.id desc limit 12
         `)
-        console.log(cCount,sCount)
         return {status : true , comments , commentsCount : cCount[0].count , smsCount : sCount[0].count}
     }
 

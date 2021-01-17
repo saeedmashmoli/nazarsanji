@@ -56,6 +56,7 @@ import { DashboardResolver } from './resolvers/dashboard';
 
 // jobs
 import { deleteTokensJobs } from './jobs/deleteExpireTokens';
+import { ReportResolver } from './resolvers/report';
 
 
 
@@ -113,6 +114,7 @@ const main = async () => {
 
 
     const apolloServer = new ApolloServer({
+        playground :false,
         uploads : false,
         // subscriptions : {
         //     path:"/subscriptions",
@@ -138,7 +140,8 @@ const main = async () => {
                 LogResolver,
                 CommentResolver,
                 ConditionResolver,
-                DashboardResolver
+                DashboardResolver,
+                ReportResolver
             ],
             validate: false,
         }), 

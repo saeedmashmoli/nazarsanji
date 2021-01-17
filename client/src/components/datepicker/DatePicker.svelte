@@ -76,7 +76,7 @@
   </style>
   
   <div class="relative">
-    <input type="text" on:focus={onFocus} value={selected.toDateString()} />
+    <input class="control input" type="text" on:focus={onFocus} value={selected.toDateString()} />
     {#if showDatePicker}
       <div class="box">
         <div class="month-name">

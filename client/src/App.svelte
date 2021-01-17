@@ -17,15 +17,9 @@
 	import ShowPermission from './routes/permissions/ShowPermission.svelte';
 	import CreatePermission from './routes/permissions/CreatePermission.svelte';
 	import UpdatePermission from './routes/permissions/UpdatePermission.svelte';
-	// import ShowQuestion from './routes/questions/ShowQuestion.svelte';
-	// import CreateQuestion from './routes/questions/CreateQuestion.svelte';
-	// import UpdateQuestion from './routes/questions/UpdateQuestion.svelte';
 	import ShowSurvey from './routes/surveys/ShowSurvey.svelte';
 	import CreateSurvey from './routes/surveys/CreateSurvey.svelte';
 	import UpdateSurvey from './routes/surveys/UpdateSurvey.svelte';
-	// import ShowAnswer from './routes/answers/ShowAnswer.svelte';
-	// import CreateAnswer from './routes/answers/CreateAnswer.svelte';
-	// import UpdateAnswer from './routes/answers/UpdateAnswer.svelte';
 	import ShowUser from './routes/users/ShowUser.svelte';
 	import CreateUser from './routes/users/CreateUser.svelte';
 	import UpdateUser from './routes/users/UpdateUser.svelte';
@@ -45,9 +39,6 @@
 	import ShowTemplate from './routes/templates/ShowTemplate.svelte';
 	import CreateTemplate from './routes/templates/CreateTemplate.svelte';
 	import UpdateTemplate from './routes/templates/UpdateTemplate.svelte';
-	// import ShowCondition from './routes/conditions/ShowCondition.svelte';
-	// import CreateCondition from './routes/conditions/CreateCondition.svelte';
-	// import UpdateCondition from './routes/conditions/UpdateCondition.svelte';
 	import ShowComment from './routes/comments/ShowComment.svelte';
 	import ShowSms from './routes/sms/ShowSms.svelte';
 	import CreateSms from './routes/sms/CreateSms.svelte';
@@ -57,8 +48,10 @@
 	import Notfound from './routes/errors/Notfound.svelte';
 	import Error401 from './routes/errors/Error.svelte';
 	import ServerError from './routes/errors/ServerError.svelte';
+	import Test from './routes/Test.svelte';
 	import Nav from './components/Nav.svelte';
    	import SideBar from './components/SideBar.svelte';
+
 	let loading = true;
 	let deleteNav = false;
 	onMount(async() => {
@@ -135,6 +128,7 @@
 		"/comment/:id" : wrap({ asyncComponent : () => Comment , userData : { deleteNav : true } }),
 		"/home/:token" : wrap({ asyncComponent : () => Home , userData : { deleteNav : true } }) ,
 		"/forget-password" : wrap({ asyncComponent : () => ForgetPassword , userData : { deleteNav : true } }),
+		"/test" : wrap({ asyncComponent : () => Test , userData : { deleteNav : true } }),
 		"/error" : wrap({ asyncComponent : () => Error401 , userData : { deleteNav : true } }),
 		"/server-error" : wrap({ asyncComponent : () => ServerError , userData : { deleteNav : true } }),
 		"*" : wrap({ asyncComponent : () => Notfound , userData : { deleteNav : true } }),

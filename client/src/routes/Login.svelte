@@ -12,6 +12,7 @@
       isLoading = false;
       errorMessages = []
     }
+
     async function loginHanldler() {
       isLoading = true
       client.mutate({ 
@@ -19,6 +20,8 @@
           variables : { username, password }
       }).then(result => {
           const data = result.data.login;
+          localStorage.setItem("access-token", data.accessToken)
+          localStorage.setItem("refresh-token", data.refreshToken)
           if(data.status === false){
             errorMessages = data.errors
           }else{

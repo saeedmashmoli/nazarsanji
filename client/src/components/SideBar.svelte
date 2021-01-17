@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-    import { location ,  replace } from "svelte-spa-router";
+    import { replace , location } from "svelte-spa-router";
     import { showMenu , userPermissions  } from "../stores";
     $: document.documentElement.style.setProperty('--sidebarHeight', y + 'px')
     $: y = 0;
@@ -13,8 +13,9 @@
         }
         return false
     }
-    const changeLink = (link) => {
-        replace(link);
+    const changeLink = (href) => {
+        $showMenu = !$showMenu;
+        replace(href);
     }
     const setContext = () => {
         marginTop = document.getElementsByClassName("navbar")[0].offsetHeight;

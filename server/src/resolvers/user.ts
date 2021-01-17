@@ -36,6 +36,10 @@ class UserResponse {
     status!: Boolean;
     @Field(() => User , {nullable : true})
     user?: User;
+    @Field(() => String , {nullable : true})
+    accessToken?: string;
+    @Field(() => String , {nullable : true})
+    refreshToken?: string;
 }
 @ObjectType()
 class UsersResponse {
@@ -203,7 +207,7 @@ export class UserResolver {
     async login(
         @Arg('username') username:string,
         @Arg('password') password: string,
-        @Ctx() { res } : MyContext
+        // @Ctx() { res } : MyContext
     ) : Promise<UserResponse>{ 
         const user = await User.findOne({ where : {mobile : username }});
         let errors = [];
@@ -230,20 +234,16 @@ export class UserResolver {
         if(errors.length !== 0){
             return { status : false , errors }
         }
-
-        res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
-        res.cookie("refresh-token",{token : await createRefreshToken(user!)} , { httpOnly : true });
-        return {user ,status: true};
+        let accessToken = await createAccessToken(user!);
+        let refreshToken = await createRefreshToken(user!);
+        // res.cookie("access-token",{token : await createAccessToken(user!)} , { httpOnly : true });
+        // res.cookie("refresh-token",{token : await createRefreshToken(user!)} , { httpOnly : true });
+        return {user ,status: true , accessToken , refreshToken};
         
     }
 
     @Query(() => Boolean)
-    async logout(
-        @Ctx() { res} : MyContext
-    ) : Promise<Boolean>{
-
-        res.clearCookie("access-token")
-        res.clearCookie("refresh-token")
+    async logout() : Promise<Boolean>{
         return true;
     }
 }

@@ -19,7 +19,7 @@ const getEmptyRows = () => {
     return Array.from({ length: 42 }).map(() => []);
 };
 const getMonthDays = (index, year) => {
-    return index !== 1 ? monthDays[index] : isLeapYear(year) ? 29 : 28;
+    return index !== 11 ? monthDays[index] : isLeapYear(year) ? 30 : 29;
 };
 
 const getMonthStats = (monthIndex, year) => {

@@ -16,8 +16,9 @@
         }).then(result => {
             if(result.data.logout === true){
                 $user = {}
-                $userPermissions = []
-                push('/')
+                $userPermissions = [];
+                localStorage.clear()
+                push('/');
             }
           }
         )

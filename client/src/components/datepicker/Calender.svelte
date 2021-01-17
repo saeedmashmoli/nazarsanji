@@ -34,8 +34,13 @@
     .container {
       margin-top: 8px;
       padding: 6px;
-      width: 370px;
+      width: 100%;
     }
+    /* @media only screen and (max-width: 767px) {
+      .container{
+        width: 100%;
+      }
+    } */
     .row {
       display: flex;
       margin: 2px 6px;
@@ -44,7 +49,7 @@
   
     .cell {
       display: inline-block;
-      width: 40px;
+      width: 13%;
       height: 20px;
       text-align: center;
       padding: 4px;

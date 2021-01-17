@@ -220,6 +220,35 @@ export class SmsInput {
     templateId?: number;
 }
 @InputType()
+export class CommentReportInput {
+    @Field(() => Int,{nullable : true})
+    surveyId? : number;
+    @Field(() => Int,{nullable : true})
+    questionId? : number;
+    @Field({nullable : true})
+    beginDate?: string;
+    @Field({nullable : true})
+    beginTime?: string;
+    @Field({nullable : true})
+    endDate?: string;
+    @Field({nullable : true})
+    endTime?: string;
+}
+@InputType()
+export class SmsReportInput {
+    @Field(() => Int,{nullable : true})
+    surveyId? : number;
+
+    @Field({nullable : true})
+    beginDate?: string;
+    @Field({nullable : true})
+    beginTime?: string;
+    @Field({nullable : true})
+    endDate?: string;
+    @Field({nullable : true})
+    endTime?: string;
+}
+@InputType()
 export class SmsSearchInput {
     @Field({nullable : true})
     beginDate?: string;

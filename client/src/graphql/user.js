@@ -147,6 +147,8 @@ export const loginMutation = gql `
     mutation login($username : String!, $password : String!) {
         login(password : $password, username : $username) {
             status
+            accessToken
+            refreshToken
             user {
                 ...UserFragment
             }
@@ -166,10 +168,15 @@ export const LogoutQuery = gql `
 export const MeQuery = gql `
     query Me{
         me{
-            ...UserFragment
+            name
+            mobile
+            role {
+                permissions {
+                    title
+                }
+            }
         }
     }
-    ${UserFragment.user}
 `
 
 export const changePasswordRequest = gql `

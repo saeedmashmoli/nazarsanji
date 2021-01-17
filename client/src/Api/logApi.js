@@ -18,7 +18,8 @@ export const getLogsFn = async(input, page, limit) => {
             ...input,
             page,
             limit
-        }
+        },
+
     })
     return response.data.getLogs
 }

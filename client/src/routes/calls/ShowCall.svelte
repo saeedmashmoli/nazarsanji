@@ -93,11 +93,7 @@
    async function changePage(page){
       const data = `show?page=${page ? page : 1}${beginDate ? "&beginDate="+beginDate : ""}${beginTime ? "&beginTime="+beginTime : ""}${endDate ? "&endDate="+endDate : ""}${endTime ? "&endTime="+endTime : ""}${name ? "&name="+name : ""}${mobile ? "&mobile="+mobile : ""}${phone ? "&phone="+phone : ""}${callCode ? "&callCode="+callCode : ""}${month ? "&month="+month : ""}${year ? "&year="+year : ""}${issue ? "&issue="+issue : ""}${minorIssue ? "&minorIssue="+minorIssue : ""}${exactIssue ? "&exactIssue="+exactIssue : ""}${status ? "&status="+status : ""}`;
       replace("/calls/show-call/" + data) ;
-      setCalls();
-      currentPage = page | 1;
-      if(!page){
-         isLoading = true
-      };
+      if(page) {currentPage = page}else{isLoading = true};
       setCalls();
       setTimeout(() => {
          isLoading = false

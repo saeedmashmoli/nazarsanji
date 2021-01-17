@@ -13,7 +13,6 @@
     export let flag = false;
     export let isLoading = false;  
     const createOrEditAnswer = async () => {
-        console.log(flag)
         isLoading = true;
         const data = await createOrUpdateAnswerFn({title ,status ,link ,questionId ,flag , percent , image} ,id );
         if(data.status == true){
