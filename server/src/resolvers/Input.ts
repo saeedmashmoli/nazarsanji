@@ -72,6 +72,8 @@ export class SurveyInput {
 @InputType()
 export class SurveySearchInput {
     @Field( () => Int , {nullable : true})
+    surveyId?: number;
+    @Field( () => Int , {nullable : true})
     questionId?: number;
     @Field( () => Int , {nullable : true})
     smsId?: number;
@@ -436,6 +438,14 @@ export class LogSearchInput {
 
 @InputType()
 export class CommentSearchInput {
+    @Field({nullable : true})
+    beginDate?: string;
+    @Field({nullable : true})
+    beginTime?: string;
+    @Field({nullable : true})
+    endDate?: string;
+    @Field({nullable : true})
+    endTime?: string;
     @Field(() => Int,{nullable : true})
     questionId?: number
     @Field(() => Int,{nullable : true})
@@ -447,11 +457,15 @@ export class CommentSearchInput {
     @Field(() => Int, {nullable : true})
     typeId?: number;
     @Field(() => Int, {nullable : true})
+    surveyId?: number;
+    @Field(() => Int, {nullable : true})
     callId?: number;
     @Field({nullable : true})
     status?: boolean;
     @Field({nullable : true})
     text?: string;
+    @Field({nullable : true})
+    mobile?: string;
 }
 @InputType()
 export class CommentInput {

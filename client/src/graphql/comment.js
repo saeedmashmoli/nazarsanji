@@ -142,6 +142,12 @@ export const activeOrDeactiveCommentMutation = gql `
 `
 export const getCommentsMutation = gql `
     mutation GetComments(
+        $beginDate : String,
+        $endDate : String,
+        $beginTime : String,
+        $endTime : String,
+        $mobile : String,
+        $surveyId: Int,
         $customerId: Int,
         $callId: Int,
         $smsId: Int
@@ -162,7 +168,13 @@ export const getCommentsMutation = gql `
                 answerId : $answerId,
                 questionId : $questionId,
                 typeId : $typeId,
-                text : $text
+                text : $text,
+                surveyId : $surveyId,
+                beginDate : $beginDate,
+                endDate : $endDate,
+                beginTime : $beginTime,
+                endTime : $endTime,
+                mobile : $mobile
             }, 
             page : $page, 
             limit : $limit

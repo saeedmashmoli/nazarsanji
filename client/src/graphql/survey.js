@@ -40,6 +40,7 @@ export const activeOrDeactiveSurveyMutation = gql `
 `
 export const getSurveysMutation = gql `
     mutation GetSurveys(
+        $surveyId : Int,
         $questionId : Int,
         $smsId : Int,
         $title : String, 
@@ -49,6 +50,7 @@ export const getSurveysMutation = gql `
     ){
         getSurveys(
             input : {
+                surveyId : $surveyId,
                 title : $title, 
                 status : $status,
                 questionId : $questionId,

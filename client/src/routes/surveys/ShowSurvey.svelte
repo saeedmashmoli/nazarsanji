@@ -13,11 +13,12 @@
    export let limit = 10;
    export let last_page;
    export let total;
+   export let id;
    export let title;
    export let status;
-   export let questionIds;
-   export let surveyIds;
-   export let smsIds;
+   export let questionId;
+   export let surveyId;
+   export let smsId;
    export let surveys = [];
    export let isLoading = false;
    $: number = (currentPage - 1) * limit;
@@ -26,15 +27,18 @@
       const data = qs.parse($querystring)
       currentPage = Number(data.page)
       title = data.title;
-      smsIds = Number(data.smsIds);
-      surveyIds = Number(data.surveyIds);
-      questionIds = Number(data.questionIds);
+      smsId = Number(data.smsId);
+      surveyId = Number(data.surveyId);
+      questionId = Number(data.questionId);
       status = Boolean(data.status);
       setSurveys()
 
    })
    const setSurveys = async () => {
       const input = {
+         surveyId,
+         questionId,
+         smsId,
          status, 
          title
       }
@@ -51,7 +55,7 @@
       }
    }
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}${smsIds ? "&smsIds="+smsIds : ""}${questionIds ? "&questionIds="+questionIds : ""}${surveyIds ? "&surveyIds="+surveyIds : ""}${status ? "&status="+status : ""}${title ? "&title="+title : ""}`;
+      const data = `show?page=${page ? page : 1}${smsId ? "&smsId="+smsId : ""}${questionId ? "&questionId="+questionId : ""}${surveyId ? "&surveyId="+surveyId : ""}${status ? "&status="+status : ""}${title ? "&title="+title : ""}`;
       push("/surveys/show-survey/" + data) ;
       if(page) {currentPage = page}else{isLoading = true};
       setSurveys();
@@ -189,6 +193,9 @@
             </div> 
             <div value=1>
                <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
+                  <Input label="شناسه نظرسنجی" type="number" placeholder="شناسه نظرسنجی" bind:title={surveyId} icon="fa-heading" />
+                  <Input label="شناسه پیامک" type="number" placeholder="شناسه پیامک" bind:title={smsId} icon="fa-heading" />
+                  <Input label="شناسه سوال" type="number" placeholder="شناسه سوال" bind:title={questionId} icon="fa-heading" />
                   <Input label="عنوان" type="text" placeholder="عنوان" bind:title={title} icon="fa-heading" />
                   <div style="display: block;" class="field">
                      <div class="d-inlineblock"> 

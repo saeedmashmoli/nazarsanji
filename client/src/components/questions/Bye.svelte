@@ -42,12 +42,12 @@
     <p>
         <Title object={$question} /> 
     </p>  
-    <button on:click={getCloseBrowser} class="button is-primary selected">
+    <button on:click={getCloseBrowser} on:dblclick={getCloseBrowser} class="button is-primary selected">
         بستن
     </button>
     <div class="buttons-div">
         {#if $showBackButton && $question.turn !== 1}
-            <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
+            <button on:click={getPreviousQuestion} on:dblclick={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>
 </div>

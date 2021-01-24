@@ -10,7 +10,7 @@ import { MyContext } from '../types';
 import { Question } from '../entities/Question';
 import { Sms } from '../entities/Sms';
 import { Answer } from '../entities/Answer';
-import { createLog } from '../constants/functions';
+import { convertJalaaliToGregorianDate, createLog } from '../constants/functions';
 import { Call } from '../entities/Call';
 import { Parameter } from '../entities/Parameter';
 
@@ -111,19 +111,26 @@ export class CommentResolver {
         @Arg('page', () => Int,{nullable : true}) page: number,
         @Arg('input') input: CommentSearchInput,
     ) : Promise<CommentsResponse>{
-        const { status , text , questionId , smsId , callId , customerId , answerId , typeId } = input;
+        const { status , text , questionId , smsId , surveyId , customerId , callId , mobile , answerId , typeId , endDate,beginDate,beginTime ,endTime} = input;
+        let bDate = await convertJalaaliToGregorianDate(beginDate + (beginTime ? " "+beginTime : " 00:00:00") as string);
+        let eDate = await convertJalaaliToGregorianDate(endDate + (endTime ? " "+endTime : " 23:59:59") as string);
         const currentPage = page || 1;
         const take = limit || 10;
         const skip = (currentPage - 1) * take;
         const tableName = "`call`";
         const query = `from comment as s 
-        ${callId ? `left join sms as a on a.id = s.smsId ` : ""}
-        ${customerId ? `left join sms as a on a.id = s.smsId left join ${tableName} as c on c.id = s.callId ` : ""}
+        left join sms as a on a.id = s.smsId
+        left join ${tableName} as c on c.id = a.callId 
+        ${customerId || mobile ? ` left join customer as cu on cu.id = c.customerId ` : ""}
         ${typeId ? `left join question as q on q.id = s.questionId ` : ""}
         where s.status = ${status ? status : "s.status"} 
-        ${callId ? ` and a.callId = ${callId} ` : ""}
+        ${beginDate ? `and s.createdAt >= '${bDate}' ` : ""}
+        ${endDate ? `and s.createdAt <= '${eDate}' ` : ""}
         ${customerId ? ` and c.customerId = ${customerId} ` : ""}
+        ${callId ? ` and c.id = ${callId} ` : ""}
+        ${mobile ? ` and cu.mobile Like '%${mobile}%' ` : ""}
         ${questionId ? ` and s.questionId = ${questionId} ` : ""}
+        ${surveyId ? ` and a.surveyId = ${surveyId} ` : ""}
         ${smsId ? ` and s.smsId = ${smsId} ` : ""}
         ${typeId ? ` and q.typeId = ${typeId} ` : ""}
         ${answerId ? ` and s.answerId = ${answerId} ` : ""}
@@ -162,11 +169,11 @@ export class CommentResolver {
         }else{
             await Comment.create({text , questionId , smsId }).save();
         }
-        // const question = 
+        const question = 
         await Question.findOne({id : questionId});
-        // if(question && question.isUsedOk){
-        //     await Sms.update({id :smsId} , {used : true})
-        // }
+        if(question && question.isUsedOk){
+            await Sms.update({id :smsId} , {used : true})
+        }
         return await { status: true};
     }
     @Mutation(() => Boolean)

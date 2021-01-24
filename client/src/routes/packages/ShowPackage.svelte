@@ -180,7 +180,7 @@
             </div> 
             <div value=1>
                <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
-                  <Input label="شرح" type="text" placeholder="شرح؟" bind:title={title} icon="fa-heading" />
+                  <Input label="عنوان" type="text" placeholder="عنوان؟" bind:title={title} icon="fa-heading" />
                   <Input label="شناسه تماس" type="number" placeholder="شناسه سوال؟" bind:title={callId} icon="fa-phone" />
                   <div style="display: block;" class="field">
                      <div class="d-inlineblock"> 

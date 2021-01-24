@@ -11,6 +11,11 @@ export const getSurveysForReportsQuery = gql `
                 title
                 typeId
                 status
+                answers {
+                    id
+                    title
+                    status
+                }
             }
         }
     }

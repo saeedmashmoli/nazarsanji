@@ -35,7 +35,7 @@
     <p>
         <Title object={$question} /> 
     </p>  
-    <button on:click={getNextQuestion} class="button is-primary">
+    <button on:click={getNextQuestion} on:dblclick={getNextQuestion} class="button is-primary">
         شرکت در نظرسنجی
     </button>
 </div>

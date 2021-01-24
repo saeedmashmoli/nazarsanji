@@ -1,21 +1,38 @@
 <script>
    import { push, replace , querystring  } from 'svelte-spa-router';
    import Modal from 'svelte-simple-modal';
-   import {  notLoading , changeTabs , actveOrDeactiveFn , updateArrayFn } from '../../utilis/functions';
+   import {  
+      notLoading, 
+      changeTabs,
+      actveOrDeactiveFn, 
+      updateArrayFn,
+      flatpickrOptions,
+      flatpickrTimeOptions
+   } from '../../utilis/functions';
    import { activeOrDeaciveCommentFn , getCommentsFn} from '../../Api/commentApi';
    import { userPermissions , loading } from '../../stores';
    import Paginate from '../../components/Paginate.svelte';
    import Toast from '../../components/Toast.svelte';
    import NoData from '../../components/NoData.svelte';
    import Input from '../../components/Input.svelte';
+   import Flatpickr from 'svelte-flatpickr';
+   import 'flatpickr/dist/flatpickr.css';
+   import 'flatpickr/dist/themes/light.css';
    import { onMount } from 'svelte';
    import qs from 'qs';
    import Content from './Content.svelte';
+   import {getSurveysForReportsFn} from '../../Api/reportApi';
    export let currentPage = 1;
    export let limit = 10;
    export let last_page;
    export let total;
+   export let beginDate;
+   export let endDate;
+   export let beginTime;
+   export let endTime;
+   export let mobile;
    export let questionId;
+   export let surveyId;
    export let smsId;
    export let callId;
    export let customerId;
@@ -24,20 +41,32 @@
    export let status;
    export let text;
    export let comments = [];
+   export let surveys = [];
+   export let questions = [];
+   export let answers = [];
    export let isLoading = false;
    $: number = (currentPage - 1) * limit;
    onMount( async () => {
       $loading = true;
+      surveys = await getSurveysForReportsFn();
       const data = qs.parse($querystring)
       currentPage = Number(data.page)
       text = data.title;
       customerId = Number(data.customerId);
-      smsId = Number(data.smsId);
       questionId = Number(data.questionId);
+      surveyId = Number(data.surveyId);
+      smsId = Number(data.smsId);
       callId = Number(data.callId);
       answerId = Number(data.answerId);
       typeId = Number(data.typeId);
       status = Boolean(data.status);
+      beginTime = data.beginTime;
+      endTime = data.endTime;
+      endDate = data.endDate;
+      beginDate = data.beginDate;
+      mobile = data.mobile;
+      questions = surveyId > 0 ? surveys.filter(s => s.id === surveyId)[0].questions.filter(q => (q.typeId === 1 || q.typeId === 2 || q.typeId === 4)) : [];
+      answers = questionId > 0 ?  questions.filter(q => q.id === questionId)[0].answers : [];
       setComments()
    })
    const setComments = async () => {
@@ -46,11 +75,17 @@
          text,
          customerId,
          smsId,
+         surveyId : surveyId !== "" ? surveyId : undefined,
          customerId,
-         questionId,
+         questionId : questionId !== "" ? questionId : undefined ,
          callId,
-         answerId,
-         typeId
+         answerId : answerId !== "" ? answerId : undefined,
+         typeId,
+         beginDate,
+         endDate,
+         beginTime,
+         endTime,
+         mobile
       }
       const data = await getCommentsFn(input ,currentPage , limit);
       if(data.status){
@@ -65,7 +100,7 @@
       }
    }
    async function changePage(page){
-      const data = `show?page=${page ? page : 1}${smsId ? "&smsId="+smsId : ""}${typeId ? "&typeId="+typeId : ""}${callId ? "&callId="+callId : ""}${answerId ? "&answerId="+answerId : ""}${customerId ? "&customerId="+customerId : ""}${questionId ? "&questionId="+questionId : ""}${status ? "&status="+status : ""}${text ? "&text="+text : ""}`;
+      const data = `show?page=${page ? page : 1}${beginDate ? "&beginDate="+beginDate : ""}${beginTime ? "&beginTime="+beginTime : ""}${endDate ? "&endDate="+endDate : ""}${endTime ? "&endTime="+endTime : ""}${mobile ? "&mobile="+mobile : ""}${smsId ? "&smsId="+smsId : ""}${typeId ? "&typeId="+typeId : ""}${callId ? "&callId="+callId : ""}${answerId ? "&answerId="+answerId : ""}${customerId ? "&customerId="+customerId : ""}${surveyId ? "&surveyId="+surveyId : ""}${questionId ? "&questionId="+questionId : ""}${status ? "&status="+status : ""}${text ? "&text="+text : ""}`;
       push("/comments/show-comment/" + data) ;
       if(page) {currentPage = page}else{isLoading = true};
       setComments();
@@ -74,6 +109,12 @@
          changeTabs(0)
       },500)
    };
+   const changeQuestions = () => {
+      questions = surveys.filter(s => s.id === surveyId)[0].questions.filter(q => (q.typeId === 1 || q.typeId === 2 || q.typeId === 4));
+   }
+   const changeAnswers = () => {
+      answers = questions.filter(q => q.id === questionId)[0].answers;
+   }
    const activeOrDeactiveHandler = async(commentId) => {
       let comment = await comments.filter(s => s.id === commentId)[0]
       comment.status = !comment.status
@@ -93,6 +134,12 @@
       .buttons{
          direction: rtl;
       }
+      .flatpickr{
+         width: 100% !important;
+      }
+   }
+   .flatpickr{
+      width: 49% ;
    }
    .tabs {
     display: flex;
@@ -109,6 +156,10 @@
 
    .tab-content {
       padding: 1em;
+   }
+   .select {
+       width: 100%;
+       display: block;
    }
 </style>
 <svelte:head>
@@ -204,7 +255,87 @@
             <div value=1>
                <div style="margin: auto;" class="back-eee box column p-3 is-6-desktop is-offset-6-desktop is-9-tablet is-offset-3-tablet is-12-mobile">
                   <Input label="شرح" type="text" placeholder="شرح کامنت" bind:title={text} icon="fa-heading" />
-                  <Input label="شناسه تماس" type="number" placeholder="شناسه تماس؟" bind:title={questionId} icon="fa-phone" />
+                  <Input label="شناسه تماس" type="number" placeholder="شناسه تماس؟" bind:title={callId} icon="fa-phone" />
+                  <Input label="موبایل مشتری" type="text" placeholder=" موبایل مشتری؟" bind:title={mobile} icon="fa-mobile" />
+                  <div style="display:block" class="field">
+                     <Flatpickr options="{ flatpickrOptions }" element="#beginDate">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="beginDate">
+                              <label for class="label">از تاریخ</label>
+                              <input autocomplete="off" class="input" bind:value={beginDate} type="text" placeholder="از تاریخ..." data-input>
+                           </div>
+                     </Flatpickr>
+                     <Flatpickr options="{ flatpickrTimeOptions }" element="#beginTime">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="beginTime">
+                              <label for class="label">از ساعت</label>
+                              <input autocomplete="off" class="input" type="text" bind:value={beginTime}  placeholder="از ساعت..." data-input>
+                           </div>
+                     </Flatpickr>
+                  </div>
+                  <div style="display:block" class="field">
+                     <Flatpickr options="{ flatpickrOptions }" element="#endDate">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="endDate">
+                              <label for class="label">تا تاریخ</label>
+                              <input autocomplete="off" class="input" bind:value={endDate} type="text" placeholder="تا تاریخ..." data-input>
+                           </div>
+                     </Flatpickr>
+                     <Flatpickr options="{ flatpickrTimeOptions }" element="#endTime">
+                           <div style="display:inline-block;width:49%" class="control flatpickr my-picker" id="endTime">
+                              <label for class="label">تا ساعت</label>
+                              <input autocomplete="off" class="input" type="text" bind:value={endTime}  placeholder="تا ساعت..." data-input>
+                           </div>
+                     </Flatpickr>
+                  </div>
+                  <div style="display:block" class="field">
+                     <label for="survey" class="label">نظرسنجی</label>
+                     <div style="display:block" class="control has-icons-left">
+                         <div class="select">
+                           <!-- svelte-ignore a11y-no-onchange -->
+                           <select style="width:100%" bind:value={surveyId} on:change={changeQuestions}>
+                              <option value="">انتخاب کنید</option>
+                              {#each surveys as survey}
+                                 <option title={survey.title} value={survey.id} selected={surveyId === survey.id}>{survey.title}</option>
+                              {/each}
+                           </select>
+                         </div>
+                         <div class="icon is-small is-left">
+                             <i class="fas fa-poll"></i>
+                         </div>
+                     </div>
+                  </div>
+                  <div style="display:block" class="field">
+                     <label for="question" class="label">سوال</label>
+                     <div style="display:block" class="control has-icons-left">
+                        <div class="select">
+                          <!-- svelte-ignore a11y-no-onchange -->
+                           <select style="width:100%" bind:value={questionId} on:change={changeAnswers}>
+                              <option value="">انتخاب کنید</option>
+                              {#each questions as question}
+                                  <option title={question.title} value={question.id} selected={questionId === question.id}>{question.title}</option>
+                              {/each}
+                           </select>
+                        </div>
+                        <div class="icon is-small is-left">
+                          <i class="fas fa-question"></i>
+                        </div>
+                     </div>
+                  </div>
+                  <div style="display:block" class="field">
+                     <label for="answer" class="label">گزینه</label>
+                     <div style="display:block" class="control has-icons-left">
+                        <div class="select">
+                          <!-- svelte-ignore a11y-no-onchange -->
+                           <select style="width:100%" bind:value={answerId}>
+                              <option value="">انتخاب کنید</option>
+                              {#each answers as answer}
+                                  <option title={answer.title} value={answer.id} selected={answerId === answer.id}>{answer.title}</option>
+                              {/each}
+                           </select>
+                        </div>
+                        <div class="icon is-small is-left">
+                          <i class="fas fa-question"></i>
+                        </div>
+                     </div>
+                  </div>
                   <div style="display: block;" class="field">
                      <div class="d-inlineblock"> 
                         <div class="d-inlineblock status" >

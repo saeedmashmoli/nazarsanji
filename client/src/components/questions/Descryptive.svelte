@@ -65,9 +65,9 @@
     </p>
     <textarea placeholder="توضیحات خود را بنویسید..." class="input" bind:value={text}></textarea>
     <div class="buttons-div">
-        <button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
+        <button on:click={getNextQuestion} on:dblclick={getNextQuestion} class="button is-success left-button">بعدی »</button>
         {#if $showBackButton && $question.turn !== 1}
-            <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
+            <button on:click={getPreviousQuestion} on:dblclick={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>
 </div>

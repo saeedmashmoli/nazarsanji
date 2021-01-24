@@ -260,15 +260,15 @@
                 </div>
             {/each}
         </div>
-        <button class="spin" on:click={spinHandler}><i class="fas fa-hand-pointer"></i></button>
+        <button class="spin" on:click={spinHandler} on:dblclick={spinHandler}><i class="fas fa-hand-pointer"></i></button>
     </div>
     <p class="wheel-result-title">
         {selectedItem ? `تبریک شما برنده ${selectedItem.title} شدید.` : ""}
     </p>
 	<div class="buttons-div">
-		<button on:click={getNextQuestion} class="button is-success left-button">بعدی »</button>
+		<button on:click={getNextQuestion} on:dblclick={getNextQuestion} class="button is-success left-button">بعدی »</button>
         {#if $showBackButton && $question.turn !== 1}
-            <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
+            <button on:click={getPreviousQuestion} on:dblclick={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>
 </div>

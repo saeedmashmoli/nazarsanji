@@ -57,7 +57,7 @@ export class SurveyResolver {
         @Arg('page', () => Int,{nullable : true}) page: number,
         @Arg('input') input: SurveySearchInput,
     ) : Promise<SurveysResponse>{
-        const { status , title , questionId , smsId } = input;
+        const { status , title , questionId , smsId ,surveyId } = input;
         const currentPage = page || 1;
         const take = limit || 10;
         const skip = (currentPage - 1) * take;
@@ -66,6 +66,7 @@ export class SurveyResolver {
         ${questionId ? `left join question as q on q.surveyId = s.id` : ""}
         ${smsId ? `left join sms as a on a.surveyId = s.id` : ""}
         where s.status = ${status ? status : "s.status"} 
+        ${surveyId ? `and s.id = ${surveyId}` : ""}
         ${smsId ? `and a.id = ${smsId}` : ""}
         ${questionId ? `and q.id = ${questionId}` : ""}
         ${title ? ` and s.title LIKE '%${title}%' `: ""}

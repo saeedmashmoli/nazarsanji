@@ -64,7 +64,7 @@
         <b>{$question.shouldBe ? "*" : ""}</b>
     </p>
     {#each $question.answers as answer}
-        <button on:click={getNextQuestion(answer.id)} class="button question-button">
+        <button on:click={getNextQuestion(answer.id)} on:dblclick={getNextQuestion(answer.id)} class="button question-button">
             {#if answer.title.includes("[callTime]")}
                 {answer.title.replace("[callTime]",$call.callTime * answer.percent / 100)}
             {:else}
@@ -80,7 +80,7 @@
     {/each}
     <div class="buttons-div">
         {#if $showBackButton && $question.turn !== 1}
-            <button on:click={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
+            <button on:click={getPreviousQuestion} on:dblclick={getPreviousQuestion} class="button is-danger right-button">« بازگشت</button>
         {/if}
     </div>
 </div>
